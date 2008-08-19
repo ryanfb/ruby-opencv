@@ -1,0 +1,191 @@
+--- !ruby/object:Gem::Specification 
+name: opencv
+version: !ruby/object:Gem::Version 
+  version: 0.0.6
+platform: ruby
+authors: 
+- Masakazu Yonekura
+- lsxi
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2008-06-29 00:00:00 +09:00
+default_executable: 
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: hoe
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: "0"
+    version: 
+- !ruby/object:Gem::Dependency 
+  name: hoe
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.6.0
+    version: 
+description: OpenCV wrapper for Ruby
+email: 
+- masakazu.yonekura@gmail.com
+executables: []
+
+extensions: 
+- ext/extconf.rb
+extra_rdoc_files: 
+- History.txt
+- Manifest.txt
+- README.txt
+- License.txt
+files: 
+- History.txt
+- Manifest.txt
+- README.txt
+- License.txt
+- Rakefile
+- examples/convexhull.rb
+- examples/face_detect.rb
+- examples/houghcircle.rb
+- examples/inpaint.png
+- examples/inpaint.rb
+- examples/paint.rb
+- examples/snake.rb
+- examples/stuff.jpg
+- ext/curve.cpp
+- ext/curve.h
+- ext/cvavgcomp.cpp
+- ext/cvavgcomp.h
+- ext/cvbox2d.cpp
+- ext/cvbox2d.h
+- ext/cvcapture.cpp
+- ext/cvcapture.h
+- ext/cvchain.cpp
+- ext/cvchain.h
+- ext/cvchaincode.cpp
+- ext/cvchaincode.h
+- ext/cvcircle32f.cpp
+- ext/cvcircle32f.h
+- ext/cvcondensation.cpp
+- ext/cvcondensation.h
+- ext/cvconnectedcomp.cpp
+- ext/cvconnectedcomp.h
+- ext/cvcontour.cpp
+- ext/cvcontour.h
+- ext/cvcontourtree.cpp
+- ext/cvcontourtree.h
+- ext/cvconvexitydefect.cpp
+- ext/cvconvexitydefect.h
+- ext/cverror.cpp
+- ext/cverror.h
+- ext/cvfont.cpp
+- ext/cvfont.h
+- ext/cvhaarclassifiercascade.cpp
+- ext/cvhaarclassifiercascade.h
+- ext/cvhistogram.cpp
+- ext/cvhistogram.h
+- ext/cvindex.cpp
+- ext/cvindex.h
+- ext/cvline.cpp
+- ext/cvline.h
+- ext/cvmat.cpp
+- ext/cvmat.h
+- ext/cvmatnd.cpp
+- ext/cvmatnd.h
+- ext/cvmemstorage.cpp
+- ext/cvmemstorage.h
+- ext/cvmoments.cpp
+- ext/cvmoments.h
+- ext/cvpoint.cpp
+- ext/cvpoint.h
+- ext/cvpoint2d32f.cpp
+- ext/cvpoint2d32f.h
+- ext/cvpoint3d32f.cpp
+- ext/cvpoint3d32f.h
+- ext/cvrect.cpp
+- ext/cvrect.h
+- ext/cvscalar.cpp
+- ext/cvscalar.h
+- ext/cvseq.cpp
+- ext/cvseq.h
+- ext/cvset.cpp
+- ext/cvset.h
+- ext/cvsize.cpp
+- ext/cvsize.h
+- ext/cvsize2d32f.cpp
+- ext/cvsize2d32f.h
+- ext/cvslice.cpp
+- ext/cvslice.h
+- ext/cvsparsemat.cpp
+- ext/cvsparsemat.h
+- ext/cvtermcriteria.cpp
+- ext/cvtermcriteria.h
+- ext/cvtwopoints.cpp
+- ext/cvtwopoints.h
+- ext/cvvector.cpp
+- ext/cvvector.h
+- ext/cvvideowriter.cpp
+- ext/cvvideowriter.h
+- ext/extconf.rb
+- ext/gui.cpp
+- ext/gui.h
+- ext/iplconvkernel.cpp
+- ext/iplconvkernel.h
+- ext/iplimage.cpp
+- ext/iplimage.h
+- ext/mouseevent.cpp
+- ext/mouseevent.h
+- ext/opencv.cpp
+- ext/opencv.h
+- ext/point3dset.cpp
+- ext/point3dset.h
+- ext/pointset.cpp
+- ext/pointset.h
+- ext/trackbar.cpp
+- ext/trackbar.h
+- ext/window.cpp
+- ext/window.h
+- images/CvMat_sobel.png
+- images/CvMat_sub_rect.png
+- images/CvSeq_relationmap.png
+- images/face_detect_from_lena.jpg
+- lib/opencv.rb
+- lib/version.rb
+- setup/setup.cygwin.rb
+- setup/setup.mingw.rb
+- setup/setup.mswin32.rb
+has_rdoc: true
+homepage: http://blueruby.mydns.jp/opencv
+post_install_message: 
+rdoc_options: 
+- --main
+- README.txt
+require_paths: 
+- lib
+- ext
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: opencv
+rubygems_version: 1.0.1
+signing_key: 
+specification_version: 2
+summary: OpenCV wrapper for Ruby.
+test_files: 
+- test/test_opencv.rb

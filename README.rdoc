@@ -1,0 +1,94 @@
+= opencv
+
+The initial Open Computer Vision library was originally developed by Intel 
+Corporation. Recent development has been headed by Willow Garage, Inc.
+
+Current OpenCV Sourceforge Project
+http://opencv.willowgarage.com/wiki/
+
+Earlier OpenCV Sourceforge Project
+http://sourceforge.net/projects/opencvlibrary/
+
+Ruby/OpenCV Author's Web Page
+http://blueruby.mydns.jp/opencv
+
+== DESCRIPTION:
+
+OpenCV Ruby Wrapper
+
+== FEATURES/PROBLEMS:
+
+* First release rubygems, Some OpenCV functions wrapped.
+
+== DEPENDENCIES:
+
+This gem relies on the OpenCV project. There are a number of ways to install
+the library. Building the latest from source is preferred on OSX:
+  
+  http://opencv.willowgarage.com/wiki/Mac_OS_X_OpenCV_Port
+
+This also contains the data for the default cascades.
+
+== INSTALLATION:
+
+You can install by cloning this repository:
+
+  git clone git://github.com/jeffrafter/ruby-opencv.git
+  
+Then inside the ruby-opencv folder run:
+
+  ruby ext/extconf.rb
+  make
+  sudo make install
+
+== SYNOPSIS:
+
+Once installed it is possible to show images via GUI Window.
+
+  require "rubygems"
+  gem "opencv"
+  require "opencv"
+
+  image = OpenCV::IplImage.load("sample.jpg")
+  window = OpenCV::GUI::Window.new("preview")
+  window.show(image)
+  OpenCV::GUI::wait_key
+
+For more samples, see examples/*.rb
+
+== FACE DETECTION:
+
+Here is a sample face detection program that doesn't rely on the GUI components.
+In order for this to work you must copy the OpenCV haarcascades data into a 
+subfolder called data.
+
+  #!/usr/bin/env ruby
+  require "rubygems"
+  require "opencv"
+
+  if ARGV.length < 2
+    puts "Usage: your_app_name source dest"
+    exit
+  end
+ 
+  data = "./data/haarcascades/haarcascade_frontalface_alt.xml"
+  detector = OpenCV::CvHaarClassifierCascade::load(data)
+  image = OpenCV::IplImage.load(ARGV[0])
+  detector.detect_objects(image) do |region|
+    color = OpenCV::CvColor::Blue
+    image.rectangle! region.top_left, region.bottom_right, :color => color
+  end
+  image.save_image(ARGV[1])
+
+== REQUIREMENTS:
+
+* OpenCV 2.0 or later.
+  http://opencv.willowgarage.com/wiki/
+* ffcall (optional)
+  http://www.haible.de/bruno/packages-ffcall.html
+
+== LICENSE:
+
+The BSD Liscense
+
+see LICENSE.txt

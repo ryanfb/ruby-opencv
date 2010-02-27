@@ -88,7 +88,7 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
   rb_scan_args(argc, argv, "22", &width, &height, &depth, &channel);
   int _depth = argc < 3 ? CV_8U : FIX2INT(depth);
   int _channel = argc < 4 ? 3 : FIX2INT(channel);
-  DATA_PTR(self) = cvCreateImage(cvSize(FIX2INT(width), FIX2INT(height)), cvCvToIplDepth(_depth), _channel);
+  DATA_PTR(self) = cvCreateImage(cvSize(FIX2INT(width), FIX2INT(height)), cvIplDepth(_depth), _channel);
   return self;
 }
 
@@ -225,13 +225,13 @@ rb_reset_coi(VALUE self)
 VALUE
 new_object(int width, int height, int type)
 {
-  return OPENCV_OBJECT(rb_klass, cvCreateImage(cvSize(width, height), cvCvToIplDepth(type), CV_MAT_CN(type)));
+  return OPENCV_OBJECT(rb_klass, cvCreateImage(cvSize(width, height), cvIplDepth(type), CV_MAT_CN(type)));
 }
 
 VALUE
 new_object(CvSize size, int type)
 {
-  return OPENCV_OBJECT(rb_klass, cvCreateImage(size, cvCvToIplDepth(type), CV_MAT_CN(type)));
+  return OPENCV_OBJECT(rb_klass, cvCreateImage(size, cvIplDepth(type), CV_MAT_CN(type)));
 }
 
 __NAMESPACE_END_IPLIMAGE

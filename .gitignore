@@ -1,0 +1,6 @@
+.DS_Store
+examples/data
+*.o
+Makefile
+mkmf.log
+opencv.bundle

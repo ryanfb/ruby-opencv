@@ -50,6 +50,7 @@ extern "C"{
 
 // OpenCV headers
 #include <cxcore.h>
+#include <cvaux.h>
 #include <cv.h>
 #include <highgui.h>
 #include <cxmisc.h>

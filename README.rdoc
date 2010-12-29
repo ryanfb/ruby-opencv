@@ -33,7 +33,7 @@ This also contains the data for the default cascades.
 
 You can install by cloning this repository:
 
-  git clone git://github.com/jeffrafter/ruby-opencv.git
+  git clone git://github.com/ser1zw/ruby-opencv.git
   
 Then inside the ruby-opencv folder run:
 
@@ -45,8 +45,6 @@ Then inside the ruby-opencv folder run:
 
 Once installed it is possible to show images via GUI Window.
 
-  require "rubygems"
-  gem "opencv"
   require "opencv"
 
   image = OpenCV::IplImage.load("sample.jpg")
@@ -63,7 +61,6 @@ In order for this to work you must copy the OpenCV haarcascades data into a
 subfolder called data.
 
   #!/usr/bin/env ruby
-  require "rubygems"
   require "opencv"
 
   if ARGV.length < 2
@@ -82,7 +79,7 @@ subfolder called data.
 
 == REQUIREMENTS:
 
-* OpenCV 2.0 or later.
+* OpenCV 2.0 or 2.1
   http://opencv.willowgarage.com/wiki/
 * ffcall (optional)
   http://www.haible.de/bruno/packages-ffcall.html

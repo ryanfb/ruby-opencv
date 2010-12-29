@@ -190,12 +190,12 @@ CVPOINTS_FROM_POINT_SET(VALUE object, CvPoint **pointset)
     /* to do */
     rb_raise(rb_eNotImpError, "CvMat to CvSeq conversion not implemented.");
   }else if(rb_obj_is_kind_of(object, rb_cArray)){
-    *pointset = (CvPoint*)cvAlloc(RARRAY(object)->len * sizeof(CvPoint));
-    for(int i = 0; i < RARRAY(object)->len; i++){
+    *pointset = (CvPoint*)cvAlloc(RARRAY_LEN(object) * sizeof(CvPoint));
+    for(int i = 0; i < RARRAY_LEN(object); i++){
       (*pointset)[i].x = NUM2INT(rb_funcall(rb_ary_entry(object, i), rb_intern("x"), 0));
       (*pointset)[i].y = NUM2INT(rb_funcall(rb_ary_entry(object, i), rb_intern("y"), 0));
     }
-    return RARRAY(object)->len;
+    return RARRAY_LEN(object);
   }else{
     rb_raise(rb_eTypeError, "Can't convert CvSeq(PointSet).");
   }  
@@ -220,10 +220,10 @@ VALUE_TO_POINT_SET(VALUE object)
     rb_raise(rb_eNotImpError, "CvMat to CvSeq conversion not implemented.");
   }else if(rb_obj_is_kind_of(object, rb_cArray)){
     //pointset = cCvSeq::new_sequence(cCvSeq::rb_class(), )
-    length = RARRAY(object)->len;
+    length = RARRAY_LEN(object);
     storage = cCvMemStorage::new_object();
     seq = cvCreateSeq(CV_SEQ_POINT_SET, sizeof(CvSeq), sizeof(CvPoint), CVMEMSTORAGE(storage));    
-    for(int i = 0; i < RARRAY(object)->len; i++){
+    for(int i = 0; i < RARRAY_LEN(object); i++){
       p32.x = NUM2DBL(rb_funcall(rb_ary_entry(object, i), rb_intern("x"), 0));
       p32.y = NUM2DBL(rb_funcall(rb_ary_entry(object, i), rb_intern("y"), 0));
       cvSeqPush(seq, &p32);

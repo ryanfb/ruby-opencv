@@ -60,17 +60,17 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
   char codec[4] = {' ', ' ', ' ', ' '};
   int codec_number;
   Check_Type(filename, T_STRING);
-  if (RSTRING(filename)->len == 0)
+  if (RSTRING_LEN(filename) == 0)
     rb_raise(rb_eArgError, "argument 1 (file name) dose not given");
   if (NIL_P(fourcc))
     codec_number = -1;
   else {
     Check_Type(fourcc, T_STRING);
-    if (RSTRING(fourcc)->len > 4)
+    if (RSTRING_LEN(fourcc) > 4)
       rb_raise(rb_eStandardError, "argument 2 (fourcc) should be specific 4-character. (i.e \"PIM1\",\"MJPG\")");
     else {
-      for (int i = 0; i < RSTRING(fourcc)->len; i++)
-        codec[i] = RSTRING(fourcc)->ptr[i];
+      for (int i = 0; i < RSTRING_LEN(fourcc); i++)
+        codec[i] = RSTRING_PTR(fourcc)[i];
       codec_number = CV_FOURCC(codec[0], codec[1], codec[2], codec[3]);
     }
   }

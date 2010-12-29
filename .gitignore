@@ -1,6 +1,7 @@
 .DS_Store
 examples/data
 *.o
+*.so
 Makefile
 mkmf.log
 opencv.bundle

@@ -57,7 +57,7 @@ VALUE_TO_CVTERMCRITERIA(VALUE object)
   case T_FLOAT:
     return cvTermCriteria(CV_TERMCRIT_EPS, 0, NUM2DBL(object));
   case T_ARRAY:
-    if (RARRAY(object)->len == 2) {
+    if (RARRAY_LEN(object) == 2) {
       return cvTermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,
                             NUM2INT(rb_ary_entry(object, 0)),
                             NUM2DBL(rb_ary_entry(object, 1)));

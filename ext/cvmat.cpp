@@ -437,7 +437,7 @@ rb_method_missing(int argc, VALUE *argv, VALUE self)
   const char *to_str = "\\Ato_(\\w+)";
   VALUE name, args, str[3], method;
   rb_scan_args(argc, argv, "1*", &name, &args);
-  if (RARRAY(args)->len != 0)
+  if (RARRAY_LEN(args) != 0)
     return rb_call_super(argc, argv);
   if(rb_reg_match(rb_reg_new(to_str, strlen(to_str), 0), rb_funcall(name, rb_intern("to_s"), 0)) == Qnil)
     return rb_call_super(argc, argv);
@@ -452,7 +452,7 @@ rb_method_missing(int argc, VALUE *argv, VALUE self)
   VALUE name, args, method;
   rb_scan_args(argc, argv, "1*", &name, &args);
   method = rb_funcall(name, rb_intern("to_s"), 0);
-  if (RARRAY(args)->len != 0 || !rb_respond_to(rb_module_opencv(), rb_intern(StringValuePtr(method))))
+  if (RARRAY_LEN(args) != 0 || !rb_respond_to(rb_module_opencv(), rb_intern(StringValuePtr(method))))
     return rb_call_super(argc, argv);
   return rb_funcall(rb_module_opencv(), rb_intern(StringValuePtr(method)), 1, self);
 }
@@ -886,26 +886,26 @@ rb_sub_rect(VALUE self, VALUE args)
   CvRect area;
   CvPoint topleft;
   CvSize size;
-  switch(RARRAY(args)->len) {
+  switch(RARRAY_LEN(args)) {
   case 1:
-    area = VALUE_TO_CVRECT(RARRAY(args)->ptr[0]);
+    area = VALUE_TO_CVRECT(RARRAY_PTR(args)[0]);
     break;
   case 2:
-    topleft = VALUE_TO_CVPOINT(RARRAY(args)->ptr[0]);
-    size = VALUE_TO_CVSIZE(RARRAY(args)->ptr[1]);
+    topleft = VALUE_TO_CVPOINT(RARRAY_PTR(args)[0]);
+    size = VALUE_TO_CVSIZE(RARRAY_PTR(args)[1]);
     area.x = topleft.x;
     area.y = topleft.y;
     area.width = size.width;
     area.height = size.height;
     break;
   case 4:
-    area.x = NUM2INT(RARRAY(args)->ptr[0]);
-    area.y = NUM2INT(RARRAY(args)->ptr[1]);
-    area.width = NUM2INT(RARRAY(args)->ptr[2]);
-    area.height = NUM2INT(RARRAY(args)->ptr[3]);
+    area.x = NUM2INT(RARRAY_PTR(args)[0]);
+    area.y = NUM2INT(RARRAY_PTR(args)[1]);
+    area.width = NUM2INT(RARRAY_PTR(args)[2]);
+    area.height = NUM2INT(RARRAY_PTR(args)[3]);
     break;
   default:
-    rb_raise(rb_eArgError, "wrong number of arguments (%d of 1 or 2 or 4)", RARRAY(args)->len);
+    rb_raise(rb_eArgError, "wrong number of arguments (%d of 1 or 2 or 4)", RARRAY_LEN(args));
   }
   return DEPEND_OBJECT(rb_klass,
                        cvGetSubRect(CVARR(self), CVALLOC(CvMat), area),
@@ -978,7 +978,7 @@ rb_slice_height(VALUE self, VALUE num)
 VALUE
 rb_row(VALUE self, VALUE args)
 {
-  int len = RARRAY(args)->len;
+  int len = RARRAY_LEN(args);
   if (len < 1) {rb_raise(rb_eArgError, "wrong number of argument.(more than 1)");}
   VALUE ary = rb_ary_new2(len);
   for (int i = 0; i < len; i++) {
@@ -990,7 +990,7 @@ rb_row(VALUE self, VALUE args)
       rb_ary_store(ary, i, DEPEND_OBJECT(rb_klass, cvGetRows(CVARR(self), CVALLOC(CvMat), slice.start_index, slice.end_index), self));
     }        
   }
-  return RARRAY(ary)->len > 1 ? ary : rb_ary_entry(ary, 0);
+  return RARRAY_LEN(ary) > 1 ? ary : rb_ary_entry(ary, 0);
 }
 
 /*
@@ -1004,7 +1004,7 @@ rb_row(VALUE self, VALUE args)
 VALUE
 rb_col(VALUE self, VALUE args)
 {
-  int len = RARRAY(args)->len;
+  int len = RARRAY_LEN(args);
   if (len < 1) {rb_raise(rb_eArgError, "wrong number of argument.(more than 1)");}
   VALUE ary = rb_ary_new2(len);
   for (int i = 0; i < len; i++) {
@@ -1016,7 +1016,7 @@ rb_col(VALUE self, VALUE args)
       rb_ary_store(ary, i, DEPEND_OBJECT(rb_klass, cvGetCols(CVARR(self), CVALLOC(CvMat), slice.start_index, slice.end_index), self));
     }        
   }
-  return RARRAY(ary)->len > 1 ? ary : rb_ary_entry(ary, 0);
+  return RARRAY_LEN(ary) > 1 ? ary : rb_ary_entry(ary, 0);
 }
 
 /*
@@ -1134,11 +1134,11 @@ VALUE
 rb_aref(VALUE self, VALUE args)
 {
   int index[CV_MAX_DIM];
-  for (int i = 0; i < RARRAY(args)->len; i++) {
+  for (int i = 0; i < RARRAY_LEN(args); i++) {
     index[i] = NUM2INT(rb_ary_entry(args, i));
   }
   CvScalar scalar = cvScalarAll(0);
-  switch(RARRAY(args)->len) {      
+  switch(RARRAY_LEN(args)) {      
   case 1:
     scalar = cvGet1D(CVARR(self), index[0]);
     break;
@@ -1166,10 +1166,10 @@ rb_aset(VALUE self, VALUE args)
 {
   CvScalar scalar = VALUE_TO_CVSCALAR(rb_ary_pop(args));
   int index[CV_MAX_DIM];
-  for (int i = 0; i < RARRAY(args)->len; i++) {
+  for (int i = 0; i < RARRAY_LEN(args); i++) {
     index[i] = NUM2INT(rb_ary_entry(args, i));
   }
-  switch(RARRAY(args)->len) {
+  switch(RARRAY_LEN(args)) {
   case 1:
     cvSet1D(CVARR(self), index[0], scalar);
     break;
@@ -1466,7 +1466,7 @@ VALUE
 rb_merge(VALUE klass, VALUE args)
 {
   VALUE object, dest;
-  int len = RARRAY(args)->len;
+  int len = RARRAY_LEN(args);
   if (!(len > 0) || len > CV_CN_MAX) {
     rb_raise(rb_eArgError, "wrong number of argument (%d for 1..4)", len);
   }

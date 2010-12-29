@@ -76,7 +76,7 @@ VALUE rb_initialize(int argc, VALUE *argv, VALUE self){
   if(NIL_P(block)){rb_raise(rb_eArgError, "block not given.");}
   Check_Type(name, T_STRING);
   Trackbar *trackbar = TRACKBAR(self);
-  trackbar->name = strcpy(ALLOC_N(char, RSTRING(name)->len), StringValueCStr(name));
+  trackbar->name = strcpy(ALLOC_N(char, RSTRING_LEN(name)), StringValueCStr(name));
   trackbar->maxval = NUM2INT(maxval);
   trackbar->val = IF_INT(val, 0);
   trackbar->block = block;

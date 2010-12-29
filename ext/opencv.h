@@ -15,7 +15,11 @@
 
 /* include headers */
 #include <ruby.h>
+#ifdef HAVE_RUBY_VERSION_H
+#include <ruby/version.h>
+#else
 #include <version.h>
+#endif
 
 #ifdef RUBY_WIN32_H
 #ifdef write
@@ -28,7 +32,12 @@
 #endif
 
 extern "C"{
+#ifdef HAVE_RUBY_ST_H
+#include <ruby/st.h>
+#else
 #include <st.h>
+#endif
+
 #ifdef HAVE_CALLBACK_H
 #include <callback.h> // callhack.h is ffcall header
 #endif
@@ -125,6 +134,24 @@ extern "C"{
 #define RESIST_CVMETHOD(hash, str, value) rb_hash_aset(hash, ID2SYM(rb_intern(str)), INT2FIX(value))
 
 #define maxint(a,b) ({int _a = (a), _b = (b); _a > _b ? _a : _b; })
+
+// wrapper for <= 1.8
+#ifndef RARRAY_LEN
+#define RARRAY_LEN(arg) (RARRAY(arg)->len)
+#endif
+
+#ifndef RARRAY_PTR
+#define RARRAY_PTR(arg) (RARRAY(arg)->ptr)
+#endif
+
+#ifndef RSTRING_LEN
+#define RSTRING_LEN(arg) (RSTRING(arg)->len)
+#endif
+
+#ifndef RSTRING_PTR
+#define RSTRING_PTR(arg) (RSTRING(arg)->ptr)
+#endif
+
 
 // OpenCV module
 __NAMESPACE_BEGIN_OPENCV
@@ -306,7 +333,7 @@ __NAMESPACE_END_OPENCV
 inline VALUE
 extract_options_from_args_bang(VALUE ary)
 {
-  return (RARRAY(ary)->len > 0 && rb_obj_is_kind_of(RARRAY(ary)->ptr[RARRAY(ary)->len -1], rb_cHash)) ? rb_ary_pop(ary) : rb_hash_new();
+  return (RARRAY_LEN(ary) > 0 && rb_obj_is_kind_of(RARRAY_PTR(ary)[RARRAY_LEN(ary) -1], rb_cHash)) ? rb_ary_pop(ary) : rb_hash_new();
 }
 
 /*
@@ -316,7 +343,7 @@ assert_valid_keys(VALUE keys, VALUE valid_keys)
   VALUE unknown_keys = rb_funcall(keys, rb_intern("-"), 1, rb_funcall(valid_keys, rb_intern("flatten"), 0));
   if (NUM2INT(rb_funcall(unknown_keys, rb_intern("empty?"), 0)) != 0){
     rb_raise(rb_eArgError, "Unknown key(s): %s",
-             RSTRING(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", ")))->ptr);
+             RSTRING_PTR(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", "))));
   }
   return Qnil;  
 }
@@ -330,9 +357,9 @@ assert_valid_keys(VALUE options, int n, ...){
   va_start(valid_keys, n);
   for (int i = 0; i < n; i++)
     rb_ary_delete(unknown_keys, ID2SYM(rb_intern(va_arg(valid_keys, char*))));
-  if (RARRAY(unknown_keys)->len > 0)
+  if (RARRAY_LEN(unknown_keys) > 0)
     rb_raise(rb_eArgError, "Unknown key(s): %s",
-             RSTRING(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", ")))->ptr);
+             RSTRING_PTR(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", "))));
   va_end(valid_keys);
 }
 

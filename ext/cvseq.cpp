@@ -343,8 +343,8 @@ rb_push(VALUE self, VALUE args)
   CvSeq *seq = CVSEQ(self);
   VALUE klass = seqblock_class(seq), object;
   void *buffer = 0;      
-  for(int i = 0; i < RARRAY(args)->len; i++){
-    object = RARRAY(args)->ptr[i];
+  for(int i = 0; i < RARRAY_LEN(args); i++){
+    object = RARRAY_PTR(args)[i];
     if(CLASS_OF(object) == klass){
       cvSeqPush(seq, DATA_PTR(object));          
     }else if(rb_obj_is_kind_of(object, rb_klass) && CLASS_OF(object) == klass){ // object is CvSeq
@@ -403,8 +403,8 @@ rb_unshift(VALUE self, VALUE args)
   CvSeq *seq = CVSEQ(self);
   VALUE klass = seqblock_class(seq), object;
   void *buffer = 0;      
-  for(int i = 0; i < RARRAY(args)->len; i++){
-    object = RARRAY(args)->ptr[i];
+  for(int i = 0; i < RARRAY_LEN(args); i++){
+    object = RARRAY_PTR(args)[i];
     if(CLASS_OF(object) == klass){
       cvSeqPushFront(seq, DATA_PTR(object));
     }else if(rb_obj_is_kind_of(object, rb_klass) && CLASS_OF(object) == klass){

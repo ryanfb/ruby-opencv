@@ -15,14 +15,24 @@ require "mkmf"
 # extconf.rb --with-opencv-lib=/path/to/opencv/lib
 # extconf.rb --with-opencv-include=/path/to/opencv/include
 
-dir_config("opencv", "/usr/local/include/opencv", "/usr/local/lib")
+dir_config("opencv", "/usr/local/include/opencv2", "/usr/local/lib")
 if CONFIG["arch"].include?("darwin")
-	dir_config("ffcall", "/opt/local/include", "/opt/local/lib")
+  dir_config("ffcall", "/opt/local/include", "/opt/local/lib")
 else
-	dir_config("ffcall", "/usr/local/include", "/usr/local/lib")
+  dir_config("ffcall", "/usr/local/include", "/usr/local/lib")
 end
+dir_config("libxml2", "/usr/include", "/usr/lib")
 
-opencv_libraries = ["cxcore", "cv", "highgui"]
+opencv_headers = ["core/core_c.h", "core/core.hpp", "imgproc/imgproc_c.h",
+                  "imgproc/imgproc.hpp", "video/tracking.hpp", "features2d/features2d.hpp",
+                  "flann/flann.hpp", "calib3d/calib3d.hpp", "objdetect/objdetect.hpp",
+                  "legacy/compat.hpp", "legacy/legacy.hpp", "highgui/highgui_c.h",
+                  "highgui/highgui.hpp"]
+
+opencv_libraries = ["opencv_calib3d", "opencv_contrib", "opencv_core", "opencv_features2d",
+                    "opencv_flann", "opencv_gpu", "opencv_highgui", "opencv_imgproc",
+                    "opencv_legacy", "opencv_ml", "opencv_objdetect", "opencv_video"]
+
 
 puts ">> check require libraries..."
 case CONFIG["arch"]
@@ -41,7 +51,7 @@ end
 
 # check require headers
 puts ">> check require headers..."
-opencv_libraries.map{|lib| "#{lib}.h"}.each{|header|
+opencv_headers.each{|header|
   raise "#{header} not found." unless have_header(header)
 }
 #have_header("ml.h")

@@ -19,6 +19,7 @@ OpenCV Ruby Wrapper
 == FEATURES/PROBLEMS:
 
 * First release rubygems, Some OpenCV functions wrapped.
+* Mouse interaction often causes segfaults on my Ubuntu 10.10 (Ruby 1.9.2).
 
 == DEPENDENCIES:
 
@@ -79,7 +80,7 @@ subfolder called data.
 
 == REQUIREMENTS:
 
-* OpenCV 2.0 or 2.1
+* OpenCV 2.2
   http://opencv.willowgarage.com/wiki/
 * ffcall (optional)
   http://www.haible.de/bruno/packages-ffcall.html

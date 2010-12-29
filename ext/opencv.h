@@ -58,13 +58,26 @@ extern "C"{
 #include <assert.h>
 
 // OpenCV headers
-#include <cxcore.h>
-#include <cvaux.h>
-#include <cv.h>
-#include <highgui.h>
-#include <cxmisc.h>
+#include "opencv2/core/core_c.h"
+#include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc_c.h"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/video/tracking.hpp"
+#include "opencv2/video/background_segm.hpp"
+#include "opencv2/features2d/features2d.hpp"
+#include "opencv2/flann/flann.hpp"
+#include "opencv2/calib3d/calib3d.hpp"
+#include "opencv2/objdetect/objdetect.hpp"
+#include "opencv2/legacy/compat.hpp"
+#include "opencv2/legacy/legacy.hpp"
+#include "opencv2/legacy/blobtrack.hpp"
+#include "opencv2/contrib/contrib.hpp"
+#include "opencv2/highgui/highgui_c.h"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/core/internal.hpp"
+
 #ifdef HAVE_ML_H
-#include <ml.h>
+#include "opencv2/ml/ml.hpp"
 #endif
 
 // Ruby/OpenCV headers

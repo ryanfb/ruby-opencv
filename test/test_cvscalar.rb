@@ -6,7 +6,7 @@ require File.expand_path(File.dirname(__FILE__)) + '/test_opencv'
 
 include OpenCV
 
-# Tests for CvScalar
+# Tests for OpenCV::CvScalar
 class TestCvScalar < TestOpenCV
   def test_aref
     s = CvScalar.new

@@ -8,7 +8,7 @@ require File.expand_path(File.dirname(__FILE__)) + '/test_opencv'
 
 include OpenCV
 
-# Tests for specific OpenCV functions
+# Tests for OpenCV::CvMat
 class TestCvMat < TestOpenCV
   def test_avg_sdv
     m = CvMat.new(1, 8, CV_32F)

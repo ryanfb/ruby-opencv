@@ -8,13 +8,6 @@ include OpenCV
 
 # Tests for OpenCV::CvScalar
 class TestCvScalar < TestOpenCV
-  def is_same_elems(a, b, delta = 0.01)
-    4.times { |i|
-      return false unless (a[i].to_f - b[i].to_f).abs <= delta.to_f
-    }
-    true
-  end
-  
   def test_aref
     s = CvScalar.new
     4.times { |i| assert_in_delta(0, s[i], 0.01) }
@@ -62,22 +55,22 @@ class TestCvScalar < TestOpenCV
   end
 
   def test_cvcolor
-    assert(is_same_elems(CvColor::Black, CvScalar.new(0x0, 0x0, 0x0, 0)))
-    assert(is_same_elems(CvColor::Silver, CvScalar.new(0x0c, 0x0c, 0x0c, 0)))
-    assert(is_same_elems(CvColor::Gray, CvScalar.new(0x80, 0x80, 0x80, 0)))
-    assert(is_same_elems(CvColor::White, CvScalar.new(0xff, 0xff, 0xff, 0)))
-    assert(is_same_elems(CvColor::Maroon, CvScalar.new(0x0, 0x0, 0x80, 0)))
-    assert(is_same_elems(CvColor::Red, CvScalar.new(0x0, 0x0, 0xff, 0)))
-    assert(is_same_elems(CvColor::Purple, CvScalar.new(0x80, 0x0, 0x80, 0)))
-    assert(is_same_elems(CvColor::Fuchsia, CvScalar.new(0xff, 0x0, 0xff, 0)))
-    assert(is_same_elems(CvColor::Green, CvScalar.new(0x0, 0x80, 0x0, 0)))
-    assert(is_same_elems(CvColor::Lime, CvScalar.new(0x0, 0xff, 0x0, 0)))
-    assert(is_same_elems(CvColor::Olive, CvScalar.new(0x0, 0x80, 0x80, 0)))
-    assert(is_same_elems(CvColor::Yellow, CvScalar.new(0x0, 0xff, 0xff, 0)))
-    assert(is_same_elems(CvColor::Navy, CvScalar.new(0x80, 0x0, 0x0, 0)))
-    assert(is_same_elems(CvColor::Blue, CvScalar.new(0xff, 0x0, 0x0, 0)))
-    assert(is_same_elems(CvColor::Teal, CvScalar.new(0x80, 0x80, 0x0, 0)))
-    assert(is_same_elems(CvColor::Aqua, CvScalar.new(0xff, 0xff, 0x0, 0)))
+    assert(is_same_float_array(CvColor::Black, CvScalar.new(0x0, 0x0, 0x0, 0)))
+    assert(is_same_float_array(CvColor::Silver, CvScalar.new(0x0c, 0x0c, 0x0c, 0)))
+    assert(is_same_float_array(CvColor::Gray, CvScalar.new(0x80, 0x80, 0x80, 0)))
+    assert(is_same_float_array(CvColor::White, CvScalar.new(0xff, 0xff, 0xff, 0)))
+    assert(is_same_float_array(CvColor::Maroon, CvScalar.new(0x0, 0x0, 0x80, 0)))
+    assert(is_same_float_array(CvColor::Red, CvScalar.new(0x0, 0x0, 0xff, 0)))
+    assert(is_same_float_array(CvColor::Purple, CvScalar.new(0x80, 0x0, 0x80, 0)))
+    assert(is_same_float_array(CvColor::Fuchsia, CvScalar.new(0xff, 0x0, 0xff, 0)))
+    assert(is_same_float_array(CvColor::Green, CvScalar.new(0x0, 0x80, 0x0, 0)))
+    assert(is_same_float_array(CvColor::Lime, CvScalar.new(0x0, 0xff, 0x0, 0)))
+    assert(is_same_float_array(CvColor::Olive, CvScalar.new(0x0, 0x80, 0x80, 0)))
+    assert(is_same_float_array(CvColor::Yellow, CvScalar.new(0x0, 0xff, 0xff, 0)))
+    assert(is_same_float_array(CvColor::Navy, CvScalar.new(0x80, 0x0, 0x0, 0)))
+    assert(is_same_float_array(CvColor::Blue, CvScalar.new(0xff, 0x0, 0x0, 0)))
+    assert(is_same_float_array(CvColor::Teal, CvScalar.new(0x80, 0x80, 0x0, 0)))
+    assert(is_same_float_array(CvColor::Aqua, CvScalar.new(0xff, 0xff, 0x0, 0)))
   end
 end
 

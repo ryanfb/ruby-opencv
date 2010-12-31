@@ -54,6 +54,13 @@ class TestOpenCV < Test::Unit::TestCase
     # Compute a hash for an image, useful for image comparisons
     Digest::MD5.hexdigest(img.data)
   end
+
+  def is_same_float_array(a, b, delta = 0.01)
+    4.times { |i|
+      return false unless (a[i].to_f - b[i].to_f).abs <= delta.to_f
+    }
+    true
+  end
 end
 
 

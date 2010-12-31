@@ -923,7 +923,7 @@ rb_sub_rect(VALUE self, VALUE args)
  *   m = OpenCV::CvMat.new(10, 10) #=> size 10x10 matrix
  *   ml, mr = m.slice_width(2)     #=> 5x10 and 5x10 matrix
  *
- *   ml, mm, mr = m.sclice_width(3)#=> 3x10 3x10 3x10 matrix
+ *   ml, mm, mr = m.slice_width(3)#=> 3x10 3x10 3x10 matrix
  *   warning : width does not div correctly.
  */
 VALUE

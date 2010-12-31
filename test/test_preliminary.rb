@@ -4,8 +4,7 @@
 require 'test/unit'
 require 'digest/md5'
 require 'opencv'
-require 'pp'
-require_relative 'test_opencv'
+require File.expand_path(File.dirname(__FILE__)) + '/test_opencv'
 
 include OpenCV
 

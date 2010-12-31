@@ -474,7 +474,7 @@ class TestCvMat < TestOpenCV
 
     m1 = make_cvmat(5, 5)
     m0 = m1.clone
-    flunk('FIXME: constant CV_8UC1 is not implemented yet.')
+    flunk('FIXME: constant CV_8UC1 is not implemented yet (but CV_8U == CV_8UC1...?).')
     mask = CvMat.new(m.height, m.width, CV_8UC1)
     2.times { |j|
       2.times { |i|
@@ -509,7 +509,7 @@ class TestCvMat < TestOpenCV
 
     m1 = make_cvmat(5, 5)
     m0 = m1.clone
-    flunk('FIXME: constant CV_8UC1 is not implemented yet.')
+    flunk('FIXME: constant CV_8UC1 is not implemented yet (but CV_8U == CV_8UC1...?).')
     mask = CvMat.new(m.height, m.width, CV_8UC1)
     2.times { |j|
       2.times { |i|
@@ -574,13 +574,65 @@ class TestCvMat < TestOpenCV
 
   def test_range
     m1 = CvMat.new(1, 10)
-    flunk('FIXME: constant CV_32SC1 is not implemented yet.')
+    flunk('FIXME: constant CV_32SC1 is not implemented yet (but CV_32S == CV_32UC1...?).')
     m2 = m1.range(0, m1.cols, CV_32SC1)
     m1.range!(0, m1.cols, CV_32SC1)
     m2.width.times { |i|
       assert(is_same_float_array([i, 0, 0, 0], m1[i, j].to_ary))
       assert(is_same_float_array([i, 0, 0, 0], m2[i, j].to_ary))
     }
+  end
+
+  def test_reshape
+    m = make_cvmat(2, 3, CV_8U, 3)
+    assert_raise(TypeError) {
+      m.reshape(1)
+    }
+
+    vec = m.reshape(:rows => 1)
+
+    # These tests are failed.
+    # The order of arguments of cvReshape() are 
+    #   const CvArr* arr, CvMat* header, int new_cn, int new_rows
+    # but in rb_reshape in cvmat.cpp is
+    #   const CvArr* arr, CvMat* header, int new_rows, int new_cn
+    # The order of new_rows and new_cn is wrong.
+    flunk('FIXME: The order of arguments of cvReshape() is wrong.')
+    assert_equal(6, vec.width)
+    assert_equal(1, vec.height)
+    size = m.width * m.height
+    size.times { |i|
+      assert(is_same_float_array(m[i].to_ary, vec[i].to_ary))
+    }
+
+    ch1 = m.reshape(:channel => 1)
+    assert_equal(9, ch1.width)
+    assert_equal(6, ch1.height)
+
+    m.height.times { |j|
+      m.width.times { |i|
+        s1 = ch1[i * 3, j * 3]
+        s2 = ch1[i * 3 + 1, j * 3]
+        s3 = ch1[i * 3 + 2, j * 3]
+        assert(is_same_float_array(m[i, j].to_ary, [s1, s2, s3, 0]))
+      }
+    }
+  end
+
+  def test_repeat
+    m1 = make_cvmat(2, 3)
+    assert_raise(TypeError) {
+      m1.repeat(1)
+    }
+    m2 = CvMat.new(6, 9)
+    m2 = m1.repeat(m2)
+    m2.height.times { |j|
+      m2.width.times { |i|
+        a = m1[i % m1.width, j % m1.height].to_ary
+        assert(is_same_float_array(m2[i, j].to_ary, a))
+      }
+    }
+    
   end
   
   # def test_avg_sdv

@@ -10,12 +10,12 @@ include OpenCV
 
 # Tests for OpenCV::CvMat
 class TestCvMat < TestOpenCV
-  def make_cvmat(h, w, depth = :cv8u, channel = 3)
+  def make_cvmat(h, w, depth = :cv8u, channel = 4)
     m = CvMat.new(h, w, depth, channel)
     count = 1
     h.times { |j|
       w.times { |i|
-        m[i, j] = count
+        m[i, j] = CvScalar.new(*([count] * channel))
         count += 1
       }
     }
@@ -87,7 +87,7 @@ class TestCvMat < TestOpenCV
     assert((not m1.has_parent?))
     assert_nil(m1.parent)
 
-    flunk('TODO: resolve unexpected ABORT of CvMat#to_CvMat')
+    flunk('FIXME: resolve unexpected ABORT of CvMat#to_CvMat')
     # m2 = m1.to_CvMat
     # assert(m2.has_parent?)
     # assert_same(m1, m2.parent)
@@ -162,6 +162,7 @@ class TestCvMat < TestOpenCV
 
     assert_equal(m1.data, m2.data)
 
+    flunk('FIXME: CvUnmatchedSizes and CvUnmatchedFormats are not implemented yet')
     m2 = CvMat.new(1, 2, CV_32F, 1)
     assert_raise(CvUnmatchedSizes) {
       m1.copy(m2)
@@ -215,7 +216,7 @@ class TestCvMat < TestOpenCV
   end
 
   def test_to_CvMat
-    flunk('TODO: resolve unexpected ABORT of CvMat#to_CvMat')
+    flunk('FIXME: resolve unexpected ABORT of CvMat#to_CvMat')
     # m1 = CvMat.new(2, 2)
     # m2 = m1.to_CvMat
     # assert_same(m1, m2.parent)
@@ -254,6 +255,16 @@ class TestCvMat < TestOpenCV
     m2.height.times { |j|
       m2.width.times { |i|
         assert(is_same_float_array(m1[topleft.x + i, topleft.y + j].to_ary, m2[i, j].to_ary))
+      }
+    }
+
+    # Alias
+    m2 = m1.subrect(CvRect.new(0, 0, 2, 3))
+    assert_equal(2, m2.width)
+    assert_equal(3, m2.height)
+    m2.height.times { |j|
+      m2.width.times { |i|
+        assert(is_same_float_array(m1[i, j].to_ary, m2[i, j].to_ary))
       }
     }
   end
@@ -333,6 +344,242 @@ class TestCvMat < TestOpenCV
     m1.height.times { |j|
       assert(is_same_float_array(m1[1, j].to_ary, m2[j].to_ary))
       assert(is_same_float_array(m1[2, j].to_ary, m3[j].to_ary))
+    }
+  end
+
+  def test_each_row
+    m1 = make_cvmat(2, 3)
+    a = [[1, 2, 3], [4, 5, 6]]
+    a.map! { |a1|
+      a1.map! { |a2|
+        CvScalar.new(a2, a2, a2, a2).to_ary
+      }
+    }
+
+    j = 0
+    m1.each_row { |r|
+      a[j].size.times { |i|
+        assert(is_same_float_array(a[j][i].to_ary, r[i].to_ary))
+      }
+      j += 1
+    }
+  end
+
+  def test_each_col
+    m1 = make_cvmat(2, 3)
+    a = [[1, 4], [2, 5], [3, 6]]
+    a.map! { |a1|
+      a1.map! { |a2|
+        CvScalar.new(a2, a2, a2, a2).to_ary
+      }
+    }
+
+    j = 0
+    m1.each_col { |c|
+      a[j].size.times { |i|
+        assert(is_same_float_array(a[j][i].to_ary, c[i].to_ary))
+      }
+      j += 1
+    }
+
+    # Alias
+    j = 0
+    m1.each_column { |c|
+      a[j].size.times { |i|
+        assert(is_same_float_array(a[j][i].to_ary, c[i].to_ary))
+      }
+      j += 1
+    }
+  end
+
+  def test_diag
+    m = make_cvmat(5, 5)
+    a = [1, 7, 13, 19, 25].map { |x| CvScalar.new(x, x, x, x) }
+    d = m.diag
+    a.each_with_index { |s, i|
+      assert(is_same_float_array(s.to_ary, d[i].to_ary))
+    }
+
+    a = [2, 8, 14, 20].map { |x| CvScalar.new(x, x, x, x) }
+    d = m.diag(1)
+    a.each_with_index { |s, i|
+      assert(is_same_float_array(s.to_ary, d[i].to_ary))
+    }
+
+    a = [6, 12, 18, 24].map { |x| CvScalar.new(x, x, x, x) }
+    d = m.diag(-1)
+    a.each_with_index { |s, i|
+      assert(is_same_float_array(s.to_ary, d[i].to_ary))
+    }
+
+    # Alias
+    a = [1, 7, 13, 19, 25].map { |x| CvScalar.new(x, x, x, x) }
+    d = m.diagonal
+    a.each_with_index { |s, i|
+      assert(is_same_float_array(s.to_ary, d[i].to_ary))
+    }
+  end
+
+  def test_size
+    m = CvMat.new(2, 3)
+    assert_equal(3, m.size.width)
+    assert_equal(2, m.size.height)
+  end
+
+  def test_dims
+    m = CvMat.new(2, 3)
+    assert_equal([2, 3], m.dims)
+  end
+
+  def test_dim_size
+    m = CvMat.new(2, 3)
+    assert_equal(2, m.dim_size(0))
+    assert_equal(3, m.dim_size(1))
+  end
+
+  def test_aref
+    m = make_cvmat(2, 3)
+    assert(is_same_float_array([1, 1, 1, 1], m[0]))
+    assert(is_same_float_array([5, 5, 5, 5], m[4]))
+    assert(is_same_float_array([2, 2, 2, 2], m[1, 0]))
+    assert(is_same_float_array([4, 4, 4, 4], m[0, 1]))
+
+    # Alias
+    assert(is_same_float_array([1, 1, 1, 1], m.at(0)))
+
+    flunk('FIXME: cvGetND cases do not seem to work well')
+  end
+
+  def test_aset
+    m = make_cvmat(2, 3)
+    m[0] = CvScalar.new(10, 10, 10, 10)
+    assert(is_same_float_array([10, 10, 10, 10], m[0]))
+
+    m[1, 0] = CvScalar.new(20, 20, 20, 20)
+    assert(is_same_float_array([20, 20, 20, 20], m[1, 0]))
+
+    flunk('FIXME: cvSetND cases do not seem to work well')
+  end
+
+  def test_fill
+    m1 = make_cvmat(2, 3)
+    m2 = m1.fill(CvScalar.new(1, 2, 3, 4))
+    m1.fill!(CvScalar.new(1, 2, 3, 4))
+    m2.height.times { |j|
+      m2.width.times { |i|
+        assert(is_same_float_array([1, 2, 3, 4], m1[i, j]))
+        assert(is_same_float_array([1, 2, 3, 4], m2[i, j]))
+      }
+    }
+
+    m1 = make_cvmat(5, 5)
+    m0 = m1.clone
+    flunk('FIXME: constant CV_8UC1 is not implemented yet.')
+    mask = CvMat.new(m.height, m.width, CV_8UC1)
+    2.times { |j|
+      2.times { |i|
+        mask[i, j] = CvScalar.new(1, 1, 1, 1)
+      }
+    }
+
+    m2 = m1.fill(CvScalar.new(1, 2, 3, 4), mask)
+    m1.fill!(CvScalar.new(1, 2, 3, 4), mask)
+    m2.height.times { |j|
+      m2.width.times { |i|
+        if i < 2 and j < 2
+          assert(is_same_float_array([1, 1, 1, 1], m1[i, j]))
+          assert(is_same_float_array([1, 1, 1, 1], m2[i, j]))
+        else
+          assert(is_same_float_array(m0[i, j], m1[i, j]))
+          assert(is_same_float_array(m0[i, j], m2[i, j]))
+        end
+      }
+    }
+
+    # Alias
+    m1 = make_cvmat(2, 3)
+    m2 = m1.set(CvScalar.new(1, 2, 3, 4))
+    m1.set!(CvScalar.new(1, 2, 3, 4))
+    m2.height.times { |j|
+      m2.width.times { |i|
+        assert(is_same_float_array([1, 2, 3, 4], m1[i, j]))
+        assert(is_same_float_array([1, 2, 3, 4], m2[i, j]))
+      }
+    }
+
+    m1 = make_cvmat(5, 5)
+    m0 = m1.clone
+    flunk('FIXME: constant CV_8UC1 is not implemented yet.')
+    mask = CvMat.new(m.height, m.width, CV_8UC1)
+    2.times { |j|
+      2.times { |i|
+        mask[i, j] = CvScalar.new(1, 1, 1, 1)
+      }
+    }
+
+    m2 = m1.set(CvScalar.new(1, 2, 3, 4), mask)
+    m1.set!(CvScalar.new(1, 2, 3, 4), mask)
+    m2.height.times { |j|
+      m2.width.times { |i|
+        if i < 2 and j < 2
+          assert(is_same_float_array([1, 1, 1, 1], m1[i, j]))
+          assert(is_same_float_array([1, 1, 1, 1], m2[i, j]))
+        else
+          assert(is_same_float_array(m0[i, j], m1[i, j]))
+          assert(is_same_float_array(m0[i, j], m2[i, j]))
+        end
+      }
+    }
+  end
+
+  def test_clear
+    m1 = make_cvmat(2, 3)
+    m2 = m1.clear
+    m1.clear!
+    m2.height.times { |j|
+      m2.width.times { |i|
+        assert(is_same_float_array([0, 0, 0, 0], m1[i, j]))
+        assert(is_same_float_array([0, 0, 0, 0], m2[i, j]))
+      }
+    }
+
+    # Alias
+    m1 = make_cvmat(2, 3)
+    m2 = m1.set_zero
+    m1.set_zero!
+    m2.height.times { |j|
+      m2.width.times { |i|
+        assert(is_same_float_array([0, 0, 0, 0], m1[i, j]))
+        assert(is_same_float_array([0, 0, 0, 0], m2[i, j]))
+      }
+    }
+  end
+
+  def test_identity
+    m1 = make_cvmat(5, 5)
+    m2 = m1.identity
+    m1.identity!
+    m2.height.times { |j|
+      m2.width.times { |i|
+        if i == j
+          assert(is_same_float_array([1, 0, 0, 0], m1[i, j].to_ary))
+          assert(is_same_float_array([1, 0, 0, 0], m2[i, j].to_ary))
+        else
+          assert(is_same_float_array([0, 0, 0, 0], m1[i, j].to_ary))
+          assert(is_same_float_array([0, 0, 0, 0], m2[i, j].to_ary))
+        end
+      }
+    }
+  end
+
+  def test_range
+    m1 = CvMat.new(1, 10)
+    flunk('FIXME: constant CV_32SC1 is not implemented yet.')
+    m2 = m1.range(0, m1.cols, CV_32SC1)
+    m1.range!(0, m1.cols, CV_32SC1)
+    m2.width.times { |i|
+      assert(is_same_float_array([i, 0, 0, 0], m1[i, j].to_ary))
+      assert(is_same_float_array([i, 0, 0, 0], m2[i, j].to_ary))
     }
   end
   

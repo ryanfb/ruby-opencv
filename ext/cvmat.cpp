@@ -4523,7 +4523,7 @@ rb_snake_image(int argc, VALUE *argv, VALUE self)
  *     current = capture.query
  *     velx, vely = current.optical_flow_hs(prev, velx, vely) if prev
  *     prev = current
- *   emd
+ *   end
  */
 VALUE
 rb_optical_flow_hs(int argc, VALUE *argv, VALUE self)

@@ -294,6 +294,48 @@ class TestCvMat < TestOpenCV
     }
   end
   
+  def test_row
+    m1 = make_cvmat(10, 20)
+
+    m2 = m1.row(2)
+    assert_equal(1, m2.height)
+    assert_equal(m1.width, m2.width)
+    m1.width.times { |i|
+      assert(is_same_float_array(m1[i, 2].to_ary, m2[i].to_ary))
+    }
+
+    m2, m3 = m1.row(1, 2)
+    [m2, m3].each { |m|
+      assert_equal(1, m.height)
+      assert_equal(m1.width, m.width)
+    }
+    m1.width.times { |i|
+      assert(is_same_float_array(m1[i, 1].to_ary, m2[i].to_ary))
+      assert(is_same_float_array(m1[i, 2].to_ary, m3[i].to_ary))
+    }
+  end
+
+  def test_col
+    m1 = make_cvmat(10, 20)
+
+    m2 = m1.col(2)
+    assert_equal(1, m2.width)
+    assert_equal(m1.height, m2.height)
+    m1.height.times { |j|
+      assert(is_same_float_array(m1[2, j].to_ary, m2[j].to_ary))
+    }
+
+    m2, m3 = m1.col(1, 2)
+    [m2, m3].each { |m|
+      assert_equal(1, m.width)
+      assert_equal(m1.height, m.height)
+    }
+    m1.height.times { |j|
+      assert(is_same_float_array(m1[1, j].to_ary, m2[j].to_ary))
+      assert(is_same_float_array(m1[2, j].to_ary, m3[j].to_ary))
+    }
+  end
+  
   # def test_avg_sdv
   #   m = CvMat.new(1, 8, CV_32F)
   #   [2, 4, 4, 4, 5, 5, 7, 9].each_with_index { |v, i|

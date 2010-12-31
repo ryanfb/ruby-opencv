@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 #  -*- mode: ruby; coding: utf-8-unix -*- 
 
-$:.unshift(File.dirname(__FILE__) + '/../lib')
 require 'test/unit'
 require 'digest/md5'
 require 'opencv'

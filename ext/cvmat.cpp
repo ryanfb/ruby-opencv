@@ -1380,14 +1380,16 @@ rb_repeat(VALUE self, VALUE object)
 
 /*
  * call-seq:
- *   flip(:x) -> cvmat
- *   flip(:y) -> cvmat
- *   flip ->  -> cvmat
+ *   flip(:x)  -> cvmat
+ *   flip(:y)  -> cvmat
+ *   flip(:xy) -> cvmat
+ *   flip      -> cvmat
  *
  * Return new flipped 2D array.
- * * flip(:x) - flip around horizontal
- * * flip(:y) - flip around vertical
- * * flip - flip around both axises
+ * * flip(:x)  - flip around horizontal
+ * * flip(:y)  - flip around vertical
+ * * flip(:xy) - flip around both axises
+ * * flip      - flip around vertical
  */
 VALUE
 rb_flip(int argc, VALUE *argv, VALUE self)
@@ -1397,9 +1399,10 @@ rb_flip(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
- *   flip!(:x) -> self
- *   flip!(:y) -> self
- *   flip!     -> self
+ *   flip!(:x)  -> self
+ *   flip!(:y)  -> self
+ *   flip!(:xy) -> self
+ *   flip!      -> self
  *
  * Flip 2D array. Return self.
  *
@@ -1409,14 +1412,16 @@ VALUE
 rb_flip_bang(int argc, VALUE *argv, VALUE self)
 {
   VALUE format;
-  int mode = -1;
+  int mode = 0;
   if (rb_scan_args(argc, argv, "01", &format) > 0) {
     if (rb_to_id(format) == rb_intern("x"))
       mode = 1;
     else if (rb_to_id(format) == rb_intern("y"))
       mode = 0;
+    else if (rb_to_id(format) == rb_intern("xy"))
+      mode = -1;
     else
-      rb_warn("argument may be :x or :y");        
+      rb_warn("argument may be :x or :y or :xy");
   }
   cvFlip(CVARR(self), NULL, mode);
   return self;

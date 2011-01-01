@@ -604,6 +604,42 @@ class TestCvMat < OpenCVTestCase
       }
     }
   end
+
+  def test_flip
+    m0 = create_cvmat(2, 3)
+
+    m1 = m0.clone
+    m1.flip!(:x)
+    m2 = m0.clone.flip(:x)
+    m3 = m0.clone
+    m3.flip!(:y)
+    m4 = m0.clone.flip(:y)
+    m5 = m0.clone
+    m5.flip!(:xy)
+    m6 = m0.clone.flip(:xy)
+    m7 = m0.clone
+    m7.flip!
+    m8 = m0.clone.flip
+
+    [m1, m2, m3, m4, m5, m6, m7, m8].each { |m|
+      assert_equal(m0.height, m.height)
+      assert_equal(m0.width, m.width)
+    }
+    m0.height.times { |j|
+      m0.width.times { |i|
+        ri = m0.width - i - 1
+        rj = m0.height - j - 1
+        assert_cvscalar_equal(m0[ri, j], m1[i, j])
+        assert_cvscalar_equal(m0[ri, j], m2[i, j])
+        assert_cvscalar_equal(m0[i, rj], m3[i, j])
+        assert_cvscalar_equal(m0[i, rj], m4[i, j])
+        assert_cvscalar_equal(m0[ri, rj], m5[i, j])
+        assert_cvscalar_equal(m0[ri, rj], m6[i, j])
+        assert_cvscalar_equal(m0[i, rj], m7[i, j])
+        assert_cvscalar_equal(m0[i, rj], m8[i, j])
+      }
+    }
+  end
   
   # def test_avg_sdv
   #   m = CvMat.new(1, 8, CV_32F)

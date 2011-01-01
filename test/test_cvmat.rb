@@ -592,14 +592,6 @@ class TestCvMat < TestOpenCV
     }
 
     vec = m.reshape(:rows => 1)
-
-    # These tests are failed.
-    # The order of arguments of cvReshape() are 
-    #   const CvArr* arr, CvMat* header, int new_cn, int new_rows
-    # but in rb_reshape in cvmat.cpp is
-    #   const CvArr* arr, CvMat* header, int new_rows, int new_cn
-    # The order of new_rows and new_cn is wrong.
-    flunk('FIXME: The order of arguments of cvReshape() is wrong.')
     assert_equal(6, vec.width)
     assert_equal(1, vec.height)
     size = m.width * m.height
@@ -609,13 +601,13 @@ class TestCvMat < TestOpenCV
 
     ch1 = m.reshape(:channel => 1)
     assert_equal(9, ch1.width)
-    assert_equal(6, ch1.height)
+    assert_equal(2, ch1.height)
 
     m.height.times { |j|
       m.width.times { |i|
-        s1 = ch1[i * 3, j * 3]
-        s2 = ch1[i * 3 + 1, j * 3]
-        s3 = ch1[i * 3 + 2, j * 3]
+        s1 = ch1[i * 3, j][0]
+        s2 = ch1[i * 3 + 1, j][0]
+        s3 = ch1[i * 3 + 2, j][0]
         assert(is_same_float_array(m[i, j].to_ary, [s1, s2, s3, 0]))
       }
     }

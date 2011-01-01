@@ -1360,7 +1360,7 @@ rb_reshape(VALUE self, VALUE hash)
     rb_raise(rb_eTypeError, "argument should be Hash that contaion key (:row, :channel).");
   VALUE channel = rb_hash_aref(hash, ID2SYM(rb_intern("channel")));
   VALUE rows = rb_hash_aref(hash, ID2SYM(rb_intern("rows")));
-  return DEPEND_OBJECT(rb_klass, cvReshape(CVARR(self), CVALLOC(CvMat), NIL_P(rows) ? 0 : FIX2INT(rows), NIL_P(channel) ? 0 : FIX2INT(channel)), self);
+  return DEPEND_OBJECT(rb_klass, cvReshape(CVARR(self), CVALLOC(CvMat), NIL_P(channel) ? 0 : FIX2INT(channel), NIL_P(rows) ? 0 : FIX2INT(rows)), self);
 }
 
 /*

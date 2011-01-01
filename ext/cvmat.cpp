@@ -1587,7 +1587,7 @@ rb_convert_scale(VALUE self, VALUE hash)
   VALUE depth = rb_hash_aref(hash, ID2SYM(rb_intern("depth"))),
     scale = rb_hash_aref(hash, ID2SYM(rb_intern("scale"))),
     shift = rb_hash_aref(hash, ID2SYM(rb_intern("shift"))),
-    dest = new_object(cvGetSize(CVARR(self)), CV_MAKETYPE(IF_DEPTH(depth, CV_MAT_DEPTH(CVMAT(self)->type)), CV_MAT_CN(CVMAT(self)->type)));
+    dest = new_object(cvGetSize(CVARR(self)), CV_MAKETYPE(CVMETHOD("DEPTH", depth, CV_MAT_DEPTH(CVMAT(self)->type)), CV_MAT_CN(CVMAT(self)->type)));
   cvConvertScale(CVARR(self), CVARR(dest), IF_DBL(scale, 1.0), IF_DBL(shift, 0.0));
   return dest;
 }

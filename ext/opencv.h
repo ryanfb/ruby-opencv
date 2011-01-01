@@ -6,7 +6,7 @@
 
     Copyright (C) 2005-2007 Masakazu Yonekura
 
- ************************************************************/
+************************************************************/
 #ifndef RUBY_OPENCV_H
 #define RUBY_OPENCV_H
 
@@ -233,18 +233,18 @@ CVMETHOD(const char *name, VALUE method, int ifnone = 0)
     return ifnone;
   case T_FIXNUM:
     return FIX2INT(method);
-    case T_STRING:
-      method = rb_str_intern(method);
-    case T_SYMBOL:
-      value = rb_hash_aref(rb_const_get(rb_module_opencv(), rb_intern(name)), method);
-      if(NIL_P(value)){
-        rb_warn("invalid opencv method type (see OpenCV::%s)", name);
-        return ifnone;
-      }else{
-        return FIX2INT(value);
-      }if (rb_obj_is_kind_of(value, rb_cNumeric))
-  default:
-    rb_raise(rb_eTypeError, "");
+  case T_STRING:
+    method = rb_str_intern(method);
+  case T_SYMBOL:
+    value = rb_hash_aref(rb_const_get(rb_module_opencv(), rb_intern(name)), method);
+    if(NIL_P(value)){
+      rb_warn("invalid opencv method type (see OpenCV::%s)", name);
+      return ifnone;
+    }else{
+      return FIX2INT(value);
+    }if (rb_obj_is_kind_of(value, rb_cNumeric))
+     default:
+       rb_raise(rb_eTypeError, "");
   }
   return 0;
 }
@@ -350,48 +350,48 @@ extract_options_from_args_bang(VALUE ary)
 }
 
 /*
-inline VALUE
-assert_valid_keys(VALUE keys, VALUE valid_keys)
-{
+  inline VALUE
+  assert_valid_keys(VALUE keys, VALUE valid_keys)
+  {
   VALUE unknown_keys = rb_funcall(keys, rb_intern("-"), 1, rb_funcall(valid_keys, rb_intern("flatten"), 0));
   if (NUM2INT(rb_funcall(unknown_keys, rb_intern("empty?"), 0)) != 0){
-    rb_raise(rb_eArgError, "Unknown key(s): %s",
-             RSTRING_PTR(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", "))));
+  rb_raise(rb_eArgError, "Unknown key(s): %s",
+  RSTRING_PTR(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", "))));
   }
   return Qnil;  
-}
+  }
 */
- /*
-inline void
-assert_valid_keys(VALUE options, int n, ...){
+/*
+  inline void
+  assert_valid_keys(VALUE options, int n, ...){
   va_list valid_keys;  
   if (!(n > 0)) {return;}
   VALUE unknown_keys = rb_funcall(options, rb_intern("keys"), 0);
   va_start(valid_keys, n);
   for (int i = 0; i < n; i++)
-    rb_ary_delete(unknown_keys, ID2SYM(rb_intern(va_arg(valid_keys, char*))));
+  rb_ary_delete(unknown_keys, ID2SYM(rb_intern(va_arg(valid_keys, char*))));
   if (RARRAY_LEN(unknown_keys) > 0)
-    rb_raise(rb_eArgError, "Unknown key(s): %s",
-             RSTRING_PTR(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", "))));
+  rb_raise(rb_eArgError, "Unknown key(s): %s",
+  RSTRING_PTR(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", "))));
   va_end(valid_keys);
-}
+  }
 
-inline VALUE
-validate_option(VALUE options, const *char key, char *ifnone, int n, ...){
+  inline VALUE
+  validate_option(VALUE options, const *char key, char *ifnone, int n, ...){
   va_list valid_values;
   VALUE value = rb_hash_aref(options, ID2SYM(rb_intern(key)));
   if (!value || !(n > 0)) {return ifnone;}
   va_start(valid_values, n); 
   for (int i = 0; i < n; i++){    
-    if (!strcmp(StringValueCStr(value), va_arg(valid_values, char*))){
-      rb_warn("Option :%s value :%s does not defined. Default value :%s is used.", StringValueCStr(value), );
-      return ifnone;
-    }
+  if (!strcmp(StringValueCStr(value), va_arg(valid_values, char*))){
+  rb_warn("Option :%s value :%s does not defined. Default value :%s is used.", StringValueCStr(value), );
+  return ifnone;
+  }
   }
   va_end(valid_values);
   return value;
-}
+  }
 
-#define OPTIONS(value, hash, key, default) value = ((value = rb_hash_aref(hash, ID2SYM(rb_intern(key)))) ? value : default)
- */
+  #define OPTIONS(value, hash, key, default) value = ((value = rb_hash_aref(hash, ID2SYM(rb_intern(key)))) ? value : default)
+*/
 #endif // RUBY_OPENCV_H

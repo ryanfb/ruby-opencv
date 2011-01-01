@@ -720,7 +720,46 @@ class TestCvMat < OpenCVTestCase
   end
 
   def test_lut
-    
+    m0 = create_cvmat(2, 3, :cv8u, 3)
+    lut_mat = create_cvmat(1, 256, :cv8u, 3) { |j, i, c|
+      CvScalar.new(255 - c, 255 - c, 255 - c)
+    }
+
+    m = m0.lut(lut_mat)
+    assert_equal(m0.height, m.height)
+    assert_equal(m0.width, m.width)
+    m0.height.times { |j|
+      m0.width.times { |i|
+        r, g, b = m0[i, j].to_ary.map { |c| 255 - c }
+        assert_cvscalar_equal(CvScalar.new(r, g, b, 0), m[i, j])
+      }
+    }
+  end
+
+  def test_convert_scale
+    m0 = create_cvmat(2, 3, :cv32f, 4) { |j, i, c|
+      CvScalar.new(-c, -c, -c, -c)
+    }
+
+    m1 = m0.convert_scale(:depth => :cv8u)
+    m2 = m0.convert_scale(:scale => 1.5)
+    m3 = m0.convert_scale(:shift => 10.0)
+    m4 = m0.convert_scale(:depth => CV_16U)
+
+    [m1, m2, m3, m4].each { |m|
+      assert_equal(m0.height, m.height)
+      assert_equal(m0.width, m.width)
+    }
+    m0.height.times { |j|
+      m0.width.times { |i|
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[i, j])
+        a = m0[i, j].to_ary.map { |x| x * 1.5 }
+        assert_in_delta(a, m2[i, j], 0.001)
+        a = m0[i, j].to_ary.map { |x| x + 10.0 }
+        assert_in_delta(a, m3[i, j], 0.001)
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m4[i, j])
+      }
+    }
   end
   
   # def test_avg_sdv

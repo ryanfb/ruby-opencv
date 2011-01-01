@@ -640,6 +640,88 @@ class TestCvMat < OpenCVTestCase
       }
     }
   end
+
+  def test_split
+    m0 = create_cvmat(2, 3, :cv8u, 3) { |j, i, c|
+      CvScalar.new(c * 10, c * 20, c * 30)
+    }
+    m0.split.each_with_index { |m, idx|
+      assert_equal(m0.height, m.height)
+      assert_equal(m0.width, m.width)
+
+      c = 0
+      m0.height.times { |j|
+        m0.width.times { |i|
+          val = c * 10 * (idx + 1)
+          assert_cvscalar_equal(CvScalar.new(val), m[i, j])
+          c += 1
+        }
+      }
+    }
+  end
+
+  def test_merge
+    m0 = create_cvmat(2, 3, :cv8u, 4) { |j, i, c|
+      CvScalar.new(c * 10, c * 20, c * 30, c * 40)
+    }
+    m1 = create_cvmat(2, 3, :cv8u, 1) { |j, i, c|
+      CvScalar.new(c * 10)
+    }
+    m2 = create_cvmat(2, 3, :cv8u, 1) { |j, i, c|
+      CvScalar.new(c * 20)
+    }
+    m3 = create_cvmat(2, 3, :cv8u, 1) { |j, i, c|
+      CvScalar.new(c * 30)
+    }
+    m4 = create_cvmat(2, 3, :cv8u, 1) { |j, i, c|
+      CvScalar.new(c * 40)
+    }
+
+    m = CvMat.merge(m1, m2, m3, m4)
+
+    assert_equal(m0.height, m.height)
+    assert_equal(m0.width, m.width)
+    m0.height.times { |j|
+      m0.width.times { |i|
+        assert_cvscalar_equal(m0[i, j], m[i, j])
+      }
+    }
+  end
+
+  def test_mix_channels
+    flunk('CvMat.mix_channels is not implemented yet.')
+  end
+
+  def test_rand_shuffle
+    m0 = create_cvmat(2, 3)
+    m1 = m0.clone
+    m1.rand_shuffle!
+    m2 = m0.rand_shuffle
+    m3 = m0.clone
+    m3.rand_shuffle!(123, 234)
+    m4 = m0.rand_shuffle(123, 234)
+    
+    assert_shuffled_equal = lambda { |src, shuffled|
+      assert_equal(src.width, shuffled.width)
+      assert_equal(src.height, shuffled.height)
+      mat0, mat1 = [], []
+      src.height { |j|
+        src.width { |i|
+          mat0 << src[i, j].to_s
+          mat1 << shuffled[i, j].to_s
+        }
+      }
+      assert_equal(0, (mat0 - mat1).size)
+    }
+
+    [m1, m2, m3, m4].each { |m|
+      assert_shuffled_equal.call(m0, m)
+    }
+  end
+
+  def test_lut
+    
+  end
   
   # def test_avg_sdv
   #   m = CvMat.new(1, 8, CV_32F)

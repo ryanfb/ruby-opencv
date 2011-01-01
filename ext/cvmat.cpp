@@ -1515,9 +1515,9 @@ rb_mix_channels(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
- *   rand_shuffle([seed = nil][,iter = 1])
+ *   rand_shuffle([seed = nil][,iter_factor = 1]) -> cvmat
  *
- * Return filled the destination array with values from the look-up table.
+ * Return shuffled matrix
  * 
  * see rand_shuffle!
  */
@@ -1529,12 +1529,13 @@ rb_rand_shuffle(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
- *   rand_shuffle!([seed = nil][,iter = 1])
+ *   rand_shuffle!([seed = nil][,iter_factor = 1]) -> cvmat
  *
- * fills the destination array with values from the look-up table.
- * Indices of the entries are taken from the source array. That is, the function processes each element of src as following:
- *   dst(I)=lut[src(I)+DELTA]
- * where DELTA=0 if src has depth :cv8u, and DELTA=128 if src has depth :cv8s.
+ * Shuffles the matrix by swapping randomly chosen pairs of the matrix elements on each iteration 
+ * (where each element may contain several components in case of multi-channel arrays). The number of 
+ * iterations (i.e. pairs swapped) is (iter_factor*mat.rows*mat.cols).round, so iter_factor=0 means 
+ * that no shuffling is done, iter_factor=1 means that the function swaps rows(mat)*cols(mat) random 
+ * pairs etc.
  */
 VALUE
 rb_rand_shuffle_bang(int argc, VALUE *argv, VALUE self)

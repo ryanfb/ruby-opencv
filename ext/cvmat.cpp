@@ -675,7 +675,7 @@ rb_clone(VALUE self)
 VALUE
 rb_copy(int argc, VALUE *argv, VALUE self)
 {
-  VALUE value, copied;
+  VALUE value, copied, tmp;
   CvMat *src = CVMAT(self);
   rb_scan_args(argc, argv, "01", &value);
   if (argc == 0) {
@@ -692,7 +692,9 @@ rb_copy(int argc, VALUE *argv, VALUE self)
       if (n > 0) {
         copied = rb_ary_new2(n);
         for (int i = 0; i < n; i++) {
-          rb_ary_store(copied, i, new_object(src->rows, src->cols, cvGetElemType(src)));
+	  tmp = new_object(src->rows, src->cols, cvGetElemType(src));
+	  cvCopy(src, CVMAT(tmp));
+          rb_ary_store(copied, i, tmp);
         }
         return copied;
       }else{

@@ -145,7 +145,10 @@ class TestCvMat < OpenCVTestCase
     
     a = m1.copy(2)
     assert_equal(2, a.size)
+
     a.each { |m|
+      assert_equal(m1.height, m.height)
+      assert_equal(m1.width, m.width)
       m1.height.times { |j|
         m1.width.times { |i|
           assert_cvscalar_equal(m1[i, j], m[i, j])

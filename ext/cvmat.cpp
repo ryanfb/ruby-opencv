@@ -767,7 +767,7 @@ VALUE
 rb_to_16s(VALUE self)
 {
   CvMat *src = CVMAT(self);
-  VALUE dest = new_object(src->rows, src->cols, CV_MAKETYPE(CV_16U, CV_MAT_CN(src->type)));
+  VALUE dest = new_object(src->rows, src->cols, CV_MAKETYPE(CV_16S, CV_MAT_CN(src->type)));
   cvConvert(src, CVMAT(dest));
   return dest;
 }

@@ -58,6 +58,22 @@ class TestCvScalar < TestOpenCV
       assert_in_delta(5.4, s[2], 0.01)
       assert_in_delta(7.2, s[3], 0.01)
     }
+
+    mat = CvMat.new(5, 5)
+    mask = CvMat.new(5, 5, :cv8u, 1)
+    mat.height.times { |j|
+      mat.width.times { |i|
+        mat[i, j] = CvScalar.new(1.5)
+        mask[i, j] = (i < 2 and j < 3) ? 1 : 0
+      }
+    }
+    mat = CvScalar.new(0.1).sub(mat, mask)
+
+    [CvMat.new(5, 5, :cv16u, 1), CvMat.new(5, 5, :cv8u, 3)].each { |mask|
+      assert_raise(TypeError) {
+        CvScalar.new.sub(mat, mask)
+      }
+    }
   end
 
   def test_to_s

@@ -168,7 +168,6 @@ define_ruby_module()
   /* 6: 64bit floating-point */
   rb_define_const(rb_module, "CV_64F", INT2FIX(CV_64F));
   
-  
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */
   rb_define_const(rb_module, "INVERSION_METHOD", inversion_method);

@@ -479,8 +479,7 @@ class TestCvMat < TestOpenCV
 
     m1 = make_cvmat(5, 5)
     m0 = m1.clone
-    flunk('FIXME: constant CV_8UC1 is not implemented yet (but CV_8U == CV_8UC1...?).')
-    mask = CvMat.new(m.height, m.width, CV_8UC1)
+    mask = CvMat.new(m1.height, m1.width, :cv8u, 1).clear
     2.times { |j|
       2.times { |i|
         mask[i, j] = CvScalar.new(1, 1, 1, 1)
@@ -492,15 +491,15 @@ class TestCvMat < TestOpenCV
     m2.height.times { |j|
       m2.width.times { |i|
         if i < 2 and j < 2
-          assert(is_same_float_array([1, 1, 1, 1], m1[i, j]))
-          assert(is_same_float_array([1, 1, 1, 1], m2[i, j]))
+          assert(is_same_float_array([1, 2, 3, 4], m1[i, j]))
+          assert(is_same_float_array([1, 2, 3, 4], m2[i, j]))
         else
           assert(is_same_float_array(m0[i, j], m1[i, j]))
           assert(is_same_float_array(m0[i, j], m2[i, j]))
         end
       }
     }
-
+    
     # Alias
     m1 = make_cvmat(2, 3)
     m2 = m1.set(CvScalar.new(1, 2, 3, 4))
@@ -514,8 +513,7 @@ class TestCvMat < TestOpenCV
 
     m1 = make_cvmat(5, 5)
     m0 = m1.clone
-    flunk('FIXME: constant CV_8UC1 is not implemented yet (but CV_8U == CV_8UC1...?).')
-    mask = CvMat.new(m.height, m.width, CV_8UC1)
+    mask = CvMat.new(m1.height, m1.width, CV_8U, 1).clear
     2.times { |j|
       2.times { |i|
         mask[i, j] = CvScalar.new(1, 1, 1, 1)
@@ -527,8 +525,8 @@ class TestCvMat < TestOpenCV
     m2.height.times { |j|
       m2.width.times { |i|
         if i < 2 and j < 2
-          assert(is_same_float_array([1, 1, 1, 1], m1[i, j]))
-          assert(is_same_float_array([1, 1, 1, 1], m2[i, j]))
+          assert(is_same_float_array([1, 2, 3, 4], m1[i, j]))
+          assert(is_same_float_array([1, 2, 3, 4], m2[i, j]))
         else
           assert(is_same_float_array(m0[i, j], m1[i, j]))
           assert(is_same_float_array(m0[i, j], m2[i, j]))
@@ -578,13 +576,12 @@ class TestCvMat < TestOpenCV
   end
 
   def test_range
-    m1 = CvMat.new(1, 10)
-    flunk('FIXME: constant CV_32SC1 is not implemented yet (but CV_32S == CV_32UC1...?).')
-    m2 = m1.range(0, m1.cols, CV_32SC1)
-    m1.range!(0, m1.cols, CV_32SC1)
+    m1 = CvMat.new(1, 10, CV_32S, 1)
+    m2 = m1.range(0, m1.cols)
+    m1.range!(0, m1.cols)
     m2.width.times { |i|
-      assert(is_same_float_array([i, 0, 0, 0], m1[i, j].to_ary))
-      assert(is_same_float_array([i, 0, 0, 0], m2[i, j].to_ary))
+      assert(is_same_float_array([i, 0, 0, 0], m1[i, 0].to_ary))
+      assert(is_same_float_array([i, 0, 0, 0], m2[i, 0].to_ary))
     }
   end
 

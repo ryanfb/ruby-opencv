@@ -275,7 +275,9 @@ MASK(VALUE object)
 {
   if(NIL_P(object))
     return NULL;
-  else if(rb_obj_is_kind_of(object, cCvMat::rb_class()) && CV_MAT_CN(CVMAT(object)->type) == CV_8UC1)
+  else if(rb_obj_is_kind_of(object, cCvMat::rb_class()) &&
+	  CV_MAT_DEPTH(CVMAT(object)->type) == CV_8UC1 &&
+	  CV_MAT_CN(CVMAT(object)->type) == 1)
     return CVMAT(object);
   else
     rb_raise(rb_eTypeError, "object is not mask.");

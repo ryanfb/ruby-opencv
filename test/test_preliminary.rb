@@ -1,15 +1,90 @@
 #!/usr/bin/env ruby
-#  -*- mode: ruby; coding: utf-8-unix -*- 
-
+# -*- mode: ruby; coding: utf-8-unix -*- 
 require 'test/unit'
 require 'digest/md5'
 require 'opencv'
-require File.expand_path(File.dirname(__FILE__)) + '/test_opencv'
+require File.expand_path(File.dirname(__FILE__)) + '/helper'
 
 include OpenCV
 
 # Tests to run first; check the handful of basic operations that the later tests rely on
-class TestPreliminary < TestOpenCV
+class TestPreliminary < OpenCVTestCase
+  def test_assert_array_equal
+    assert_array_equal([1, 2, 3, 4], [1, 2, 3, 4])
+
+    # Uncomment the following line to check the fail case
+    # assert_array_equal([1, 2, 3, 4], [1, 2, 3, 0])
+  end
+
+  def test_assert_cvscalar_equal
+    assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), CvScalar.new(1, 2, 3, 4))
+    assert_cvscalar_equal(CvScalar.new(0.1, 0.2, 0.3, 0.4), CvScalar.new(0.1, 0.2, 0.3, 0.4))
+
+    # Uncomment the following lines to check the fail cases
+    # assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), CvScalar.new(1, 2, 3, 0))
+    # assert_cvscalar_equal(CvScalar.new(0.1, 0.2, 0.3, 0.4), CvScalar.new(0.1, 0.2, 0.3, 0.0))
+  end
+  
+  def test_assert_in_delta
+    assert_in_delta(1, 0.9999, 0.1)
+    assert_in_delta(CvScalar.new(1, 2, 3, 4), CvScalar.new(1.01, 2.01, 3.01, 4.01), 0.1)
+    assert_in_delta(CvScalar.new(1, 2, 3, 4), [1.01, 2.01, 3.01, 4.01], 0.1)
+    assert_in_delta([1, 2, 3, 4], CvScalar.new(1.01, 2.01, 3.01, 4.01), 0.1)
+    assert_in_delta([1, 2, 3, 4], [1.01, 2.01, 3.01, 4.01], 0.1)
+
+    # Uncomment the following lines to check the fail cases
+    # assert_in_delta(1, 0.009, 0.1)
+    # assert_in_delta(CvScalar.new(1, 2, 3, 4), CvScalar.new(1.01, 2.01, 3.01, 4.01), 0.001)
+    # assert_in_delta(CvScalar.new(1, 2, 3, 4), [1.01, 2.01, 3.01, 4.01], 0.001)
+    # assert_in_delta([1, 2, 3, 4], CvScalar.new(1.01, 2.01, 3.01, 4.01), 0.001)
+    # assert_in_delta([1, 2, 3, 4], [1.01, 2.01, 3.01, 4.01], 0.001)
+  end
+
+  def test_create_cvmat
+    mat = create_cvmat(3, 4)
+    assert_equal(3, mat.height)
+    assert_equal(4, mat.width)
+    assert_equal(:cv8u, mat.depth)
+    assert_equal(4, mat.channel)
+    c = 1
+    mat.height { |j|
+      mat.width { |i|
+        assert_cvscalar_equal(CvScalar.new(c, c, c, c), mat[i, j])
+        c += 1
+      }
+    }
+
+    mat = create_cvmat(2, 3, :cv16s, 2)
+    assert_equal(2, mat.height)
+    assert_equal(3, mat.width)
+    assert_equal(:cv16s, mat.depth)
+    assert_equal(2, mat.channel)
+    c = 1
+    mat.height { |j|
+      mat.width { |i|
+        assert_cvscalar_equal(CvScalar.new(c, c, 0, 0), mat[i, j])
+        c += 1
+      }
+    }
+
+    mat = create_cvmat(2, 3, :cv16u, 3) { |j, i, c|
+      n = j + i + c
+      CvScalar.new(n, n, n, 0)
+    }
+    assert_equal(2, mat.height)
+    assert_equal(3, mat.width)
+    assert_equal(:cv16u, mat.depth)
+    assert_equal(3, mat.channel)
+    c = 1
+    mat.height { |j|
+      mat.width { |i|
+        n = j + i + c
+        assert_cvscalar_equal(CvScalar.new(n, n, n, 0), mat[i, j])
+        c += 1
+      }
+    }
+  end
+  
   def test_lena
     # Check that the lena jpg image has loaded correctly
     img = get_sample('lena.jpg', false)
@@ -28,25 +103,5 @@ class TestPreliminary < TestOpenCV
     assert_equal(IplImage.new(7, 5, CV_8U, 1).class, IplImage)
     assert_equal(CvMat.new(5, 7, CV_32F).class, CvMat)
   end
-
-  def test_to_s
-    [1, 4, 64, 512, 640].each { |w|
-      [1, 4, 64, 480, 512].each { |h|
-        [1, 2, 3, 4].each { |c|
-          @depths.each { |d|
-            expected_size = w * h * c * @depthsize[d]
-
-            mat = CvMat.new(w, h, d, c)
-            assert_equal(expected_size, mat.data.size)
-
-            # img = IplImage.new(w, h, d, c)
-            # expected_size += 4 - (expected_size % 4) unless (expected_size % 4) == 0
-            # assert_equal(expected_size, img.data.to_s.size)
-          }
-        }
-      }
-    }
-  end
 end
-
 

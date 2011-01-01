@@ -1,27 +1,14 @@
 #!/usr/bin/env ruby
 # -*- mode: ruby; coding: utf-8-unix -*- 
-
 require 'test/unit'
 require 'opencv'
 require 'pp'
-require File.expand_path(File.dirname(__FILE__)) + '/test_opencv'
+require File.expand_path(File.dirname(__FILE__)) + '/helper'
 
 include OpenCV
 
 # Tests for OpenCV::CvMat
-class TestCvMat < TestOpenCV
-  def make_cvmat(h, w, depth = :cv8u, channel = 4)
-    m = CvMat.new(h, w, depth, channel)
-    count = 1
-    h.times { |j|
-      w.times { |i|
-        m[i, j] = CvScalar.new(*([count] * channel))
-        count += 1
-      }
-    }
-    m
-  end
-  
+class TestCvMat < OpenCVTestCase
   def test_DRAWING_OPTION
     CvMat::DRAWING_OPTION[:color].to_ary.each { |c|
       assert_in_delta(0, c, 0.01)
@@ -141,26 +128,31 @@ class TestCvMat < TestOpenCV
   end
 
   def test_clone
-    m1 = make_cvmat(10, 20)
+    m1 = create_cvmat(10, 20)
     m2 = m1.clone
     assert_equal(m1.data, m2.data)
   end
 
   def test_copy
-    m1 = make_cvmat(10, 20, CV_32F, 1)
+    m1 = create_cvmat(10, 20, CV_32F, 1)
 
     m2 = m1.copy
     assert_equal(m1.data, m2.data)
     
     m2 = CvMat.new(10, 20, CV_32F, 1)
     m1.copy(m2)
-    m1.height.times { |j|
-      m1.width.times { |i|
-        assert(is_same_float_array(m1[i, j].to_ary, m2[i, j].to_ary))
+    assert_equal(m1.data, m2.data)
+    
+    a = m1.copy(2)
+    assert_equal(2, a.size)
+    a.each { |m|
+      m1.height.times { |j|
+        m1.width.times { |i|
+          assert_cvscalar_equal(m1[i, j], m[i, j])
+        }
       }
     }
-
-    assert_equal(m1.data, m2.data)
+    assert_nil(m1.copy(-1))
 
     flunk('FIXME: CvUnmatchedSizes and CvUnmatchedFormats are not implemented yet')
     m2 = CvMat.new(1, 2, CV_32F, 1)
@@ -176,17 +168,6 @@ class TestCvMat < TestOpenCV
     assert_raise(CvUnmatchedFormats) {
       m1.copy(m2)
     }
-    
-    a = m1.copy(2)
-    assert_equal(2, a.size)
-    a.each { |m|
-      m1.height.times { |j|
-        m1.width.times { |i|
-          assert(is_same_float_array(m1[i, j].to_ary, m[i, j].to_ary))
-        }
-      }
-    }
-    assert_nil(m1.copy(-1))
   end
 
   def test_convert_depth
@@ -223,7 +204,7 @@ class TestCvMat < TestOpenCV
   end
 
   def test_sub_rect
-    m1 = make_cvmat(10, 10)
+    m1 = create_cvmat(10, 10)
 
     assert_raise(ArgumentError) {
       m1.sub_rect
@@ -234,7 +215,7 @@ class TestCvMat < TestOpenCV
     assert_equal(3, m2.height)
     m2.height.times { |j|
       m2.width.times { |i|
-        assert(is_same_float_array(m1[i, j].to_ary, m2[i, j].to_ary))
+        assert_cvscalar_equal(m1[i, j], m2[i, j])
       }
     }
     
@@ -244,7 +225,7 @@ class TestCvMat < TestOpenCV
     assert_equal(5, m2.height)
     m2.height.times { |j|
       m2.width.times { |i|
-        assert(is_same_float_array(m1[topleft.x + i, topleft.y + j].to_ary, m2[i, j].to_ary))
+        assert_cvscalar_equal(m1[topleft.x + i, topleft.y + j], m2[i, j])
       }
     }
 
@@ -254,7 +235,7 @@ class TestCvMat < TestOpenCV
     assert_equal(4, m2.height)
     m2.height.times { |j|
       m2.width.times { |i|
-        assert(is_same_float_array(m1[topleft.x + i, topleft.y + j].to_ary, m2[i, j].to_ary))
+        assert_cvscalar_equal(m1[topleft.x + i, topleft.y + j], m2[i, j])
       }
     }
 
@@ -264,13 +245,13 @@ class TestCvMat < TestOpenCV
     assert_equal(3, m2.height)
     m2.height.times { |j|
       m2.width.times { |i|
-        assert(is_same_float_array(m1[i, j].to_ary, m2[i, j].to_ary))
+        assert_cvscalar_equal(m1[i, j], m2[i, j])
       }
     }
   end
 
   def test_slice_width
-    m1 = make_cvmat(10, 40, :cv32f, 1)
+    m1 = create_cvmat(10, 40, :cv32f, 1)
     ml, mr = m1.slice_width(2)
     [ml, mr].each { |m|
       assert_equal(10, m.height)
@@ -281,14 +262,14 @@ class TestCvMat < TestOpenCV
 
     ml.height.times { |j|
       ml.width.times { |i|
-        assert(is_same_float_array(m1[i, j].to_ary, ml[i, j].to_ary))
-        assert(is_same_float_array(m1[20 + i, j].to_ary, mr[i, j].to_ary))
+        assert_cvscalar_equal(m1[i, j], ml[i, j])
+        assert_cvscalar_equal(m1[(m1.width / 2) + i, j], mr[i, j])
       }
     }
   end
 
   def test_slice_height
-    m1 = make_cvmat(10, 20, :cv32f, 1)
+    m1 = create_cvmat(10, 20, :cv32f, 1)
     mt, mb = m1.slice_height(2)
     [mt, mb].each { |m|
       assert_equal(5, m.height)
@@ -299,20 +280,20 @@ class TestCvMat < TestOpenCV
 
     mt.height.times { |j|
       mt.width.times { |i|
-        assert(is_same_float_array(m1[i, j].to_ary, mt[i, j].to_ary))
-        assert(is_same_float_array(m1[i, 5 + j].to_ary, mb[i, j].to_ary))
+        assert_cvscalar_equal(m1[i, j], mt[i, j])
+        assert_cvscalar_equal(m1[i, (m1.height / 2) + j], mb[i, j])
       }
     }
   end
   
   def test_row
-    m1 = make_cvmat(10, 20)
+    m1 = create_cvmat(10, 20)
 
     m2 = m1.row(2)
     assert_equal(1, m2.height)
     assert_equal(m1.width, m2.width)
     m1.width.times { |i|
-      assert(is_same_float_array(m1[i, 2].to_ary, m2[i].to_ary))
+      assert_cvscalar_equal(m1[i, 2], m2[i])
     }
 
     m2, m3 = m1.row(1, 2)
@@ -321,19 +302,19 @@ class TestCvMat < TestOpenCV
       assert_equal(m1.width, m.width)
     }
     m1.width.times { |i|
-      assert(is_same_float_array(m1[i, 1].to_ary, m2[i].to_ary))
-      assert(is_same_float_array(m1[i, 2].to_ary, m3[i].to_ary))
+      assert_cvscalar_equal(m1[i, 1], m2[i])
+      assert_cvscalar_equal(m1[i, 2], m3[i])
     }
   end
 
   def test_col
-    m1 = make_cvmat(10, 20)
+    m1 = create_cvmat(10, 20)
 
     m2 = m1.col(2)
     assert_equal(1, m2.width)
     assert_equal(m1.height, m2.height)
     m1.height.times { |j|
-      assert(is_same_float_array(m1[2, j].to_ary, m2[j].to_ary))
+      assert_cvscalar_equal(m1[2, j], m2[j])
     }
 
     m2, m3 = m1.col(1, 2)
@@ -342,13 +323,13 @@ class TestCvMat < TestOpenCV
       assert_equal(m1.height, m.height)
     }
     m1.height.times { |j|
-      assert(is_same_float_array(m1[1, j].to_ary, m2[j].to_ary))
-      assert(is_same_float_array(m1[2, j].to_ary, m3[j].to_ary))
+      assert_cvscalar_equal(m1[1, j], m2[j])
+      assert_cvscalar_equal(m1[2, j], m3[j])
     }
   end
 
   def test_each_row
-    m1 = make_cvmat(2, 3)
+    m1 = create_cvmat(2, 3)
     a = [[1, 2, 3], [4, 5, 6]]
     a.map! { |a1|
       a1.map! { |a2|
@@ -359,14 +340,14 @@ class TestCvMat < TestOpenCV
     j = 0
     m1.each_row { |r|
       a[j].size.times { |i|
-        assert(is_same_float_array(a[j][i].to_ary, r[i].to_ary))
+        assert_cvscalar_equal(a[j][i], r[i])
       }
       j += 1
     }
   end
 
   def test_each_col
-    m1 = make_cvmat(2, 3)
+    m1 = create_cvmat(2, 3)
     a = [[1, 4], [2, 5], [3, 6]]
     a.map! { |a1|
       a1.map! { |a2|
@@ -377,7 +358,7 @@ class TestCvMat < TestOpenCV
     j = 0
     m1.each_col { |c|
       a[j].size.times { |i|
-        assert(is_same_float_array(a[j][i].to_ary, c[i].to_ary))
+        assert_cvscalar_equal(a[j][i], c[i])
       }
       j += 1
     }
@@ -386,42 +367,38 @@ class TestCvMat < TestOpenCV
     j = 0
     m1.each_column { |c|
       a[j].size.times { |i|
-        assert(is_same_float_array(a[j][i].to_ary, c[i].to_ary))
+        assert_cvscalar_equal(a[j][i], c[i])
       }
       j += 1
     }
   end
 
   def test_diag
-    m = make_cvmat(5, 5)
-    # a = [1.1, 7.7, 14.3, 20.9, 27.5].map { |x| CvScalar.new(x, x, x, x) }
+    m = create_cvmat(5, 5)
     a = [1, 7, 13, 19, 25].map { |x| CvScalar.new(x, x, x, x) }
     d = m.diag
 
     a.each_with_index { |s, i|
-      assert(is_same_float_array(s.to_ary, d[i].to_ary))
+      assert_cvscalar_equal(s, d[i])
     }
 
-    # a = [2.2, 8.8, 15.4, 22.0].map { |x| CvScalar.new(x, x, x, x) }
     a = [2, 8, 14, 20].map { |x| CvScalar.new(x, x, x, x) }
     d = m.diag(1)
     a.each_with_index { |s, i|
-      assert(is_same_float_array(s.to_ary, d[i].to_ary))
+      assert_cvscalar_equal(s, d[i])
     }
 
-    # a = [6.6, 13.2, 19.8, 26.4].map { |x| CvScalar.new(x, x, x, x) }
     a = [6, 12, 18, 24].map { |x| CvScalar.new(x, x, x, x) }
     d = m.diag(-1)
     a.each_with_index { |s, i|
-      assert(is_same_float_array(s.to_ary, d[i].to_ary))
+      assert_cvscalar_equal(s, d[i])
     }
 
     # Alias
-    # a = [1.1, 7.7, 14.3, 20.9, 27.5].map { |x| CvScalar.new(x, x, x, x) }
     a = [1, 7, 13, 19, 25].map { |x| CvScalar.new(x, x, x, x) }
     d = m.diagonal
     a.each_with_index { |s, i|
-      assert(is_same_float_array(s.to_ary, d[i].to_ary))
+      assert_cvscalar_equal(s, d[i])
     }
   end
 
@@ -443,41 +420,41 @@ class TestCvMat < TestOpenCV
   end
 
   def test_aref
-    m = make_cvmat(2, 3)
-    assert(is_same_float_array([1, 1, 1, 1], m[0]))
-    assert(is_same_float_array([5, 5, 5, 5], m[4]))
-    assert(is_same_float_array([2, 2, 2, 2], m[1, 0]))
-    assert(is_same_float_array([4, 4, 4, 4], m[0, 1]))
+    m = create_cvmat(2, 3)
+    assert_cvscalar_equal(CvScalar.new(1, 1, 1, 1), m[0])
+    assert_cvscalar_equal(CvScalar.new(5, 5, 5, 5), m[4])
+    assert_cvscalar_equal(CvScalar.new(2, 2, 2, 2), m[1, 0])
+    assert_cvscalar_equal(CvScalar.new(4, 4, 4, 4), m[0, 1])
 
     # Alias
-    assert(is_same_float_array([1, 1, 1, 1], m.at(0)))
+    assert_cvscalar_equal(CvScalar.new(1, 1, 1, 1), m.at(0))
 
     flunk('FIXME: cvGetND cases do not seem to work well')
   end
 
   def test_aset
-    m = make_cvmat(2, 3)
+    m = create_cvmat(2, 3)
     m[0] = CvScalar.new(10, 10, 10, 10)
-    assert(is_same_float_array([10, 10, 10, 10], m[0]))
+    assert_cvscalar_equal(CvScalar.new(10, 10, 10, 10), m[0])
 
     m[1, 0] = CvScalar.new(20, 20, 20, 20)
-    assert(is_same_float_array([20, 20, 20, 20], m[1, 0]))
+    assert_cvscalar_equal(CvScalar.new(20, 20, 20, 20), m[1, 0])
 
     flunk('FIXME: cvSetND cases do not seem to work well')
   end
 
   def test_fill
-    m1 = make_cvmat(2, 3)
+    m1 = create_cvmat(2, 3)
     m2 = m1.fill(CvScalar.new(1, 2, 3, 4))
     m1.fill!(CvScalar.new(1, 2, 3, 4))
     m2.height.times { |j|
       m2.width.times { |i|
-        assert(is_same_float_array([1, 2, 3, 4], m1[i, j]))
-        assert(is_same_float_array([1, 2, 3, 4], m2[i, j]))
+        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[i, j])
+        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[i, j])
       }
     }
 
-    m1 = make_cvmat(5, 5)
+    m1 = create_cvmat(5, 5)
     m0 = m1.clone
     mask = CvMat.new(m1.height, m1.width, :cv8u, 1).clear
     2.times { |j|
@@ -491,27 +468,27 @@ class TestCvMat < TestOpenCV
     m2.height.times { |j|
       m2.width.times { |i|
         if i < 2 and j < 2
-          assert(is_same_float_array([1, 2, 3, 4], m1[i, j]))
-          assert(is_same_float_array([1, 2, 3, 4], m2[i, j]))
+          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[i, j])
+          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[i, j])
         else
-          assert(is_same_float_array(m0[i, j], m1[i, j]))
-          assert(is_same_float_array(m0[i, j], m2[i, j]))
+          assert_cvscalar_equal(m0[i, j], m1[i, j])
+          assert_cvscalar_equal(m0[i, j], m2[i, j])
         end
       }
     }
     
     # Alias
-    m1 = make_cvmat(2, 3)
+    m1 = create_cvmat(2, 3)
     m2 = m1.set(CvScalar.new(1, 2, 3, 4))
     m1.set!(CvScalar.new(1, 2, 3, 4))
     m2.height.times { |j|
       m2.width.times { |i|
-        assert(is_same_float_array([1, 2, 3, 4], m1[i, j]))
-        assert(is_same_float_array([1, 2, 3, 4], m2[i, j]))
+        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[i, j])
+        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[i, j])
       }
     }
 
-    m1 = make_cvmat(5, 5)
+    m1 = create_cvmat(5, 5)
     m0 = m1.clone
     mask = CvMat.new(m1.height, m1.width, CV_8U, 1).clear
     2.times { |j|
@@ -525,51 +502,51 @@ class TestCvMat < TestOpenCV
     m2.height.times { |j|
       m2.width.times { |i|
         if i < 2 and j < 2
-          assert(is_same_float_array([1, 2, 3, 4], m1[i, j]))
-          assert(is_same_float_array([1, 2, 3, 4], m2[i, j]))
+          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[i, j])
+          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[i, j])
         else
-          assert(is_same_float_array(m0[i, j], m1[i, j]))
-          assert(is_same_float_array(m0[i, j], m2[i, j]))
+          assert_cvscalar_equal(m0[i, j], m1[i, j])
+          assert_cvscalar_equal(m0[i, j], m2[i, j])
         end
       }
     }
   end
 
   def test_clear
-    m1 = make_cvmat(2, 3)
+    m1 = create_cvmat(2, 3)
     m2 = m1.clear
     m1.clear!
     m2.height.times { |j|
       m2.width.times { |i|
-        assert(is_same_float_array([0, 0, 0, 0], m1[i, j]))
-        assert(is_same_float_array([0, 0, 0, 0], m2[i, j]))
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[i, j])
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m2[i, j])
       }
     }
 
     # Alias
-    m1 = make_cvmat(2, 3)
+    m1 = create_cvmat(2, 3)
     m2 = m1.set_zero
     m1.set_zero!
     m2.height.times { |j|
       m2.width.times { |i|
-        assert(is_same_float_array([0, 0, 0, 0], m1[i, j]))
-        assert(is_same_float_array([0, 0, 0, 0], m2[i, j]))
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[i, j])
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m2[i, j])
       }
     }
   end
 
   def test_identity
-    m1 = make_cvmat(5, 5)
+    m1 = create_cvmat(5, 5)
     m2 = m1.identity
     m1.identity!
     m2.height.times { |j|
       m2.width.times { |i|
         if i == j
-          assert(is_same_float_array([1, 0, 0, 0], m1[i, j].to_ary))
-          assert(is_same_float_array([1, 0, 0, 0], m2[i, j].to_ary))
+          assert_cvscalar_equal(CvScalar.new(1, 0, 0, 0), m1[i, j])
+          assert_cvscalar_equal(CvScalar.new(1, 0, 0, 0), m2[i, j])
         else
-          assert(is_same_float_array([0, 0, 0, 0], m1[i, j].to_ary))
-          assert(is_same_float_array([0, 0, 0, 0], m2[i, j].to_ary))
+          assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[i, j])
+          assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m2[i, j])
         end
       }
     }
@@ -580,13 +557,13 @@ class TestCvMat < TestOpenCV
     m2 = m1.range(0, m1.cols)
     m1.range!(0, m1.cols)
     m2.width.times { |i|
-      assert(is_same_float_array([i, 0, 0, 0], m1[i, 0].to_ary))
-      assert(is_same_float_array([i, 0, 0, 0], m2[i, 0].to_ary))
+      assert_cvscalar_equal(CvScalar.new(i, 0, 0, 0), m1[i, 0])
+      assert_cvscalar_equal(CvScalar.new(i, 0, 0, 0), m2[i, 0])
     }
   end
 
   def test_reshape
-    m = make_cvmat(2, 3, CV_8U, 3)
+    m = create_cvmat(2, 3, CV_8U, 3)
     assert_raise(TypeError) {
       m.reshape(1)
     }
@@ -596,7 +573,7 @@ class TestCvMat < TestOpenCV
     assert_equal(1, vec.height)
     size = m.width * m.height
     size.times { |i|
-      assert(is_same_float_array(m[i].to_ary, vec[i].to_ary))
+      assert_cvscalar_equal(m[i], vec[i])
     }
 
     ch1 = m.reshape(:channel => 1)
@@ -608,13 +585,13 @@ class TestCvMat < TestOpenCV
         s1 = ch1[i * 3, j][0]
         s2 = ch1[i * 3 + 1, j][0]
         s3 = ch1[i * 3 + 2, j][0]
-        assert(is_same_float_array(m[i, j].to_ary, [s1, s2, s3, 0]))
+        assert_cvscalar_equal(m[i, j], CvScalar.new(s1, s2, s3, 0))
       }
     }
   end
 
   def test_repeat
-    m1 = make_cvmat(2, 3)
+    m1 = create_cvmat(2, 3)
     assert_raise(TypeError) {
       m1.repeat(1)
     }
@@ -622,11 +599,10 @@ class TestCvMat < TestOpenCV
     m2 = m1.repeat(m2)
     m2.height.times { |j|
       m2.width.times { |i|
-        a = m1[i % m1.width, j % m1.height].to_ary
-        assert(is_same_float_array(m2[i, j].to_ary, a))
+        a = m1[i % m1.width, j % m1.height]
+        assert_cvscalar_equal(m2[i, j], a)
       }
     }
-    
   end
   
   # def test_avg_sdv
@@ -640,8 +616,6 @@ class TestCvMat < TestOpenCV
   #   assert_in_delta(avg[0], 5.0, 0.01)
   #   assert_in_delta(sdv[0], 2.0, 0.01)
   # end
-
 end
-
 
 

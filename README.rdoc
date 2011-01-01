@@ -1,12 +1,12 @@
-= opencv
+= OpenCV
 
 The initial Open Computer Vision library was originally developed by Intel 
 Corporation. Recent development has been headed by Willow Garage, Inc.
 
-Current OpenCV Sourceforge Project
+OpenCV Sourceforge Project
 http://opencv.willowgarage.com/wiki/
 
-Earlier OpenCV Sourceforge Project
+Sourceforge
 http://sourceforge.net/projects/opencvlibrary/
 
 Ruby/OpenCV Author's Web Page
@@ -19,16 +19,14 @@ OpenCV Ruby Wrapper
 == FEATURES/PROBLEMS:
 
 * First release rubygems, Some OpenCV functions wrapped.
+* Ruby 1.8.7, 1.9.2 and OpenCV 2.2 are supported.
 * Mouse interaction often causes segfaults on my Ubuntu 10.10 (Ruby 1.9.2).
 
 == DEPENDENCIES:
 
-This gem relies on the OpenCV project. There are a number of ways to install
-the library. Building the latest from source is preferred on OSX:
-  
-  http://opencv.willowgarage.com/wiki/Mac_OS_X_OpenCV_Port
+This library relies on the OpenCV project. The following page shows how to install it:
 
-This also contains the data for the default cascades.
+  http://opencv.willowgarage.com/wiki/InstallGuide  
 
 == INSTALLATION:
 
@@ -80,7 +78,7 @@ subfolder called data.
 
 == REQUIREMENTS:
 
-* OpenCV 2.2
+* OpenCV 2.2 or later
   http://opencv.willowgarage.com/wiki/
 * ffcall (optional)
   http://www.haible.de/bruno/packages-ffcall.html

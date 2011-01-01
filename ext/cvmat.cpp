@@ -905,7 +905,7 @@ rb_sub_rect(VALUE self, VALUE args)
     area.height = NUM2INT(RARRAY_PTR(args)[3]);
     break;
   default:
-    rb_raise(rb_eArgError, "wrong number of arguments (%d of 1 or 2 or 4)", RARRAY_LEN(args));
+    rb_raise(rb_eArgError, "wrong number of arguments (%ld of 1 or 2 or 4)", RARRAY_LEN(args));
   }
   return DEPEND_OBJECT(rb_klass,
                        cvGetSubRect(CVARR(self), CVALLOC(CvMat), area),

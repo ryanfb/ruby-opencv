@@ -75,9 +75,9 @@ class TestCvMat < OpenCVTestCase
     assert_nil(m1.parent)
 
     flunk('FIXME: resolve unexpected ABORT of CvMat#to_CvMat')
-    # m2 = m1.to_CvMat
-    # assert(m2.has_parent?)
-    # assert_same(m1, m2.parent)
+    m2 = m1.to_CvMat
+    assert(m2.has_parent?)
+    assert_same(m1, m2.parent)
   end
 
   def test_inside
@@ -200,10 +200,10 @@ class TestCvMat < OpenCVTestCase
   end
 
   def test_to_CvMat
+    m1 = CvMat.new(2, 2)
     flunk('FIXME: resolve unexpected ABORT of CvMat#to_CvMat')
-    # m1 = CvMat.new(2, 2)
-    # m2 = m1.to_CvMat
-    # assert_same(m1, m2.parent)
+    m2 = m1.to_CvMat
+    assert_same(m1, m2.parent)
   end
 
   def test_sub_rect
@@ -761,6 +761,210 @@ class TestCvMat < OpenCVTestCase
         a = m0[i, j].to_ary.map { |x| x + 10.0 }
         assert_in_delta(a, m3[i, j], 0.001)
         assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m4[i, j])
+      }
+    }
+  end
+
+  def test_convert_scale_abs
+    m0 = create_cvmat(2, 3, :cv8u, 4) { |j, i, c|
+      CvScalar.new(c, c, c, c)
+    }
+    
+    m1 = m0.convert_scale_abs(:depth => :cv64f)
+    m2 = m0.convert_scale_abs(:scale => 2)
+    m3 = m0.convert_scale_abs(:shift => 10.0)
+    m4 = m0.convert_scale_abs(:depth => CV_64F)
+
+    [m1, m2, m3, m4].each { |m|
+      assert_equal(m0.height, m.height)
+      assert_equal(m0.width, m.width)
+    }
+    m0.height.times { |j|
+      m0.width.times { |i|
+        assert_cvscalar_equal(m0[i, j], m1[i, j])
+        a = m0[i, j].to_ary.map { |x| (x * 2).abs }
+        assert_in_delta(a, m2[i, j], 0.001)
+        a = m0[i, j].to_ary.map { |x| (x + 10.0).abs }
+        assert_in_delta(a, m3[i, j], 0.001)
+        assert_cvscalar_equal(m0[i, j], m4[i, j])
+      }
+    }
+  end
+
+  def test_add
+    m1 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
+      CvScalar.new(c * 0.1, c * 0.2, c * 0.3, c * 0.4)
+    }
+    m2 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
+      CvScalar.new(c * 1, c * 2, c * 3, c * 4)
+    }
+
+    # CvMat + CvMat
+    m3 = m1.add(m2)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    n = 0
+    m1.height.times { |j|
+      m1.width.times { |i|
+        s = CvScalar.new(n * 1.1, n * 2.2, n * 3.3, n * 4.4)
+        assert_in_delta(s, m3[i, j], 0.001)
+        n += 1
+      }
+    }
+
+    # CvMat + CvScalar
+    s1 = CvScalar.new(1, 2, 3, 4)
+    m3 = m1.add(s1)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    n = 0
+    m1.height.times { |j|
+      m1.width.times { |i|
+        s = CvScalar.new(n * 0.1 + 1, n * 0.2 + 2, n * 0.3 + 3, n * 0.4 + 4)
+        assert_in_delta(s, m3[i, j], 0.001)
+        n += 1
+      }
+    }
+
+    # Alias
+    m3 = m1 + m2
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    n = 0
+    m1.height.times { |j|
+      m1.width.times { |i|
+        s = CvScalar.new(n * 1.1, n * 2.2, n * 3.3, n * 4.4)
+        assert_in_delta(s, m3[i, j], 0.001)
+        n += 1
+      }
+    }
+
+    # CvMat + CvMat with Mask
+    mask = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      (i < 3 and j < 2) ? 1 : 0
+    }
+
+   flunk('FIXME: Tests of CvMat + CvMat with Mask often (but not always) fails. Is initializing required...?')
+    m4 = m1.add(m2, mask)
+    assert_equal(m1.height, m4.height)
+    assert_equal(m1.width, m4.width)
+    n = 0
+    m1.height.times { |j|
+      m1.width.times { |i|
+        if i < 3 and j < 2
+          s = CvScalar.new(n * 1.1, n * 2.2, n * 3.3, n * 4.4)
+        else
+          s = CvScalar.new(0)
+        end
+        assert_in_delta(s, m4[i, j], 0.001)
+        n += 1
+      }
+    }
+
+    flunk('FIXME: Tests of CvMat + CvScalar with Mask often (but not always) fails. Is initializing required...?')
+    # CvMat + CvScalar with Mask
+    m4 = m1.add(s1, mask)
+    assert_equal(m1.height, m4.height)
+    assert_equal(m1.width, m4.width)
+    n = 0
+    m1.height.times { |j|
+      m1.width.times { |i|
+        if i < 3 and j < 2
+          s = CvScalar.new(n * 0.1 + 1, n * 0.2 + 2, n * 0.3 + 3, n * 0.4 + 4)          
+        else
+          s = CvScalar.new(0)
+        end
+        assert_in_delta(s, m4[i, j], 0.001)
+        n += 1
+      }
+    }
+  end
+
+  def test_sub
+    m1 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
+      CvScalar.new(c * 0.1, c * 0.2, c * 0.3, c * 0.4)
+    }
+    m2 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
+      CvScalar.new(c * 1, c * 2, c * 3, c * 4)
+    }
+
+    # CvMat - CvMat
+    m3 = m1.sub(m2)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    n = 0
+    m1.height.times { |j|
+      m1.width.times { |i|
+        s = CvScalar.new(-n * 0.9, -n * 1.8, -n * 2.7, -n * 3.6)
+        assert_in_delta(s, m3[i, j], 0.001)
+        n += 1
+      }
+    }
+
+    # CvMat - CvScalar
+    s1 = CvScalar.new(1, 2, 3, 4)
+    m3 = m1.sub(s1)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    n = 0
+    m1.height.times { |j|
+      m1.width.times { |i|
+        s = CvScalar.new(n * 0.1 - 1, n * 0.2 - 2, n * 0.3 - 3, n * 0.4 - 4)
+        assert_in_delta(s, m3[i, j], 0.001)
+        n += 1
+      }
+    }
+
+    # Alias
+    m3 = m1 - m2
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    n = 0
+    m1.height.times { |j|
+      m1.width.times { |i|
+        s = CvScalar.new(-n * 0.9, -n * 1.8, -n * 2.7, -n * 3.6)
+        assert_in_delta(s, m3[i, j], 0.001)
+        n += 1
+      }
+    }
+
+    mask = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      (i < 3 and j < 2) ? 1 : 0
+    }
+
+    flunk('FIXME: Tests of CvMat - CvMat with Mask often (but not always) fails. Is initializing required...?')
+    # CvMat - CvMat with Mask
+    m4 = m1.sub(m2, mask)
+    assert_equal(m1.height, m4.height)
+    assert_equal(m1.width, m4.width)
+    n = 0
+    m1.height.times { |j|
+      m1.width.times { |i|
+        if i < 3 and j < 2
+          s = CvScalar.new(-n * 0.9, -n * 1.8, -n * 2.7, -n * 3.6)
+        else
+          s = CvScalar.new(0)
+        end
+        assert_in_delta(s, m4[i, j], 0.001)
+        n += 1
+      }
+    }
+
+    flunk('FIXME: Tests of CvMat - CvScalar with Mask often (but not always) fails. Is initializing required...?')
+    # CvMat - CvScalar with Mask
+    m4 = m1.add(s1, mask)
+    assert_equal(m1.height, m4.height)
+    assert_equal(m1.width, m4.width)
+    n = 0
+    m1.height.times { |j|
+      m1.width.times { |i|
+        if i < 3 and j < 2
+          s = CvScalar.new(n * 0.1 - 1, n * 0.2 - 2, n * 0.3 - 3, n * 0.4 - 4)
+        else
+          s = CvScalar.new(0)
+        end
+        assert_in_delta(s, m4[i, j], 0.001)
+        n += 1
       }
     }
   end

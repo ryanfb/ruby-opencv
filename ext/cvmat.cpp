@@ -1374,7 +1374,7 @@ rb_reshape(VALUE self, VALUE hash)
 VALUE
 rb_repeat(VALUE self, VALUE object)
 {
-  if (rb_obj_is_kind_of(object, rb_class()))
+  if (!rb_obj_is_kind_of(object, rb_class()))
     rb_raise(rb_eTypeError, "argument should be CvMat subclass.");
   cvRepeat(CVARR(self), CVARR(object));
   return object;

@@ -594,11 +594,11 @@ class TestCvMat < OpenCVTestCase
   end
 
   def test_repeat
-    m1 = create_cvmat(2, 3)
+    m1 = create_cvmat(2, 3, :cv8u, 3)
     assert_raise(TypeError) {
       m1.repeat(1)
     }
-    m2 = CvMat.new(6, 9)
+    m2 = CvMat.new(6, 9, :cv8u, 3)
     m2 = m1.repeat(m2)
     m2.height.times { |j|
       m2.width.times { |i|

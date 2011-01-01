@@ -394,18 +394,22 @@ class TestCvMat < TestOpenCV
 
   def test_diag
     m = make_cvmat(5, 5)
+    # a = [1.1, 7.7, 14.3, 20.9, 27.5].map { |x| CvScalar.new(x, x, x, x) }
     a = [1, 7, 13, 19, 25].map { |x| CvScalar.new(x, x, x, x) }
     d = m.diag
+
     a.each_with_index { |s, i|
       assert(is_same_float_array(s.to_ary, d[i].to_ary))
     }
 
+    # a = [2.2, 8.8, 15.4, 22.0].map { |x| CvScalar.new(x, x, x, x) }
     a = [2, 8, 14, 20].map { |x| CvScalar.new(x, x, x, x) }
     d = m.diag(1)
     a.each_with_index { |s, i|
       assert(is_same_float_array(s.to_ary, d[i].to_ary))
     }
 
+    # a = [6.6, 13.2, 19.8, 26.4].map { |x| CvScalar.new(x, x, x, x) }
     a = [6, 12, 18, 24].map { |x| CvScalar.new(x, x, x, x) }
     d = m.diag(-1)
     a.each_with_index { |s, i|
@@ -413,6 +417,7 @@ class TestCvMat < TestOpenCV
     }
 
     # Alias
+    # a = [1.1, 7.7, 14.3, 20.9, 27.5].map { |x| CvScalar.new(x, x, x, x) }
     a = [1, 7, 13, 19, 25].map { |x| CvScalar.new(x, x, x, x) }
     d = m.diagonal
     a.each_with_index { |s, i|

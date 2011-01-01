@@ -16,6 +16,11 @@ class TestCvScalar < TestOpenCV
     [10, 20, 30, 40].each_with_index { |x, i|
       assert_in_delta(x, s[i], 0.01)
     }
+
+    s = CvScalar.new(0.1, 0.2, 0.3, 0.4)
+    [0.1, 0.2, 0.3, 0.4].each_with_index { |x, i|
+      assert_in_delta(x, s[i], 0.01)
+    }
   end
 
   def test_aset
@@ -24,6 +29,14 @@ class TestCvScalar < TestOpenCV
       s[i] = x
     }
     [10, 20, 30, 40].each_with_index { |x, i|
+      assert_in_delta(x, s[i], 0.01)
+    }
+
+    s = CvScalar.new
+    [0.1, 0.2, 0.3, 0.4].each_with_index { |x, i|
+      s[i] = x
+    }
+    [0.1, 0.2, 0.3, 0.4].each_with_index { |x, i|
       assert_in_delta(x, s[i], 0.01)
     }
   end
@@ -37,20 +50,29 @@ class TestCvScalar < TestOpenCV
       assert_in_delta(24, s[2], 0.01)
       assert_in_delta(32, s[3], 0.01)
     }
+
+    s3 = CvScalar.new(0.2, 0.4, 0.6, 0.8)
+    [s2.sub(s3), s2 - s3].each { |s|
+      assert_in_delta(1.8, s[0], 0.01)
+      assert_in_delta(3.6, s[1], 0.01)
+      assert_in_delta(5.4, s[2], 0.01)
+      assert_in_delta(7.2, s[3], 0.01)
+    }
   end
 
   def test_to_s
     assert_equal("<OpenCV::CvScalar:10,20,30,40>", CvScalar.new(10, 20, 30, 40).to_s)
+    assert_equal("<OpenCV::CvScalar:0.1,0.2,0.3,0.4>", CvScalar.new(0.1, 0.2, 0.3, 0.4).to_s)
   end
 
   def test_to_ary
-    a = [10, 20, 30, 40]
-    s = CvScalar.new(*a)
-    
-    b = s.to_ary
-    assert_equal(Array, b.class)
-    a.each_with_index { |x, i|
-      assert_in_delta(x, b[i], 0.01)
+    [[10, 20, 30, 40], [0.1, 0.2, 0.3, 0.4]].each { |a|
+      s = CvScalar.new(*a)
+      b = s.to_ary
+      assert_equal(Array, b.class)
+      a.each_with_index { |x, i|
+        assert_in_delta(x, b[i], 0.01)
+      }
     }
   end
 

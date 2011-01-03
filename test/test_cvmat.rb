@@ -1421,40 +1421,110 @@ class TestCvMat < OpenCVTestCase
     }
   end
 
-  def test_ne
-    m1 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
-      CvScalar.new(c, 0, 0, 0)
+  def test_in_range
+    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(c + 5, 0, 0, 0)
     }
-    m2 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+    m1 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
       CvScalar.new(10, 0, 0, 0)
     }
+    m2 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(20, 0, 0, 0)
+    }
     s1 = CvScalar.new(10, 0, 0, 0)
-    m3 = m1.ne(m2)
-    m4 = m1.ne(s1)
-    m5 = m1.ne(10)
+    s2 = CvScalar.new(20, 0, 0, 0)
+
+    m3 = m0.in_range(m1, m2)
+    m4 = m0.in_range(s1, s2)
+    m5 = m0.in_range(10, 20)
 
     [m3, m4, m5].each { |m|
-      assert_equal(m1.height, m.height)
-      assert_equal(m1.width, m.width)
+      assert_equal(m0.height, m.height)
+      assert_equal(m0.width, m.width)
       assert_each_cvscalar(m) { |j, i, c|
-        n = (c != 10) ? 0xff : 0
+        val = m0[j, i][0]
+        n = ((val >= 10) and (val < 20)) ? 0xff : 0
         CvScalar.new(n, 0, 0, 0)
       }
     }
   end
 
+  def test_abs_diff
+    m0 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
+      CvScalar.new(-10 + 10.5, 20 + 10.5, -30 + 10.5, 40 - 10.5)
+    }
+    m1 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
+      CvScalar.new(c + 10.5, c - 10.5, c + 10.5, c - 10.5)
+    }
+    m2 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
+      CvScalar.new(c, c, c, c)
+    }
 
-  # def test_avg_sdv
-  #   m = CvMat.new(1, 8, CV_32F)
-  #   [2, 4, 4, 4, 5, 5, 7, 9].each_with_index { |v, i|
-  #     m[i] = CvScalar.new(v, 0, 0, 0)
-  #   }
-  #   avg = m.avg
-  #   assert_in_delta(avg[0], 5.0, 0.01)
-  #   avg, sdv = m.avg_sdv
-  #   assert_in_delta(avg[0], 5.0, 0.01)
-  #   assert_in_delta(sdv[0], 2.0, 0.01)
-  # end
+    s1 = CvScalar.new(-10, 20, -30, 40)
+    m3 = m1.abs_diff(m2)
+    m4 = m0.abs_diff(s1)
+
+    [m3, m4].each { |m|
+      assert_equal(m1.width, m.width)
+      assert_equal(m1.height, m.height)
+      assert_each_cvscalar(m, 0.001) {
+        CvScalar.new(10.5, 10.5, 10.5, 10.5)
+      }
+    }
+  end
+
+  def test_count_non_zero
+    m0 = create_cvmat(6, 4, :cv32f, 1) { |j, i, c|
+      n = 0
+      n = 1 if i == 0
+      CvScalar.new(n, 0, 0, 0)
+    }
+    assert_equal(6, m0.count_non_zero)
+  end
+
+  def test_sum
+    m0 = create_cvmat(6, 4, :cv32f, 1) { |j, i, c|
+      CvScalar.new(c, c, c, c)
+    }
+    assert_cvscalar_equal(CvScalar.new(276, 0, 0, 0), m0.sum)
+
+    m0 = create_cvmat(6, 4, :cv32f, 1) { |j, i, c|
+      CvScalar.new(-c)
+    }
+    assert_cvscalar_equal(CvScalar.new(-276, 0, 0, 0), m0.sum)
+  end
+
+  def test_avg
+    m0 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
+      CvScalar.new(c * 0.1, -c * 0.1, c, -c)
+    }
+    assert_in_delta(CvScalar.new(1.15, -1.15, 11.5, -11.5), m0.avg, 0.001)
+
+    mask = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      n = (i == j) ? 1 : 0
+      CvScalar.new(n)
+    }
+    assert_in_delta(CvScalar.new(0.75, -0.75, 7.5, -7.5), m0.avg(mask), 0.001)
+  end
+
+  def test_avg_sdv
+    m0 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
+      CvScalar.new(c * 0.1, -c * 0.1, c, -c)
+    }
+    avg, sdv = m0.avg_sdv
+    assert_in_delta(CvScalar.new(1.15, -1.15, 11.5, -11.5), avg, 0.001)
+    assert_in_delta(CvScalar.new(0.69221, 0.69221, 6.9221, 6.9221), sdv, 0.001)
+
+    mask = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      n = (i == j) ? 1 : 0
+      CvScalar.new(n)
+    }
+    avg, sdv = m0.avg_sdv(mask)
+    assert_in_delta(CvScalar.new(0.75, -0.75, 7.5, -7.5), avg, 0.001)
+    assert_in_delta(CvScalar.new(0.55901, 0.55901, 5.5901, 5.5901), sdv, 0.001)
+  end
+
+  
 end
 
 

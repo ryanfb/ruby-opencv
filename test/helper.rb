@@ -118,8 +118,8 @@ class OpenCVTestCase < Test::Unit::TestCase
     mat.height.times { |j|
       a = []
       mat.width.times { |i|
-        tmp = mat[j, i].to_ary.map {|m| m.to_i }.join(',')
-        #tmp = mat[j, i].to_ary.map {|m| m.to_f.round(2) }.join(',')
+        # tmp = mat[j, i].to_ary.map {|m| m.to_i }.join(',')
+        tmp = mat[j, i].to_ary.map {|m| m.to_f.round(2) }.join(',')
         a << "[#{tmp}]"
       }
       s << a.join(' ')

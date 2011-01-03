@@ -1299,6 +1299,21 @@ class TestCvMat < OpenCVTestCase
     }
   end
 
+  def test_eq
+    m1 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      n = (c.even?) ? 10 : c
+      CvScalar.new(n, 0, 0, 0)
+    }
+    m2 = m1.eq(10)
+
+    assert_equal(m1.height, m2.height)
+    assert_equal(m1.width, m2.width)
+    assert_each_cvscalar(m2) { |j, i, c|
+      n = (c.even?) ? 0xff : 0
+      CvScalar.new(n, 0, 0, 0)
+    }
+  end
+  
   # def test_avg_sdv
   #   m = CvMat.new(1, 8, CV_32F)
   #   [2, 4, 4, 4, 5, 5, 7, 9].each_with_index { |v, i|

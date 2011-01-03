@@ -1734,7 +1734,7 @@ rb_and(int argc, VALUE *argv, VALUE self)
 {
   VALUE val, mask, dest;
   rb_scan_args(argc, argv, "11", &val, &mask);
-  dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
+  dest = copy(self);
   if (rb_obj_is_kind_of(val, rb_klass))
     cvAnd(CVARR(self), CVARR(val), CVARR(dest), MASK(mask));
   else

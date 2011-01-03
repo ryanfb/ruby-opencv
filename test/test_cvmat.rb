@@ -844,7 +844,7 @@ class TestCvMat < OpenCVTestCase
       (i < 3 and j < 2) ? 1 : 0
     }
 
-   flunk('FIXME: Tests of CvMat + CvMat with Mask often (but not always) fails. Is initializing required...?')
+    flunk('FIXME: Tests of CvMat + CvMat with Mask often (but not always) fails. Is initializing required...?')
     m4 = m1.add(m2, mask)
     assert_equal(m1.height, m4.height)
     assert_equal(m1.width, m4.width)
@@ -1083,7 +1083,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1.and(m2)
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       CvScalar.new(n & 1, n & 2, n & 3, n & 4)
     }
@@ -1092,7 +1092,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1.and(m2, mask)
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       if i < 3 and j < 2
         CvScalar.new(n & 1, n & 2, n & 3, n & 4)
@@ -1105,7 +1105,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1.and(s1)
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       CvScalar.new(n & 1, n & 2, n & 3, n & 4)
     }
@@ -1114,7 +1114,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1.and(s1, mask)
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       if i < 3 and j < 2
         CvScalar.new(n & 1, n & 2, n & 3, n & 4)
@@ -1127,7 +1127,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1 & m2
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       CvScalar.new(n & 1, n & 2, n & 3, n & 4)
     }
@@ -1135,7 +1135,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1 & s1
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       CvScalar.new(n & 1, n & 2, n & 3, n & 4)
     }
@@ -1154,7 +1154,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1.or(m2)
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       CvScalar.new(n | 1, n | 2, n | 3, n | 4)
     }
@@ -1163,7 +1163,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1.or(m2, mask)
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       if i < 3 and j < 2
         CvScalar.new(n | 1, n | 2, n | 3, n | 4)
@@ -1176,7 +1176,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1.or(s1)
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       CvScalar.new(n | 1, n | 2, n | 3, n | 4)
     }
@@ -1185,7 +1185,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1.or(s1, mask)
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       if i < 3 and j < 2
         CvScalar.new(n | 1, n | 2, n | 3, n | 4)
@@ -1198,7 +1198,7 @@ class TestCvMat < OpenCVTestCase
     m3 = m1 | m2
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       CvScalar.new(n | 1, n | 2, n | 3, n | 4)
     }
@@ -1206,9 +1206,96 @@ class TestCvMat < OpenCVTestCase
     m3 = m1 | s1
     assert_equal(m1.height, m3.height)
     assert_equal(m1.width, m3.width)
-    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+    assert_each_cvscalar(m3) { |j, i, c|
       n = c + 1
       CvScalar.new(n | 1, n | 2, n | 3, n | 4)
+    }
+  end
+
+
+  def test_xor
+    m1 = create_cvmat(6, 4)
+    s1 = CvScalar.new(1, 2, 3, 4)
+    m2 = create_cvmat(6, 4) { s1 }
+    mask = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      s = (i < 3 and j < 2) ? 1 : 0
+      CvScalar.new(s)
+    }
+    
+    # CvMat ^ CvMat
+    m3 = m1.xor(m2)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n ^ 1, n ^ 2, n ^ 3, n ^ 4)
+    }
+
+    # CvMat ^ CvMat with mask
+    m3 = m1.xor(m2, mask)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3) { |j, i, c|
+      n = c + 1
+      if i < 3 and j < 2
+        CvScalar.new(n ^ 1, n ^ 2, n ^ 3, n ^ 4)
+      else
+        CvScalar.new(n, n, n, n)
+      end
+    }
+    
+    # CvMat ^ CvScalar
+    m3 = m1.xor(s1)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n ^ 1, n ^ 2, n ^ 3, n ^ 4)
+    }
+
+    # CvMat ^ CvScalar with mask
+    m3 = m1.xor(s1, mask)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3) { |j, i, c|
+      n = c + 1
+      if i < 3 and j < 2
+        CvScalar.new(n ^ 1, n ^ 2, n ^ 3, n ^ 4)
+      else
+        CvScalar.new(n, n, n, n)
+      end
+    }
+
+    # Alias
+    m3 = m1 ^ m2
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n ^ 1, n ^ 2, n ^ 3, n ^ 4)
+    }
+
+    m3 = m1 ^ s1
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n ^ 1, n ^ 2, n ^ 3, n ^ 4)
+    }
+  end
+
+  def test_not
+    m1 = create_cvmat(6, 4, :cv8s)
+    m2 = m1.not;
+    m3 = m1.clone
+    m3.not!
+    [m2, m3].each { |m|
+      assert_equal(m1.height, m.height)
+      assert_equal(m1.width, m.width)
+      assert_each_cvscalar(m) { |j, i, c|
+        n = c + 1
+        CvScalar.new(~n, ~n, ~n, ~n)
+      }
     }
   end
 

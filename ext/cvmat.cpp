@@ -1780,7 +1780,7 @@ rb_xor(int argc, VALUE *argv, VALUE self)
 {
   VALUE val, mask, dest;
   rb_scan_args(argc, argv, "11", &val, &mask);
-  dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
+  dest = copy(self);
   if (rb_obj_is_kind_of(val, rb_klass))
     cvXor(CVARR(self), CVARR(val), CVARR(dest), MASK(mask));
   else
@@ -1798,7 +1798,7 @@ rb_xor(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_not(VALUE self)
 {
-  VALUE dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
+  VALUE dest = copy(self);
   cvNot(CVARR(self), CVARR(dest));
   return dest;
 }

@@ -41,25 +41,36 @@ class TestPreliminary < OpenCVTestCase
   end
 
   def test_assert_each_cvscalar
-    mat = CvMat.new(5, 5, :cv32f, 4)
+    mat1 = CvMat.new(5, 5, :cv32f, 4)
+    mat2 = CvMat.new(5, 5, :cv32f, 4)
     c = 0
     mat.height.times { |j|
       mat.width.times { |i|
-        mat[i, j] = CvScalar.new(c * 0.1, c * 0.2, c * 0.3, c * 0.4)
+        mat1[i, j] = CvScalar.new(c * 0.1, c * 0.2, c * 0.3, c * 0.4)
+        mat2[i, j] = CvScalar.new(c, c, c, c)
         c += 1
       }
     }
     
-    assert_each_cvscalar(mat, 0.001) { |j, i, n|
+    assert_each_cvscalar(mat1, 0.001) { |j, i, n|
       CvScalar.new(n * 0.1, n * 0.2, n * 0.3, n * 0.4)
     }
-
+    assert_each_cvscalar(mat2) { |j, i, n|
+      CvScalar.new(c, c, c, c)
+    }
+    
     # Uncomment the following lines to check the fail cases
-    # assert_each_cvscalar(mat, 0.001) { |j, i, n|
+    # assert_each_cvscalar(mat1, 0.001) { |j, i, n|
     #   CvScalar.new(n * 0.1, n * 0.2, n * 0.3, 0)
     # }
-    # assert_each_cvscalar(mat, 0.001) { |j, i, n|
+    # assert_each_cvscalar(mat1, 0.001) { |j, i, n|
     #   CvScalar.new(1, 2, 3, 4)
+    # }
+    # assert_each_cvscalar(mat2) { |j, i, n|
+    #   CvScalar.new(n * 0.1, n * 0.2, n * 0.3, 0)
+    # }
+    # assert_each_cvscalar(mat2) { |j, i, n|
+    #   CvScalar.new(1, 2, 3, 0)
     # }
   end
 

@@ -66,7 +66,7 @@ class OpenCVTestCase < Test::Unit::TestCase
     m
   end
 
-  def assert_each_cvscalar(actual, delta, &block)
+  def assert_each_cvscalar(actual, delta = 0, &block)
     raise unless block_given?
     count = 0
     actual.height.times { |j|

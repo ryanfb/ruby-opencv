@@ -23,16 +23,16 @@ class OpenCVTestCase < Test::Unit::TestCase
       original_aref(*idx)
     end
 
-    def []=(*idx, val)
-      if idx.size == 1
-        n = idx[0]
+    def []=(*args)
+      if args.size == 2
+        n = args[0] # index
         throw ArgumentError.new("index #{n} is out of range") if n >= rows * cols
       else
-        j, i = *idx
+        j, i = *args
         throw ArgumentError.new("index for row #{j} is out of range") if j >= rows
         throw ArgumentError.new("index for column #{i} is out of range") if i >= cols
       end
-      original_aset(*idx, val)
+      original_aset(*args)
     end
   end
 

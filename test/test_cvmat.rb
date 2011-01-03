@@ -1494,23 +1494,12 @@ class TestCvMat < OpenCVTestCase
     assert_cvscalar_equal(CvScalar.new(-276, 0, 0, 0), m0.sum)
   end
 
-  def test_avg
-    m0 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
-      CvScalar.new(c * 0.1, -c * 0.1, c, -c)
-    }
-    assert_in_delta(CvScalar.new(1.15, -1.15, 11.5, -11.5), m0.avg, 0.001)
-
-    mask = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
-      n = (i == j) ? 1 : 0
-      CvScalar.new(n)
-    }
-    assert_in_delta(CvScalar.new(0.75, -0.75, 7.5, -7.5), m0.avg(mask), 0.001)
-  end
-
   def test_avg_sdv
     m0 = create_cvmat(6, 4, :cv32f, 4) { |j, i, c|
       CvScalar.new(c * 0.1, -c * 0.1, c, -c)
     }
+    assert_in_delta(CvScalar.new(1.15, -1.15, 11.5, -11.5), m0.avg, 0.001)
+    assert_in_delta(CvScalar.new(0.69221, 0.69221, 6.9221, 6.9221), m0.sdv, 0.001)
     avg, sdv = m0.avg_sdv
     assert_in_delta(CvScalar.new(1.15, -1.15, 11.5, -11.5), avg, 0.001)
     assert_in_delta(CvScalar.new(0.69221, 0.69221, 6.9221, 6.9221), sdv, 0.001)
@@ -1519,12 +1508,13 @@ class TestCvMat < OpenCVTestCase
       n = (i == j) ? 1 : 0
       CvScalar.new(n)
     }
+    assert_in_delta(CvScalar.new(0.75, -0.75, 7.5, -7.5), m0.avg(mask), 0.001)
+    assert_in_delta(CvScalar.new(0.55901, 0.55901, 5.5901, 5.5901), m0.sdv(mask), 0.001)
+
     avg, sdv = m0.avg_sdv(mask)
     assert_in_delta(CvScalar.new(0.75, -0.75, 7.5, -7.5), avg, 0.001)
     assert_in_delta(CvScalar.new(0.55901, 0.55901, 5.5901, 5.5901), sdv, 0.001)
   end
-
-  
 end
 
 

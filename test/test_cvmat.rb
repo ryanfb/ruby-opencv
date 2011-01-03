@@ -1324,7 +1324,80 @@ class TestCvMat < OpenCVTestCase
       CvScalar.new(n, 0, 0, 0)
     }
   end
-  
+
+  def test_gt
+    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(c, 0, 0, 0)
+    }
+    m1 = m0.gt(10)
+
+    assert_equal(m0.height, m1.height)
+    assert_equal(m0.width, m1.width)
+    assert_each_cvscalar(m) { |j, i, c|
+      n = (c > 10) ? 0xff : 0
+      CvScalar.new(n, 0, 0, 0)
+    }
+
+  end
+
+  def test_ge
+    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(c, 0, 0, 0)
+    }
+    m1 = m0.ge(10)
+
+    assert_equal(m0.height, m1.height)
+    assert_equal(m0.width, m1.width)
+    assert_each_cvscalar(m) { |j, i, c|
+      n = (c >= 10) ? 0xff : 0
+      CvScalar.new(n, 0, 0, 0)
+    }
+  end
+
+  def test_lt
+    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(c, 0, 0, 0)
+    }
+    m1 = m0.lt(10)
+    
+    assert_equal(m0.height, m1.height)
+    assert_equal(m0.width, m1.width)
+    assert_each_cvscalar(m1) { |j, i, c|
+      n = (c < 10) ? 0xff : 0
+      CvScalar.new(n, 0, 0, 0)
+    }
+  end
+
+  def test_le
+    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(c, 0, 0, 0)
+    }
+    m1 = m0.le(10)
+    
+    assert_equal(m0.height, m1.height)
+    assert_equal(m0.width, m1.width)
+    assert_each_cvscalar(m1) { |j, i, c|
+      n = (c <= 10) ? 0xff : 0
+      CvScalar.new(n, 0, 0, 0)
+    }
+  end
+
+  def test_ne
+    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(c, 0, 0, 0)
+    }
+    m1 = m0.ne(10)
+    
+    assert_equal(m0.height, m1.height)
+    assert_equal(m0.width, m1.width)
+    assert_each_cvscalar(m1) { |j, i, c|
+      n = (c != 10) ? 0xff : 0
+      CvScalar.new(n, 0, 0, 0)
+    }
+  end
+
+
+
   # def test_avg_sdv
   #   m = CvMat.new(1, 8, CV_32F)
   #   [2, 4, 4, 4, 5, 5, 7, 9].each_with_index { |v, i|

@@ -6,6 +6,36 @@ require 'opencv'
 include OpenCV
 
 class OpenCVTestCase < Test::Unit::TestCase
+  CvMat.class_eval do
+    # Range check for debug
+    alias original_aref []
+    alias original_aset []=;
+    
+    def [](*idx)
+      if idx.size == 1
+        n = idx[0]
+        throw ArgumentError.new("index #{n} is out of range") if n >= rows * cols
+      else
+        j, i = *idx
+        throw ArgumentError.new("index for row #{j} is out of range") if j >= rows
+        throw ArgumentError.new("index for column #{i} is out of range") if i >= cols
+      end
+      original_aref(*idx)
+    end
+
+    def []=(*idx, val)
+      if idx.size == 1
+        n = idx[0]
+        throw ArgumentError.new("index #{n} is out of range") if n >= rows * cols
+      else
+        j, i = *idx
+        throw ArgumentError.new("index for row #{j} is out of range") if j >= rows
+        throw ArgumentError.new("index for column #{i} is out of range") if i >= cols
+      end
+      original_aset(*idx, val)
+    end
+  end
+
   def get_sample(filename, iscolor = nil)
     IplImage::load('samples/' + filename, iscolor)
   end

@@ -1315,87 +1315,133 @@ class TestCvMat < OpenCVTestCase
       n = (c.even?) ? 10 : c
       CvScalar.new(n, 0, 0, 0)
     }
-    m2 = m1.eq(10)
+    m2 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(10, 0, 0, 0)
+    }
+    s1 = CvScalar.new(10, 0, 0, 0)
+    m3 = m1.eq(m2)
+    m4 = m1.eq(s1)
+    m5 = m1.eq(10)
 
-    assert_equal(m1.height, m2.height)
-    assert_equal(m1.width, m2.width)
-    assert_each_cvscalar(m2) { |j, i, c|
-      n = (c.even?) ? 0xff : 0
-      CvScalar.new(n, 0, 0, 0)
+    [m3, m4, m5].each { |m|
+      assert_equal(m1.height, m.height)
+      assert_equal(m1.width, m.width)
+      assert_each_cvscalar(m) { |j, i, c|
+        n = (c.even?) ? 0xff : 0
+        CvScalar.new(n, 0, 0, 0)
+      }
     }
   end
 
   def test_gt
-    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+    m1 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
       CvScalar.new(c, 0, 0, 0)
     }
-    m1 = m0.gt(10)
-
-    assert_equal(m0.height, m1.height)
-    assert_equal(m0.width, m1.width)
-    assert_each_cvscalar(m) { |j, i, c|
-      n = (c > 10) ? 0xff : 0
-      CvScalar.new(n, 0, 0, 0)
+    m2 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(10, 0, 0, 0)
     }
+    s1 = CvScalar.new(10, 0, 0, 0)
+    m3 = m1.gt(m2)
+    m4 = m1.gt(s1)
+    m5 = m1.gt(10)
 
+    [m3, m4, m5].each { |m|
+      assert_equal(m1.height, m.height)
+      assert_equal(m1.width, m.width)
+      assert_each_cvscalar(m) { |j, i, c|
+        n = (c > 10) ? 0xff : 0
+        CvScalar.new(n, 0, 0, 0)
+      }
+    }
   end
 
   def test_ge
-    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+    m1 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
       CvScalar.new(c, 0, 0, 0)
     }
-    m1 = m0.ge(10)
+    m2 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(10, 0, 0, 0)
+    }
+    s1 = CvScalar.new(10, 0, 0, 0)
+    m3 = m1.ge(m2)
+    m4 = m1.ge(s1)
+    m5 = m1.ge(10)
 
-    assert_equal(m0.height, m1.height)
-    assert_equal(m0.width, m1.width)
-    assert_each_cvscalar(m) { |j, i, c|
-      n = (c >= 10) ? 0xff : 0
-      CvScalar.new(n, 0, 0, 0)
+    [m3, m4, m5].each { |m|
+      assert_equal(m1.height, m.height)
+      assert_equal(m1.width, m.width)
+      assert_each_cvscalar(m) { |j, i, c|
+        n = (c >= 10) ? 0xff : 0
+        CvScalar.new(n, 0, 0, 0)
+      }
     }
   end
 
   def test_lt
-    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+    m1 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
       CvScalar.new(c, 0, 0, 0)
     }
-    m1 = m0.lt(10)
-    
-    assert_equal(m0.height, m1.height)
-    assert_equal(m0.width, m1.width)
-    assert_each_cvscalar(m1) { |j, i, c|
-      n = (c < 10) ? 0xff : 0
-      CvScalar.new(n, 0, 0, 0)
+    m2 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(10, 0, 0, 0)
+    }
+    s1 = CvScalar.new(10, 0, 0, 0)
+    m3 = m1.lt(m2)
+    m4 = m1.lt(s1)
+    m5 = m1.lt(10)
+
+    [m3, m4, m5].each { |m|
+      assert_equal(m1.height, m.height)
+      assert_equal(m1.width, m.width)
+      assert_each_cvscalar(m) { |j, i, c|
+        n = (c < 10) ? 0xff : 0
+        CvScalar.new(n, 0, 0, 0)
+      }
     }
   end
 
   def test_le
-    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+    m1 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
       CvScalar.new(c, 0, 0, 0)
     }
-    m1 = m0.le(10)
-    
-    assert_equal(m0.height, m1.height)
-    assert_equal(m0.width, m1.width)
-    assert_each_cvscalar(m1) { |j, i, c|
-      n = (c <= 10) ? 0xff : 0
-      CvScalar.new(n, 0, 0, 0)
+    m2 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(10, 0, 0, 0)
+    }
+    s1 = CvScalar.new(10, 0, 0, 0)
+    m3 = m1.le(m2)
+    m4 = m1.le(s1)
+    m5 = m1.le(10)
+
+    [m3, m4, m5].each { |m|
+      assert_equal(m1.height, m.height)
+      assert_equal(m1.width, m.width)
+      assert_each_cvscalar(m) { |j, i, c|
+        n = (c <= 10) ? 0xff : 0
+        CvScalar.new(n, 0, 0, 0)
+      }
     }
   end
 
   def test_ne
-    m0 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+    m1 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
       CvScalar.new(c, 0, 0, 0)
     }
-    m1 = m0.ne(10)
-    
-    assert_equal(m0.height, m1.height)
-    assert_equal(m0.width, m1.width)
-    assert_each_cvscalar(m1) { |j, i, c|
-      n = (c != 10) ? 0xff : 0
-      CvScalar.new(n, 0, 0, 0)
+    m2 = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      CvScalar.new(10, 0, 0, 0)
+    }
+    s1 = CvScalar.new(10, 0, 0, 0)
+    m3 = m1.ne(m2)
+    m4 = m1.ne(s1)
+    m5 = m1.ne(10)
+
+    [m3, m4, m5].each { |m|
+      assert_equal(m1.height, m.height)
+      assert_equal(m1.width, m.width)
+      assert_each_cvscalar(m) { |j, i, c|
+        n = (c != 10) ? 0xff : 0
+        CvScalar.new(n, 0, 0, 0)
+      }
     }
   end
-
 
 
   # def test_avg_sdv

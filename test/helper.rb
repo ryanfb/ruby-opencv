@@ -25,7 +25,6 @@ class OpenCVTestCase < Test::Unit::TestCase
   end
 
   alias original_assert_in_delta assert_in_delta
-  # alias original_assert_equal assert_equal
 
   def assert_cvscalar_equal(expected, actual, message = nil)
     assert_equal(CvScalar, actual.class, message)
@@ -65,6 +64,37 @@ class OpenCVTestCase < Test::Unit::TestCase
       }
     }
     m
+  end
+
+  def assert_each_cvscalar(actual, delta, &block)
+    raise unless block_given?
+    count = 0
+    actual.height.times { |j|
+      actual.width.times { |i|
+        expected = block.call(j, i, count)
+        if delta == 0
+          expected = expected.to_ary if expected.is_a? CvScalar
+          assert_array_equal(expected, actual[i, j].to_ary)
+        else
+          assert_in_delta(expected, actual[i, j], delta)
+        end
+        count += 1
+      }
+    }
+  end
+
+  def print_cvmat(mat)
+    s = []
+    mat.height.times { |j|
+      a = []
+      mat.width.times { |i|
+        tmp = mat[i, j].to_ary.map {|m| m.to_i }.join(',')
+        #tmp = mat[i, j].to_ary.map {|m| m.to_f.round(2) }.join(',')
+        a << "[#{tmp}]"
+      }
+      s << a.join(' ')
+    }
+    puts s.join("\n")
   end
 end
 

@@ -692,7 +692,7 @@ class TestCvMat < OpenCVTestCase
   end
 
   def test_mix_channels
-    flunk('CvMat.mix_channels is not implemented yet.')
+    flunk('FIXME: CvMat.mix_channels is not implemented yet.')
   end
 
   def test_rand_shuffle
@@ -968,7 +968,162 @@ class TestCvMat < OpenCVTestCase
       }
     }
   end
-  
+
+  def test_mul
+    m1 = create_cvmat(3, 3, :cv32f)
+    s1 = CvScalar.new(0.1, 0.2, 0.3, 0.4)
+    m2 = create_cvmat(3, 3, :cv32f) { s1 }
+
+    # CvMat * CvMat
+    m3 = m1.mul(m2)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n * 0.1, n * 0.2, n * 0.3, n * 0.4)
+    }
+    
+    # CvMat * CvMat * scale
+    scale = 2.5
+    m3 = m1.mul(m2, scale)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = (c + 1) * scale
+      CvScalar.new(n * 0.1, n * 0.2, n * 0.3, n * 0.4)
+    }
+
+    # CvMat * CvScalar
+    scale = 2.5
+    m3 = m1.mul(s1)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n * 0.1, n * 0.2, n * 0.3, n * 0.4)
+    }
+
+    # CvMat * CvScalar * scale
+    m3 = m1.mul(s1, scale)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = (c + 1) * scale
+      CvScalar.new(n * 0.1, n * 0.2, n * 0.3, n * 0.4)
+    }
+  end
+
+  def test_mat_mul
+    flunk('FIXME: CvMat#mat_mul is not implemented yet.')
+  end
+
+  def test_div
+    m1 = create_cvmat(3, 3, :cv32f)
+    s1 = CvScalar.new(0.1, 0.2, 0.3, 0.4)
+    m2 = create_cvmat(3, 3, :cv32f) { s1 }
+
+    # CvMat / CvMat
+    m3 = m1.div(m2)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n / 0.1, n / 0.2, n / 0.3, n / 0.4)
+    }
+    
+    # scale * CvMat / CvMat
+    scale = 2.5
+    m3 = m1.div(m2, scale)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = (c + 1) * scale
+      CvScalar.new(n / 0.1, n / 0.2, n / 0.3, n / 0.4)
+    }
+
+    # CvMat / CvScalar
+    scale = 2.5
+    m3 = m1.div(s1)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n / 0.1, n / 0.2, n / 0.3, n / 0.4)
+    }
+
+    # scale * CvMat / CvScalar
+    m3 = m1.div(s1, scale)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = (c + 1) * scale
+      CvScalar.new(n / 0.1, n / 0.2, n / 0.3, n / 0.4)
+    }
+
+    # Alias
+    m3 = m1 / m2
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n / 0.1, n / 0.2, n / 0.3, n / 0.4)
+    }
+  end
+
+  def test_and
+    m1 = create_cvmat(6, 4)
+    s1 = CvScalar.new(1, 2, 3, 4)
+    m2 = create_cvmat(6, 4) { s1 }
+    mask = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      s = (i < 3 and j < 2) ? 1 : 0
+      CvScalar.new(s)
+    }
+
+    # CvMat & CvMat
+    m3 = m1.and(m2)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n & 1, n & 2, n & 3, n & 4)
+    }
+
+    # CvMat & CvMat with mask
+    m3 = m1.and(m2, mask)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0) { |j, i, c|
+      n = c + 1
+      if i < 3 and j < 2
+        CvScalar.new(n & 1, n & 2, n & 3, n & 4)
+      else
+        CvScalar.new(n, n, n, n)
+      end
+    }
+    
+    # CvMat & CvScalar
+    m3 = m1.and(s1)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n & 1, n & 2, n & 3, n & 4)
+    }
+
+    # CvMat & CvScalar with mask
+    m3 = m1.and(s1, mask)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0) { |j, i, c|
+      n = c + 1
+      if i < 3 and j < 2
+        CvScalar.new(n & 1, n & 2, n & 3, n & 4)
+      else
+        CvScalar.new(n, n, n, n)
+      end
+    }
+  end
+
   # def test_avg_sdv
   #   m = CvMat.new(1, 8, CV_32F)
   #   [2, 4, 4, 4, 5, 5, 7, 9].each_with_index { |v, i|

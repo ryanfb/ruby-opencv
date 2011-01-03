@@ -40,16 +40,41 @@ class TestPreliminary < OpenCVTestCase
     # assert_in_delta([1, 2, 3, 4], [1.01, 2.01, 3.01, 4.01], 0.001)
   end
 
+  def test_assert_each_cvscalar
+    mat = CvMat.new(5, 5, :cv32f, 4)
+    c = 0
+    mat.height.times { |j|
+      mat.width.times { |i|
+        mat[i, j] = CvScalar.new(c * 0.1, c * 0.2, c * 0.3, c * 0.4)
+        c += 1
+      }
+    }
+    
+    assert_each_cvscalar(mat, 0.001) { |j, i, n|
+      CvScalar.new(n * 0.1, n * 0.2, n * 0.3, n * 0.4)
+    }
+
+    # Uncomment the following lines to check the fail cases
+    # assert_each_cvscalar(mat, 0.001) { |j, i, n|
+    #   CvScalar.new(n * 0.1, n * 0.2, n * 0.3, 0)
+    # }
+    # assert_each_cvscalar(mat, 0.001) { |j, i, n|
+    #   CvScalar.new(1, 2, 3, 4)
+    # }
+  end
+
+
   def test_create_cvmat
     mat = create_cvmat(3, 4)
     assert_equal(3, mat.height)
     assert_equal(4, mat.width)
     assert_equal(:cv8u, mat.depth)
     assert_equal(4, mat.channel)
-    c = 1
-    mat.height { |j|
-      mat.width { |i|
-        assert_cvscalar_equal(CvScalar.new(c, c, c, c), mat[i, j])
+    c = 0
+    mat.height.times { |j|
+      mat.width.times { |i|
+        s = CvScalar.new(c + 1, c + 1, c + 1, c + 1)
+        assert_cvscalar_equal(s, mat[i, j])
         c += 1
       }
     }
@@ -59,10 +84,11 @@ class TestPreliminary < OpenCVTestCase
     assert_equal(3, mat.width)
     assert_equal(:cv16s, mat.depth)
     assert_equal(2, mat.channel)
-    c = 1
-    mat.height { |j|
-      mat.width { |i|
-        assert_cvscalar_equal(CvScalar.new(c, c, 0, 0), mat[i, j])
+    c = 0
+    mat.height.times { |j|
+      mat.width.times { |i|
+        s = CvScalar.new(c + 1, c + 1, 0, 0)
+        assert_cvscalar_equal(s, mat[i, j])
         c += 1
       }
     }
@@ -75,9 +101,9 @@ class TestPreliminary < OpenCVTestCase
     assert_equal(3, mat.width)
     assert_equal(:cv16u, mat.depth)
     assert_equal(3, mat.channel)
-    c = 1
-    mat.height { |j|
-      mat.width { |i|
+    c = 0
+    mat.height.times { |j|
+      mat.width.times { |i|
         n = j + i + c
         assert_cvscalar_equal(CvScalar.new(n, n, n, 0), mat[i, j])
         c += 1

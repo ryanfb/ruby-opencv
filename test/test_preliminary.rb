@@ -44,10 +44,10 @@ class TestPreliminary < OpenCVTestCase
     mat1 = CvMat.new(5, 5, :cv32f, 4)
     mat2 = CvMat.new(5, 5, :cv32f, 4)
     c = 0
-    mat.height.times { |j|
-      mat.width.times { |i|
-        mat1[i, j] = CvScalar.new(c * 0.1, c * 0.2, c * 0.3, c * 0.4)
-        mat2[i, j] = CvScalar.new(c, c, c, c)
+    mat1.height.times { |j|
+      mat1.width.times { |i|
+        mat1[j, i] = CvScalar.new(c * 0.1, c * 0.2, c * 0.3, c * 0.4)
+        mat2[j, i] = CvScalar.new(c, c, c, c)
         c += 1
       }
     }
@@ -56,7 +56,7 @@ class TestPreliminary < OpenCVTestCase
       CvScalar.new(n * 0.1, n * 0.2, n * 0.3, n * 0.4)
     }
     assert_each_cvscalar(mat2) { |j, i, n|
-      CvScalar.new(c, c, c, c)
+      CvScalar.new(n, n, n, n)
     }
     
     # Uncomment the following lines to check the fail cases
@@ -85,7 +85,7 @@ class TestPreliminary < OpenCVTestCase
     mat.height.times { |j|
       mat.width.times { |i|
         s = CvScalar.new(c + 1, c + 1, c + 1, c + 1)
-        assert_cvscalar_equal(s, mat[i, j])
+        assert_cvscalar_equal(s, mat[j, i])
         c += 1
       }
     }
@@ -99,7 +99,7 @@ class TestPreliminary < OpenCVTestCase
     mat.height.times { |j|
       mat.width.times { |i|
         s = CvScalar.new(c + 1, c + 1, 0, 0)
-        assert_cvscalar_equal(s, mat[i, j])
+        assert_cvscalar_equal(s, mat[j, i])
         c += 1
       }
     }
@@ -116,7 +116,7 @@ class TestPreliminary < OpenCVTestCase
     mat.height.times { |j|
       mat.width.times { |i|
         n = j + i + c
-        assert_cvscalar_equal(CvScalar.new(n, n, n, 0), mat[i, j])
+        assert_cvscalar_equal(CvScalar.new(n, n, n, 0), mat[j, i])
         c += 1
       }
     }

@@ -59,7 +59,7 @@ class OpenCVTestCase < Test::Unit::TestCase
     count = 0
     height.times { |j|
       width.times { |i|
-        m[i, j] = block.call(j, i, count)
+        m[j, i] = block.call(j, i, count)
         count += 1
       }
     }
@@ -74,9 +74,9 @@ class OpenCVTestCase < Test::Unit::TestCase
         expected = block.call(j, i, count)
         if delta == 0
           expected = expected.to_ary if expected.is_a? CvScalar
-          assert_array_equal(expected, actual[i, j].to_ary)
+          assert_array_equal(expected, actual[j, i].to_ary)
         else
-          assert_in_delta(expected, actual[i, j], delta)
+          assert_in_delta(expected, actual[j, i], delta)
         end
         count += 1
       }
@@ -88,8 +88,8 @@ class OpenCVTestCase < Test::Unit::TestCase
     mat.height.times { |j|
       a = []
       mat.width.times { |i|
-        tmp = mat[i, j].to_ary.map {|m| m.to_i }.join(',')
-        #tmp = mat[i, j].to_ary.map {|m| m.to_f.round(2) }.join(',')
+        tmp = mat[j, i].to_ary.map {|m| m.to_i }.join(',')
+        #tmp = mat[j, i].to_ary.map {|m| m.to_f.round(2) }.join(',')
         a << "[#{tmp}]"
       }
       s << a.join(' ')

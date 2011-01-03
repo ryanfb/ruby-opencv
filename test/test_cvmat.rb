@@ -9,6 +9,17 @@ include OpenCV
 
 # Tests for OpenCV::CvMat
 class TestCvMat < OpenCVTestCase
+  def test_initialize
+    m = CvMat.new(10, 20)
+    assert_equal(10, m.rows)
+    assert_equal(20, m.cols)
+    assert_equal(:cv8u, m.depth)
+    assert_equal(3, m.channel)
+    # assert_each_cvscalar(m) {
+    #   CvScalar.new(0, 0, 0, 0)
+    # }
+  end
+
   def test_DRAWING_OPTION
     CvMat::DRAWING_OPTION[:color].to_ary.each { |c|
       assert_in_delta(0, c, 0.01)
@@ -151,7 +162,7 @@ class TestCvMat < OpenCVTestCase
       assert_equal(m1.width, m.width)
       m1.height.times { |j|
         m1.width.times { |i|
-          assert_cvscalar_equal(m1[i, j], m[i, j])
+          assert_cvscalar_equal(m1[j, i], m[j, i])
         }
       }
     }
@@ -218,7 +229,7 @@ class TestCvMat < OpenCVTestCase
     assert_equal(3, m2.height)
     m2.height.times { |j|
       m2.width.times { |i|
-        assert_cvscalar_equal(m1[i, j], m2[i, j])
+        assert_cvscalar_equal(m1[j, i], m2[j, i])
       }
     }
     
@@ -228,7 +239,7 @@ class TestCvMat < OpenCVTestCase
     assert_equal(5, m2.height)
     m2.height.times { |j|
       m2.width.times { |i|
-        assert_cvscalar_equal(m1[topleft.x + i, topleft.y + j], m2[i, j])
+        assert_cvscalar_equal(m1[topleft.y + j, topleft.x + i], m2[j, i])
       }
     }
 
@@ -238,7 +249,7 @@ class TestCvMat < OpenCVTestCase
     assert_equal(4, m2.height)
     m2.height.times { |j|
       m2.width.times { |i|
-        assert_cvscalar_equal(m1[topleft.x + i, topleft.y + j], m2[i, j])
+        assert_cvscalar_equal(m1[topleft.y + j, topleft.x + i], m2[j, i])
       }
     }
 
@@ -248,7 +259,7 @@ class TestCvMat < OpenCVTestCase
     assert_equal(3, m2.height)
     m2.height.times { |j|
       m2.width.times { |i|
-        assert_cvscalar_equal(m1[i, j], m2[i, j])
+        assert_cvscalar_equal(m1[j, i], m2[j, i])
       }
     }
   end
@@ -265,8 +276,8 @@ class TestCvMat < OpenCVTestCase
 
     ml.height.times { |j|
       ml.width.times { |i|
-        assert_cvscalar_equal(m1[i, j], ml[i, j])
-        assert_cvscalar_equal(m1[(m1.width / 2) + i, j], mr[i, j])
+        assert_cvscalar_equal(m1[j, i], ml[j, i])
+        assert_cvscalar_equal(m1[j, (m1.width / 2) + i], mr[j, i])
       }
     }
   end
@@ -283,8 +294,8 @@ class TestCvMat < OpenCVTestCase
 
     mt.height.times { |j|
       mt.width.times { |i|
-        assert_cvscalar_equal(m1[i, j], mt[i, j])
-        assert_cvscalar_equal(m1[i, (m1.height / 2) + j], mb[i, j])
+        assert_cvscalar_equal(m1[j, i], mt[j, i])
+        assert_cvscalar_equal(m1[(m1.height / 2) + j, i], mb[j, i])
       }
     }
   end
@@ -296,7 +307,7 @@ class TestCvMat < OpenCVTestCase
     assert_equal(1, m2.height)
     assert_equal(m1.width, m2.width)
     m1.width.times { |i|
-      assert_cvscalar_equal(m1[i, 2], m2[i])
+      assert_cvscalar_equal(m1[2, i], m2[i])
     }
 
     m2, m3 = m1.row(1, 2)
@@ -305,8 +316,8 @@ class TestCvMat < OpenCVTestCase
       assert_equal(m1.width, m.width)
     }
     m1.width.times { |i|
-      assert_cvscalar_equal(m1[i, 1], m2[i])
-      assert_cvscalar_equal(m1[i, 2], m3[i])
+      assert_cvscalar_equal(m1[1, i], m2[i])
+      assert_cvscalar_equal(m1[2, i], m3[i])
     }
   end
 
@@ -317,7 +328,7 @@ class TestCvMat < OpenCVTestCase
     assert_equal(1, m2.width)
     assert_equal(m1.height, m2.height)
     m1.height.times { |j|
-      assert_cvscalar_equal(m1[2, j], m2[j])
+      assert_cvscalar_equal(m1[j, 2], m2[j])
     }
 
     m2, m3 = m1.col(1, 2)
@@ -326,8 +337,8 @@ class TestCvMat < OpenCVTestCase
       assert_equal(m1.height, m.height)
     }
     m1.height.times { |j|
-      assert_cvscalar_equal(m1[1, j], m2[j])
-      assert_cvscalar_equal(m1[2, j], m3[j])
+      assert_cvscalar_equal(m1[j, 1], m2[j])
+      assert_cvscalar_equal(m1[j, 2], m3[j])
     }
   end
 
@@ -426,8 +437,8 @@ class TestCvMat < OpenCVTestCase
     m = create_cvmat(2, 3)
     assert_cvscalar_equal(CvScalar.new(1, 1, 1, 1), m[0])
     assert_cvscalar_equal(CvScalar.new(5, 5, 5, 5), m[4])
-    assert_cvscalar_equal(CvScalar.new(2, 2, 2, 2), m[1, 0])
-    assert_cvscalar_equal(CvScalar.new(4, 4, 4, 4), m[0, 1])
+    assert_cvscalar_equal(CvScalar.new(2, 2, 2, 2), m[0, 1])
+    assert_cvscalar_equal(CvScalar.new(4, 4, 4, 4), m[1, 0])
 
     # Alias
     assert_cvscalar_equal(CvScalar.new(1, 1, 1, 1), m.at(0))
@@ -452,8 +463,8 @@ class TestCvMat < OpenCVTestCase
     m1.fill!(CvScalar.new(1, 2, 3, 4))
     m2.height.times { |j|
       m2.width.times { |i|
-        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[i, j])
-        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[i, j])
+        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[j, i])
+        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[j, i])
       }
     }
 
@@ -462,7 +473,7 @@ class TestCvMat < OpenCVTestCase
     mask = CvMat.new(m1.height, m1.width, :cv8u, 1).clear
     2.times { |j|
       2.times { |i|
-        mask[i, j] = CvScalar.new(1, 1, 1, 1)
+        mask[j, i] = CvScalar.new(1, 1, 1, 1)
       }
     }
 
@@ -471,11 +482,11 @@ class TestCvMat < OpenCVTestCase
     m2.height.times { |j|
       m2.width.times { |i|
         if i < 2 and j < 2
-          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[i, j])
-          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[i, j])
+          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[j, i])
+          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[j, i])
         else
-          assert_cvscalar_equal(m0[i, j], m1[i, j])
-          assert_cvscalar_equal(m0[i, j], m2[i, j])
+          assert_cvscalar_equal(m0[j, i], m1[j, i])
+          assert_cvscalar_equal(m0[j, i], m2[j, i])
         end
       }
     }
@@ -486,8 +497,8 @@ class TestCvMat < OpenCVTestCase
     m1.set!(CvScalar.new(1, 2, 3, 4))
     m2.height.times { |j|
       m2.width.times { |i|
-        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[i, j])
-        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[i, j])
+        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[j, i])
+        assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[j, i])
       }
     }
 
@@ -496,7 +507,7 @@ class TestCvMat < OpenCVTestCase
     mask = CvMat.new(m1.height, m1.width, CV_8U, 1).clear
     2.times { |j|
       2.times { |i|
-        mask[i, j] = CvScalar.new(1, 1, 1, 1)
+        mask[j, i] = CvScalar.new(1, 1, 1, 1)
       }
     }
 
@@ -505,11 +516,11 @@ class TestCvMat < OpenCVTestCase
     m2.height.times { |j|
       m2.width.times { |i|
         if i < 2 and j < 2
-          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[i, j])
-          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[i, j])
+          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m1[j, i])
+          assert_cvscalar_equal(CvScalar.new(1, 2, 3, 4), m2[j, i])
         else
-          assert_cvscalar_equal(m0[i, j], m1[i, j])
-          assert_cvscalar_equal(m0[i, j], m2[i, j])
+          assert_cvscalar_equal(m0[j, i], m1[j, i])
+          assert_cvscalar_equal(m0[j, i], m2[j, i])
         end
       }
     }
@@ -521,8 +532,8 @@ class TestCvMat < OpenCVTestCase
     m1.clear!
     m2.height.times { |j|
       m2.width.times { |i|
-        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[i, j])
-        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m2[i, j])
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[j, i])
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m2[j, i])
       }
     }
 
@@ -532,8 +543,8 @@ class TestCvMat < OpenCVTestCase
     m1.set_zero!
     m2.height.times { |j|
       m2.width.times { |i|
-        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[i, j])
-        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m2[i, j])
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[j, i])
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m2[j, i])
       }
     }
   end
@@ -545,11 +556,11 @@ class TestCvMat < OpenCVTestCase
     m2.height.times { |j|
       m2.width.times { |i|
         if i == j
-          assert_cvscalar_equal(CvScalar.new(1, 0, 0, 0), m1[i, j])
-          assert_cvscalar_equal(CvScalar.new(1, 0, 0, 0), m2[i, j])
+          assert_cvscalar_equal(CvScalar.new(1, 0, 0, 0), m1[j, i])
+          assert_cvscalar_equal(CvScalar.new(1, 0, 0, 0), m2[j, i])
         else
-          assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[i, j])
-          assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m2[i, j])
+          assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[j, i])
+          assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m2[j, i])
         end
       }
     }
@@ -560,8 +571,8 @@ class TestCvMat < OpenCVTestCase
     m2 = m1.range(0, m1.cols)
     m1.range!(0, m1.cols)
     m2.width.times { |i|
-      assert_cvscalar_equal(CvScalar.new(i, 0, 0, 0), m1[i, 0])
-      assert_cvscalar_equal(CvScalar.new(i, 0, 0, 0), m2[i, 0])
+      assert_cvscalar_equal(CvScalar.new(i, 0, 0, 0), m1[0, i])
+      assert_cvscalar_equal(CvScalar.new(i, 0, 0, 0), m2[0, i])
     }
   end
 
@@ -585,10 +596,10 @@ class TestCvMat < OpenCVTestCase
 
     m.height.times { |j|
       m.width.times { |i|
-        s1 = ch1[i * 3, j][0]
-        s2 = ch1[i * 3 + 1, j][0]
-        s3 = ch1[i * 3 + 2, j][0]
-        assert_cvscalar_equal(m[i, j], CvScalar.new(s1, s2, s3, 0))
+        s1 = ch1[j, i * 3][0]
+        s2 = ch1[j, i * 3 + 1][0]
+        s3 = ch1[j, i * 3 + 2][0]
+        assert_cvscalar_equal(m[j, i], CvScalar.new(s1, s2, s3, 0))
       }
     }
   end
@@ -602,8 +613,8 @@ class TestCvMat < OpenCVTestCase
     m2 = m1.repeat(m2)
     m2.height.times { |j|
       m2.width.times { |i|
-        a = m1[i % m1.width, j % m1.height]
-        assert_cvscalar_equal(m2[i, j], a)
+        a = m1[j % m1.height, i % m1.width]
+        assert_cvscalar_equal(m2[j, i], a)
       }
     }
   end
@@ -613,16 +624,16 @@ class TestCvMat < OpenCVTestCase
 
     m1 = m0.clone
     m1.flip!(:x)
-    m2 = m0.clone.flip(:x)
+    m2 = m0.flip(:x)
     m3 = m0.clone
     m3.flip!(:y)
-    m4 = m0.clone.flip(:y)
+    m4 = m0.flip(:y)
     m5 = m0.clone
     m5.flip!(:xy)
-    m6 = m0.clone.flip(:xy)
+    m6 = m0.flip(:xy)
     m7 = m0.clone
     m7.flip!
-    m8 = m0.clone.flip
+    m8 = m0.flip
 
     [m1, m2, m3, m4, m5, m6, m7, m8].each { |m|
       assert_equal(m0.height, m.height)
@@ -632,14 +643,14 @@ class TestCvMat < OpenCVTestCase
       m0.width.times { |i|
         ri = m0.width - i - 1
         rj = m0.height - j - 1
-        assert_cvscalar_equal(m0[ri, j], m1[i, j])
-        assert_cvscalar_equal(m0[ri, j], m2[i, j])
-        assert_cvscalar_equal(m0[i, rj], m3[i, j])
-        assert_cvscalar_equal(m0[i, rj], m4[i, j])
-        assert_cvscalar_equal(m0[ri, rj], m5[i, j])
-        assert_cvscalar_equal(m0[ri, rj], m6[i, j])
-        assert_cvscalar_equal(m0[i, rj], m7[i, j])
-        assert_cvscalar_equal(m0[i, rj], m8[i, j])
+        assert_cvscalar_equal(m0[j, ri], m1[j, i])
+        assert_cvscalar_equal(m0[j, ri], m2[j, i])
+        assert_cvscalar_equal(m0[rj, i], m3[j, i])
+        assert_cvscalar_equal(m0[rj, i], m4[j, i])
+        assert_cvscalar_equal(m0[rj, ri], m5[j, i])
+        assert_cvscalar_equal(m0[rj, ri], m6[j, i])
+        assert_cvscalar_equal(m0[rj, i], m7[j, i])
+        assert_cvscalar_equal(m0[rj, i], m8[j, i])
       }
     }
   end
@@ -656,7 +667,7 @@ class TestCvMat < OpenCVTestCase
       m0.height.times { |j|
         m0.width.times { |i|
           val = c * 10 * (idx + 1)
-          assert_cvscalar_equal(CvScalar.new(val), m[i, j])
+          assert_cvscalar_equal(CvScalar.new(val), m[j, i])
           c += 1
         }
       }
@@ -686,7 +697,7 @@ class TestCvMat < OpenCVTestCase
     assert_equal(m0.width, m.width)
     m0.height.times { |j|
       m0.width.times { |i|
-        assert_cvscalar_equal(m0[i, j], m[i, j])
+        assert_cvscalar_equal(m0[j, i], m[j, i])
       }
     }
   end
@@ -710,8 +721,8 @@ class TestCvMat < OpenCVTestCase
       mat0, mat1 = [], []
       src.height { |j|
         src.width { |i|
-          mat0 << src[i, j].to_s
-          mat1 << shuffled[i, j].to_s
+          mat0 << src[j, i].to_s
+          mat1 << shuffled[j, i].to_s
         }
       }
       assert_equal(0, (mat0 - mat1).size)
@@ -733,8 +744,8 @@ class TestCvMat < OpenCVTestCase
     assert_equal(m0.width, m.width)
     m0.height.times { |j|
       m0.width.times { |i|
-        r, g, b = m0[i, j].to_ary.map { |c| 255 - c }
-        assert_cvscalar_equal(CvScalar.new(r, g, b, 0), m[i, j])
+        r, g, b = m0[j, i].to_ary.map { |c| 255 - c }
+        assert_cvscalar_equal(CvScalar.new(r, g, b, 0), m[j, i])
       }
     }
   end
@@ -755,12 +766,12 @@ class TestCvMat < OpenCVTestCase
     }
     m0.height.times { |j|
       m0.width.times { |i|
-        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[i, j])
-        a = m0[i, j].to_ary.map { |x| x * 1.5 }
-        assert_in_delta(a, m2[i, j], 0.001)
-        a = m0[i, j].to_ary.map { |x| x + 10.0 }
-        assert_in_delta(a, m3[i, j], 0.001)
-        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m4[i, j])
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m1[j, i])
+        a = m0[j, i].to_ary.map { |x| x * 1.5 }
+        assert_in_delta(a, m2[j, i], 0.001)
+        a = m0[j, i].to_ary.map { |x| x + 10.0 }
+        assert_in_delta(a, m3[j, i], 0.001)
+        assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), m4[j, i])
       }
     }
   end
@@ -781,12 +792,12 @@ class TestCvMat < OpenCVTestCase
     }
     m0.height.times { |j|
       m0.width.times { |i|
-        assert_cvscalar_equal(m0[i, j], m1[i, j])
-        a = m0[i, j].to_ary.map { |x| (x * 2).abs }
-        assert_in_delta(a, m2[i, j], 0.001)
-        a = m0[i, j].to_ary.map { |x| (x + 10.0).abs }
-        assert_in_delta(a, m3[i, j], 0.001)
-        assert_cvscalar_equal(m0[i, j], m4[i, j])
+        assert_cvscalar_equal(m0[j, i], m1[j, i])
+        a = m0[j, i].to_ary.map { |x| (x * 2).abs }
+        assert_in_delta(a, m2[j, i], 0.001)
+        a = m0[j, i].to_ary.map { |x| (x + 10.0).abs }
+        assert_in_delta(a, m3[j, i], 0.001)
+        assert_cvscalar_equal(m0[j, i], m4[j, i])
       }
     }
   end
@@ -807,7 +818,7 @@ class TestCvMat < OpenCVTestCase
     m1.height.times { |j|
       m1.width.times { |i|
         s = CvScalar.new(n * 1.1, n * 2.2, n * 3.3, n * 4.4)
-        assert_in_delta(s, m3[i, j], 0.001)
+        assert_in_delta(s, m3[j, i], 0.001)
         n += 1
       }
     }
@@ -821,7 +832,7 @@ class TestCvMat < OpenCVTestCase
     m1.height.times { |j|
       m1.width.times { |i|
         s = CvScalar.new(n * 0.1 + 1, n * 0.2 + 2, n * 0.3 + 3, n * 0.4 + 4)
-        assert_in_delta(s, m3[i, j], 0.001)
+        assert_in_delta(s, m3[j, i], 0.001)
         n += 1
       }
     }
@@ -834,7 +845,7 @@ class TestCvMat < OpenCVTestCase
     m1.height.times { |j|
       m1.width.times { |i|
         s = CvScalar.new(n * 1.1, n * 2.2, n * 3.3, n * 4.4)
-        assert_in_delta(s, m3[i, j], 0.001)
+        assert_in_delta(s, m3[j, i], 0.001)
         n += 1
       }
     }
@@ -856,7 +867,7 @@ class TestCvMat < OpenCVTestCase
         else
           s = CvScalar.new(0)
         end
-        assert_in_delta(s, m4[i, j], 0.001)
+        assert_in_delta(s, m4[j, i], 0.001)
         n += 1
       }
     }
@@ -874,7 +885,7 @@ class TestCvMat < OpenCVTestCase
         else
           s = CvScalar.new(0)
         end
-        assert_in_delta(s, m4[i, j], 0.001)
+        assert_in_delta(s, m4[j, i], 0.001)
         n += 1
       }
     }
@@ -896,7 +907,7 @@ class TestCvMat < OpenCVTestCase
     m1.height.times { |j|
       m1.width.times { |i|
         s = CvScalar.new(-n * 0.9, -n * 1.8, -n * 2.7, -n * 3.6)
-        assert_in_delta(s, m3[i, j], 0.001)
+        assert_in_delta(s, m3[j, i], 0.001)
         n += 1
       }
     }
@@ -910,7 +921,7 @@ class TestCvMat < OpenCVTestCase
     m1.height.times { |j|
       m1.width.times { |i|
         s = CvScalar.new(n * 0.1 - 1, n * 0.2 - 2, n * 0.3 - 3, n * 0.4 - 4)
-        assert_in_delta(s, m3[i, j], 0.001)
+        assert_in_delta(s, m3[j, i], 0.001)
         n += 1
       }
     }
@@ -923,7 +934,7 @@ class TestCvMat < OpenCVTestCase
     m1.height.times { |j|
       m1.width.times { |i|
         s = CvScalar.new(-n * 0.9, -n * 1.8, -n * 2.7, -n * 3.6)
-        assert_in_delta(s, m3[i, j], 0.001)
+        assert_in_delta(s, m3[j, i], 0.001)
         n += 1
       }
     }
@@ -945,7 +956,7 @@ class TestCvMat < OpenCVTestCase
         else
           s = CvScalar.new(0)
         end
-        assert_in_delta(s, m4[i, j], 0.001)
+        assert_in_delta(s, m4[j, i], 0.001)
         n += 1
       }
     }
@@ -963,7 +974,7 @@ class TestCvMat < OpenCVTestCase
         else
           s = CvScalar.new(0)
         end
-        assert_in_delta(s, m4[i, j], 0.001)
+        assert_in_delta(s, m4[j, i], 0.001)
         n += 1
       }
     }

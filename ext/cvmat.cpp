@@ -1145,10 +1145,12 @@ rb_aref(VALUE self, VALUE args)
     scalar = cvGet1D(CVARR(self), index[0]);
     break;
   case 2:
-    scalar = cvGet2D(CVARR(self), index[1], index[0]);
+    // scalar = cvGet2D(CVARR(self), index[1], index[0]);
+    scalar = cvGet2D(CVARR(self), index[0], index[1]);
     break;
   case 3:
-    scalar = cvGet3D(CVARR(self), index[2], index[1], index[0]);
+    // scalar = cvGet3D(CVARR(self), index[2], index[1], index[0]);
+    scalar = cvGet3D(CVARR(self), index[0], index[1], index[2]);
     break;
   default:
     scalar = cvGetND(CVARR(self), index);
@@ -1176,10 +1178,10 @@ rb_aset(VALUE self, VALUE args)
     cvSet1D(CVARR(self), index[0], scalar);
     break;
   case 2:
-    cvSet2D(CVARR(self), index[1], index[0], scalar);
+    cvSet2D(CVARR(self), index[0], index[1], scalar);
     break;
   case 3:
-    cvSet3D(CVARR(self), index[2], index[1], index[0], scalar);
+    cvSet3D(CVARR(self), index[0], index[1], index[2], scalar);
     break;
   default:
     cvSetND(CVARR(self), index, scalar);

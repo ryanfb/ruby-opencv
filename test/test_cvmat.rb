@@ -1122,6 +1122,94 @@ class TestCvMat < OpenCVTestCase
         CvScalar.new(n, n, n, n)
       end
     }
+
+    # Alias
+    m3 = m1 & m2
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n & 1, n & 2, n & 3, n & 4)
+    }
+
+    m3 = m1 & s1
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n & 1, n & 2, n & 3, n & 4)
+    }
+  end
+
+  def test_or
+    m1 = create_cvmat(6, 4)
+    s1 = CvScalar.new(1, 2, 3, 4)
+    m2 = create_cvmat(6, 4) { s1 }
+    mask = create_cvmat(6, 4, :cv8u, 1) { |j, i, c|
+      s = (i < 3 and j < 2) ? 1 : 0
+      CvScalar.new(s)
+    }
+    
+    # CvMat | CvMat
+    m3 = m1.or(m2)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n | 1, n | 2, n | 3, n | 4)
+    }
+
+    # CvMat | CvMat with mask
+    m3 = m1.or(m2, mask)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0) { |j, i, c|
+      n = c + 1
+      if i < 3 and j < 2
+        CvScalar.new(n | 1, n | 2, n | 3, n | 4)
+      else
+        CvScalar.new(n, n, n, n)
+      end
+    }
+    
+    # CvMat | CvScalar
+    m3 = m1.or(s1)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n | 1, n | 2, n | 3, n | 4)
+    }
+
+    # CvMat | CvScalar with mask
+    m3 = m1.or(s1, mask)
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0) { |j, i, c|
+      n = c + 1
+      if i < 3 and j < 2
+        CvScalar.new(n | 1, n | 2, n | 3, n | 4)
+      else
+        CvScalar.new(n, n, n, n)
+      end
+    }
+
+    # Alias
+    m3 = m1 | m2
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n | 1, n | 2, n | 3, n | 4)
+    }
+
+    m3 = m1 | s1
+    assert_equal(m1.height, m3.height)
+    assert_equal(m1.width, m3.width)
+    assert_each_cvscalar(m3, 0.001) { |j, i, c|
+      n = c + 1
+      CvScalar.new(n | 1, n | 2, n | 3, n | 4)
+    }
   end
 
   # def test_avg_sdv

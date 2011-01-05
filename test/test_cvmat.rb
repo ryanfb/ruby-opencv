@@ -1552,6 +1552,71 @@ class TestCvMat < OpenCVTestCase
     assert_equal(2, max_loc.y)
     assert_equal(3, max_loc.x)
   end
+
+  def test_dot_product
+    m1 = create_cvmat(2, 2, :cv32f, 1) { |j, i, c|
+      CvScalar.new(c * 0.5)
+    }
+    m2 = create_cvmat(2, 2, :cv32f, 1) { |j, i, c|
+      CvScalar.new(c * 1.5)
+    }
+    assert_in_delta(10.5, m1.dot_product(m2), 0.001)
+
+    m1 = create_cvmat(2, 2, :cv32f) { |j, i, c|
+      CvScalar.new(c * 0.5, c * 0.6, c * 0.7, c * 0.8)
+    }
+    m2 = create_cvmat(2, 2, :cv32f) { |j, i, c|
+      CvScalar.new(c * 1.5, c * 2.0, c * 2.5, c * 3.0)
+    }
+    assert_in_delta(85.39999, m1.dot_product(m2), 0.001)
+  end
+
+  def test_cross_product
+    m1 = create_cvmat(1, 3, :cv32f, 1) { |j, i, c|
+      CvScalar.new(c * 0.5)
+    }
+    m2 = create_cvmat(1, 3, :cv32f, 1) { |j, i, c|
+      CvScalar.new(c + 1)
+    }
+    m3 = m1.cross_product(m2)
+
+    assert_in_delta(CvScalar.new(-0.5), m3[0, 0], 0.001)
+    assert_in_delta(CvScalar.new(1), m3[0, 1], 0.001)
+    assert_in_delta(CvScalar.new(-0.5), m3[0, 2], 0.001)
+  end
+
+  def test_transform
+    m0 = create_cvmat(5, 5, :cv32f, 3) { |j, i, c|
+      CvScalar.new(c * 0.5, c * 1.0, c * 1.5)
+    }
+    transmat = CvMat.new(3, 3, :cv32f, 1);
+    transmat[0, 0] = CvScalar.new(0.0)
+    transmat[1, 0] = CvScalar.new(0.0)
+    transmat[2, 0] = CvScalar.new(0.0)
+
+    transmat[0, 1] = CvScalar.new(0.0)
+    transmat[1, 1] = CvScalar.new(0.0)
+    transmat[2, 1] = CvScalar.new(1.0)
+
+    transmat[0, 2] = CvScalar.new(1.0)
+    transmat[1, 2] = CvScalar.new(0.0)
+    transmat[2, 2] = CvScalar.new(0.0)
+
+    m1 = m0.transform(transmat)
+    assert_each_cvscalar(m1, 0.01) { |j, i, c|
+      CvScalar.new(c * 1.5, 0, c, 0)
+    }
+
+    stf = CvMat.new(3, 1, :cv32f, 1)
+    stf[0, 0] = CvScalar.new(-10)
+    stf[1, 0] = CvScalar.new(0.0)
+    stf[2, 0] = CvScalar.new(5)
+
+    m1 = m0.transform(transmat, stf)
+    assert_each_cvscalar(m1, 0.01) { |j, i, c|
+      CvScalar.new(c * 1.5 - 10, 0, c + 5, 0)
+    }
+  end
 end
 
 

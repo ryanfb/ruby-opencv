@@ -1159,6 +1159,7 @@ rb_aref(VALUE self, VALUE args)
   default:
     scalar = cvGetND(CVARR(self), index);
   }
+
   return cCvScalar::new_object(scalar);
 }
 
@@ -1568,7 +1569,7 @@ rb_rand_shuffle_bang(int argc, VALUE *argv, VALUE self)
  * call-seq:
  *   lut(<i>lookup_table</i>) -> cvmat
  *
- * Return new matrix performed lookup-table transforme.
+ * Return new matrix performed lookup-table transform.
  *
  * <i>lookup_table</i> should be CvMat that have 256 element (e.g. 1x256 matrix).
  * Otherwise, raise CvStatusBadArgument error.
@@ -2122,7 +2123,10 @@ rb_transform(int argc, VALUE *argv, VALUE self)
   VALUE transmat, shiftvec;
   rb_scan_args(argc, argv, "11", &transmat, &shiftvec);
   VALUE dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvTransform(CVARR(self), CVARR(dest), CVMAT(transmat), MASK(shiftvec));
+  if (NIL_P(shiftvec))
+    cvTransform(CVARR(self), CVARR(dest), CVMAT(transmat), NULL);
+  else
+    cvTransform(CVARR(self), CVARR(dest), CVMAT(transmat), CVMAT(shiftvec));
   return dest;
 }
 

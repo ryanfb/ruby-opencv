@@ -1147,13 +1147,15 @@ rb_aref(VALUE self, VALUE args)
     scalar = cvGet1D(CVARR(self), index[0]);
     break;
   case 2:
-    // scalar = cvGet2D(CVARR(self), index[1], index[0]);
     scalar = cvGet2D(CVARR(self), index[0], index[1]);
     break;
+    /*
+    // cvGet3D should not be used in this method.
+    // "self" is always an instance of CvMat, and its data are 1D or 2D array.
   case 3:
-    // scalar = cvGet3D(CVARR(self), index[2], index[1], index[0]);
     scalar = cvGet3D(CVARR(self), index[0], index[1], index[2]);
     break;
+    */
   default:
     scalar = cvGetND(CVARR(self), index);
   }
@@ -1182,9 +1184,13 @@ rb_aset(VALUE self, VALUE args)
   case 2:
     cvSet2D(CVARR(self), index[0], index[1], scalar);
     break;
+    // cvGet3D should not be used in this method.
+    // "self" is always an instance of CvMat, and its data are 1D or 2D array.
+    /*
   case 3:
-    cvSet3D(CVARR(self), index[0], index[1], index[2], scalar);
+     cvSet3D(CVARR(self), index[0], index[1], index[2], scalar);
     break;
+    */
   default:
     cvSetND(CVARR(self), index, scalar);
   }

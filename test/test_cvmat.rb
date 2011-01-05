@@ -458,22 +458,23 @@ class TestCvMat < OpenCVTestCase
     assert_cvscalar_equal(CvScalar.new(5, 5, 5, 5), m[4])
     assert_cvscalar_equal(CvScalar.new(2, 2, 2, 2), m[0, 1])
     assert_cvscalar_equal(CvScalar.new(4, 4, 4, 4), m[1, 0])
+    assert_cvscalar_equal(CvScalar.new(2, 2, 2, 2), m[0, 1, 2])
+    assert_cvscalar_equal(CvScalar.new(4, 4, 4, 4), m[1, 0, 3, 4])
 
     # Alias
     assert_cvscalar_equal(CvScalar.new(1, 1, 1, 1), m.at(0))
-
-    flunk('FIXME: cvGetND cases do not seem to work well')
   end
 
   def test_aset
     m = create_cvmat(2, 3)
     m[0] = CvScalar.new(10, 10, 10, 10)
     assert_cvscalar_equal(CvScalar.new(10, 10, 10, 10), m[0])
-
     m[1, 0] = CvScalar.new(20, 20, 20, 20)
     assert_cvscalar_equal(CvScalar.new(20, 20, 20, 20), m[1, 0])
-
-    flunk('FIXME: cvSetND cases do not seem to work well')
+    m[1, 0, 2] = CvScalar.new(4, 4, 4, 4)
+    assert_cvscalar_equal(CvScalar.new(4, 4, 4, 4), m[1, 0])
+    m[1, 0, 2, 4] = CvScalar.new(5, 5, 5, 5)
+    assert_cvscalar_equal(CvScalar.new(5, 5, 5, 5), m[1, 0])
   end
 
   def test_fill

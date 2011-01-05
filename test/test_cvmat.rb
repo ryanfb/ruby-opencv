@@ -1617,6 +1617,50 @@ class TestCvMat < OpenCVTestCase
       CvScalar.new(c * 1.5 - 10, 0, c + 5, 0)
     }
   end
+
+  def test_perspective_transform
+    # flunk('FIXME: CvMat#perspective_transform is not tested yet.')
+    mat = CvMat.new(1, 1, :cv32f, 2)
+    mat[0] = CvScalar.new(2, 3)
+    transmat = CvMat.new(3, 3, :cv32f, 1).clear
+    mat.channel.times { |c|
+      transmat[c, c] = CvScalar.new(1.0)
+    }
+    transmat[2, 2] = CvScalar.new(0.5)
+
+    m = mat.perspective_transform(transmat)
+    assert_equal(1, m.height)
+    assert_equal(1, m.width)
+    assert_equal(:cv32f, m.depth)
+    assert_equal(2, m.channel)
+    assert_in_delta(CvScalar.new(4, 6), m[0], 0.001);
+
+    mat = CvMat.new(1, 1, :cv32f, 3)
+    mat[0] = CvScalar.new(2, 3, 4)
+    transmat = CvMat.new(4, 4, :cv32f, 1).clear
+    mat.channel.times { |c|
+      transmat[c, c] = CvScalar.new(1.0)
+    }
+    transmat[3, 3] = CvScalar.new(0.5)
+
+    m = mat.perspective_transform(transmat)
+    assert_equal(1, m.height)
+    assert_equal(1, m.width)
+    assert_equal(:cv32f, m.depth)
+    assert_equal(3, m.channel)
+    assert_in_delta(CvScalar.new(4, 6, 8), m[0], 0.001);
+  end
+
+  def test_mul_transposed
+    flunk('FIXME: CvMat#mul_transposed is not implemented yet.')
+  end
+
+  def test_trace
+    m0 = create_cvmat(5, 5, :cv32f, 4) { |j, i, c|
+      CvScalar.new(c * 0.5, c * 1.0, c * 1.5, c * 2.0)
+    }
+    assert_in_delta(CvScalar.new(30, 60, 90, 120), m0.trace, 0.001)
+  end
 end
 
 

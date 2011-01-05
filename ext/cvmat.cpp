@@ -417,11 +417,13 @@ rb_allocate(VALUE klass)
  * Number of channel is set by <i>channel</i>. <i>channel</i> should be 1..4.
  *
  */
+#include <stdio.h>
 VALUE
 rb_initialize(int argc, VALUE *argv, VALUE self)
 {
   VALUE row, column, depth, channel;
   rb_scan_args(argc, argv, "22", &row, &column, &depth, &channel);
+
   DATA_PTR(self) = cvCreateMat(FIX2INT(row), FIX2INT(column),
                                CV_MAKETYPE(CVMETHOD("DEPTH", depth, CV_8U), argc < 4 ? 3 : FIX2INT(channel)));
   return self;
@@ -1633,7 +1635,7 @@ rb_add(int argc, VALUE *argv, VALUE self)
 {
   VALUE val, mask, dest;
   rb_scan_args(argc, argv, "11", &val, &mask);
-  dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
+  dest = copy(self);
   if (rb_obj_is_kind_of(val, rb_klass))
     cvAdd(CVARR(self), CVARR(val), CVARR(dest), MASK(mask));
   else
@@ -1657,11 +1659,14 @@ rb_sub(int argc, VALUE *argv, VALUE self)
 {
   VALUE val, mask, dest;
   rb_scan_args(argc, argv, "11", &val, &mask);
-  dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  if (rb_obj_is_kind_of(val, rb_klass))
+
+  dest = copy(self);
+  if (rb_obj_is_kind_of(val, rb_klass)) {
     cvSub(CVARR(self), CVARR(val), CVARR(dest), MASK(mask));
-  else
+  }
+  else {
     cvSubS(CVARR(self), VALUE_TO_CVSCALAR(val), CVARR(dest), MASK(mask));
+  }
   return dest;
 }
 

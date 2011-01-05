@@ -8,6 +8,23 @@ include OpenCV
 
 # Tests for OpenCV::CvScalar
 class TestCvScalar < OpenCVTestCase
+  def test_initialize
+    s = CvScalar.new
+    assert_in_delta([0, 0, 0, 0], s, 0.01)
+
+    s = CvScalar.new(1.1)
+    assert_in_delta([1.1, 0, 0, 0], s, 0.01)
+
+    s = CvScalar.new(1.1, 2.2)
+    assert_in_delta([1.1, 2.2, 0, 0], s, 0.01)
+
+    s = CvScalar.new(1.1, 2.2, 3.3)
+    assert_in_delta([1.1, 2.2, 3.3, 0], s, 0.01)
+
+    s = CvScalar.new(1.1, 2.2, 3.3, 4.4)
+    assert_in_delta([1.1, 2.2, 3.3, 4.4], s, 0.01)
+  end
+  
   def test_aref
     assert_in_delta([0, 0, 0, 0], CvScalar.new, 0.01)
     assert_in_delta([10, 20, 30, 40], CvScalar.new(10, 20, 30, 40), 0.01)

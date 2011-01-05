@@ -15,9 +15,28 @@ class TestCvMat < OpenCVTestCase
     assert_equal(20, m.cols)
     assert_equal(:cv8u, m.depth)
     assert_equal(3, m.channel)
-    # assert_each_cvscalar(m) {
-    #   CvScalar.new(0, 0, 0, 0)
-    # }
+
+    depth_table = {
+      CV_8U => :cv8u, 
+      CV_8S => :cv8s,
+      CV_16U => :cv16u,
+      CV_16S => :cv16s,
+      CV_32S => :cv32s,
+      CV_32F => :cv32f,
+      CV_64F => :cv64f
+    }
+    
+    [CV_8U, CV_8S, CV_16U, CV_16S, CV_32S, CV_32F, CV_64F,
+     :cv8u, :cv8s, :cv16u, :cv16s, :cv32s, :cv32f, :cv64f].each { |depth|
+      [1, 2, 3, 4].each { |ch|
+        m = CvMat.new(10, 20, depth, ch)
+        assert_equal(10, m.rows)
+        assert_equal(20, m.cols)
+        depth = depth_table[depth] unless depth.is_a? Symbol
+        assert_equal(depth, m.depth)
+        assert_equal(ch, m.channel)
+      }
+    }
   end
 
   def test_DRAWING_OPTION
@@ -855,7 +874,6 @@ class TestCvMat < OpenCVTestCase
       (i < 3 and j < 2) ? 1 : 0
     }
 
-    flunk('FIXME: Tests of CvMat + CvMat with Mask often (but not always) fails. Is initializing required...?')
     m4 = m1.add(m2, mask)
     assert_equal(m1.height, m4.height)
     assert_equal(m1.width, m4.width)
@@ -865,14 +883,13 @@ class TestCvMat < OpenCVTestCase
         if i < 3 and j < 2
           s = CvScalar.new(n * 1.1, n * 2.2, n * 3.3, n * 4.4)
         else
-          s = CvScalar.new(0)
+          s = m1[j, i]
         end
         assert_in_delta(s, m4[j, i], 0.001)
         n += 1
       }
     }
 
-    flunk('FIXME: Tests of CvMat + CvScalar with Mask often (but not always) fails. Is initializing required...?')
     # CvMat + CvScalar with Mask
     m4 = m1.add(s1, mask)
     assert_equal(m1.height, m4.height)
@@ -883,7 +900,7 @@ class TestCvMat < OpenCVTestCase
         if i < 3 and j < 2
           s = CvScalar.new(n * 0.1 + 1, n * 0.2 + 2, n * 0.3 + 3, n * 0.4 + 4)          
         else
-          s = CvScalar.new(0)
+          s = m1[j, i]
         end
         assert_in_delta(s, m4[j, i], 0.001)
         n += 1
@@ -943,7 +960,6 @@ class TestCvMat < OpenCVTestCase
       (i < 3 and j < 2) ? 1 : 0
     }
 
-    flunk('FIXME: Tests of CvMat - CvMat with Mask often (but not always) fails. Is initializing required...?')
     # CvMat - CvMat with Mask
     m4 = m1.sub(m2, mask)
     assert_equal(m1.height, m4.height)
@@ -954,16 +970,15 @@ class TestCvMat < OpenCVTestCase
         if i < 3 and j < 2
           s = CvScalar.new(-n * 0.9, -n * 1.8, -n * 2.7, -n * 3.6)
         else
-          s = CvScalar.new(0)
+          s = m1[j, i]
         end
         assert_in_delta(s, m4[j, i], 0.001)
         n += 1
       }
     }
 
-    flunk('FIXME: Tests of CvMat - CvScalar with Mask often (but not always) fails. Is initializing required...?')
     # CvMat - CvScalar with Mask
-    m4 = m1.add(s1, mask)
+    m4 = m1.sub(s1, mask)
     assert_equal(m1.height, m4.height)
     assert_equal(m1.width, m4.width)
     n = 0
@@ -972,7 +987,7 @@ class TestCvMat < OpenCVTestCase
         if i < 3 and j < 2
           s = CvScalar.new(n * 0.1 - 1, n * 0.2 - 2, n * 0.3 - 3, n * 0.4 - 4)
         else
-          s = CvScalar.new(0)
+          s = m1[j, i]
         end
         assert_in_delta(s, m4[j, i], 0.001)
         n += 1

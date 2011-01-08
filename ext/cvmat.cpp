@@ -2292,7 +2292,7 @@ rb_solve(int argc, VALUE *argv, VALUE self)
   rb_scan_args(argc, argv, "11", &mat, &symbol);
   if (!rb_obj_is_kind_of(mat, rb_klass))
     rb_raise(rb_eTypeError, "argument 1 (right-hand part of the linear system) should be %s.)", rb_class2name(rb_klass));
-  VALUE dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
+  VALUE dest = new_object(CVMAT(self)->rows, CVMAT(mat)->cols, cvGetElemType(CVARR(self)));
   cvSolve(CVARR(self), CVARR(mat), CVARR(dest), CVMETHOD("INVERSION_METHOD", symbol, CV_LU));
   return dest;
 }

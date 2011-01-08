@@ -1722,14 +1722,56 @@ class TestCvMat < OpenCVTestCase
     m0 = create_cvmat(3, 3, :cv32f, 1) { |j, i, c|
       CvScalar.new(elems1[c])
     }
-    m1 = create_cvmat(3, 1, :cv32f, 1) { |j, i, c|
+    b = create_cvmat(3, 1, :cv32f, 1) { |j, i, c|
       CvScalar.new(elems2[c])
     }
-    m2 = m0.solve(m1)
+
+    m1 = m0.solve(b)
+    m2 = m0.solve(b, :lu)
+    m3 = m0.solve(b, :svd)
+    m4 = m0.solve(b, :svd_sym)
+    m5 = m0.solve(b, :svd_symmetric)
     expected = [2, -2, 1]
-    assert_each_cvscalar(m2, 0.001) { |j, i, c|
-      CvScalar.new(expected[c])
+    [m1, m2, m3, m4, m5].each { |m|
+      assert_equal(b.width, m.width)
+      assert_equal(m0.height, m.height)
+      assert_each_cvscalar(m, 0.001) { |j, i, c|
+        CvScalar.new(expected[c])
+      }
     }
+  end
+
+  def test_svd
+    flunk('CvMat#svd is not implemented yet')
+  end
+
+  def test_svdksb
+    flunk('CvMat#svdksb is not implemented yet')
+  end
+
+  def test_eigenvv
+    elems = [6, -2, -3, 7]
+    m0 = create_cvmat(2, 2, :cv32f, 1) { |j, i, c|
+      CvScalar.new(elems[c])
+    }
+
+    v1 = m0.eigenvv
+    v2 = m0.eigenvv(10 ** -15)
+    v3 = m0.eigenvv(10 ** -15, 1, 1)
+
+    [v1, v2].each { |vec, val|
+      assert_in_delta(-0.615, vec[0, 0][0], 0.01)
+      assert_in_delta(0.788, vec[0, 1][0], 0.01)
+      assert_in_delta(0.788, vec[1, 0][0], 0.01)
+      assert_in_delta(0.615, vec[1, 1][0], 0.01)
+      assert_in_delta(8.562, val[0][0], 0.01)
+      assert_in_delta(4.438, val[1][0], 0.01)
+    }
+
+    vec3, val3 = v3
+    assert_in_delta(-0.615, vec3[0, 0][0], 0.01)
+    assert_in_delta(0.788, vec3[0, 1][0], 0.01)
+    assert_in_delta(8.562, val3[0][0], 0.01)
   end
 end
 

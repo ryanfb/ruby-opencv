@@ -281,7 +281,6 @@ void define_ruby_class()
   rb_define_method(rb_klass, "svd", RUBY_METHOD_FUNC(rb_svd), -1);
   rb_define_method(rb_klass, "svbksb", RUBY_METHOD_FUNC(rb_svbksb), -1);
   rb_define_method(rb_klass, "eigenvv", RUBY_METHOD_FUNC(rb_eigenvv), -1);
-  rb_define_method(rb_klass, "eigenvv!", RUBY_METHOD_FUNC(rb_eigenvv_bang), -1);
   rb_define_method(rb_klass, "calc_covar_matrix", RUBY_METHOD_FUNC(rb_calc_covar_matrix), -1);
   rb_define_method(rb_klass, "mahalonobis", RUBY_METHOD_FUNC(rb_mahalonobis), -1);
   
@@ -2333,21 +2332,6 @@ rb_svbksb(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
- *   eigenvv(<i>[eps = 0.0]</i>) -> [eigen_vectors(cvmat), eigen_values(cvmat)]
- *
- * Computes eigenvalues and eigenvectors of symmetric matrix.
- * <i>self</i> should be symmetric square matrix.
- * 
- * see #eigenvv!
- */
-VALUE
-rb_eigenvv(int argc, VALUE *argv, VALUE self)
-{
-  return rb_eigenvv_bang(argc, argv, copy(self));
-}
-
-/*
- * call-seq:
  *   eigenvv!(<i>[eps = 0.0]</i>) -> [eigen_vectors(cvmat), eigen_values(cvmat)]
  *
  * Computes eigenvalues and eigenvectors of symmetric matrix.
@@ -2355,21 +2339,23 @@ rb_eigenvv(int argc, VALUE *argv, VALUE self)
  * 
  *   self * eigen_vectors(i,:)' = eigen_values(i) * eigen_vectors(i,:)'
  *
- * <b>The contents of <i>self</i> is destroyed by this method</b>.
- *
  * Currently the function is slower than #svd yet less accurate, so if <i>self</i> is known to be positively-defined
  * (e.g., it is a convariation matrix), it is recommanded to use #svd to find eigenvalues and eigenvectors of <i>self</i>,
  * especially if eigenvectors are not required.
  */
 VALUE
-rb_eigenvv_bang(int argc, VALUE *argv, VALUE self)
+rb_eigenvv(int argc, VALUE *argv, VALUE self)
 {
-  VALUE epsilon;
-  double eps = rb_scan_args(argc, argv, "01", &epsilon) < 1 ? 0.0 : NUM2DBL(epsilon);
+  VALUE epsilon, lowindex, highindex;
+  rb_scan_args(argc, argv, "03", &epsilon, &lowindex, &highindex);
+  double eps = (NIL_P(epsilon)) ? 0.0 : NUM2DBL(epsilon);
+  int lowidx = (NIL_P(lowindex)) ? -1 : NUM2INT(lowindex);
+  int highidx = (NIL_P(highindex)) ? -1 : NUM2INT(highindex);
+  
   CvSize size = cvGetSize(CVARR(self));
   int type = cvGetElemType(CVARR(self));
   VALUE eigen_vectors = new_object(size, type), eigen_values = new_object(size.height, 1, type);      
-  cvEigenVV(CVARR(self), CVARR(eigen_vectors), CVARR(eigen_values), eps);
+  cvEigenVV(CVARR(self), CVARR(eigen_vectors), CVARR(eigen_values), eps, lowidx, highidx);
   return rb_ary_new3(2, eigen_vectors, eigen_values);
 }
 

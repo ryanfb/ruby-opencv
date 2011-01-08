@@ -1669,8 +1669,11 @@ class TestCvMat < OpenCVTestCase
     m1 = m0.clone
     m2 = m1.transpose
     m1.transpose!
+    m3 = m0.t
+    m4 = m0.clone
+    m4.t!
 
-    [m1, m2].each { |m|
+    [m1, m2, m3, m4].each { |m|
       assert_equal(m0.width, m.width)
       assert_equal(m0.height, m.height)
       assert_each_cvscalar(m, 0.001) { |j, i, c|
@@ -1772,6 +1775,14 @@ class TestCvMat < OpenCVTestCase
     assert_in_delta(-0.615, vec3[0, 0][0], 0.01)
     assert_in_delta(0.788, vec3[0, 1][0], 0.01)
     assert_in_delta(8.562, val3[0][0], 0.01)
+  end
+
+  def test_calc_covar_matrix
+    flunk('CvMat#calc_covar_matrix is not implemented yet')
+  end
+
+  def test_mahalonobis
+    flunk('CvMat#mahalonobis is not implemented yet')
   end
 end
 

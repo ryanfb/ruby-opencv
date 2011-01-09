@@ -196,7 +196,7 @@ define_ruby_module()
   /* {:fill_outliers, :inverse_map}: Warp affine optional flags */
   rb_define_const(rb_module, "WARP_FLAG", warp_flag);
   RESIST_CVMETHOD(warp_flag, "fill_outliers", CV_WARP_FILL_OUTLIERS);
-  RESIST_CVMETHOD(warp_flag, "inverse_map", CV_WARP_INVERSE_MAP);    
+  RESIST_CVMETHOD(warp_flag, "inverse_map", CV_WARP_INVERSE_MAP);
   
   VALUE depth = rb_hash_new();
   /* {:cv8u, :cv8s, :cv16u, :cv16s, :cv32s, :cv32f, :cv64f}: Depth of each pixel. */
@@ -212,8 +212,8 @@ define_ruby_module()
   VALUE connectivity = rb_hash_new();
   /* {:aa(:anti_alias)}: Determined by the closeness of pixel values */
   rb_define_const(rb_module, "CONNECTIVITY", connectivity);
-  RESIST_CVMETHOD(depth, "aa", CV_AA);
-  RESIST_CVMETHOD(depth, "anti_alias", CV_AA);
+  RESIST_CVMETHOD(connectivity, "aa", CV_AA);
+  RESIST_CVMETHOD(connectivity, "anti_alias", CV_AA);
 
   VALUE retrieval_mode = rb_hash_new();
   /* {:external, :list, :ccomp, :tree}: Retrieval mode */
@@ -473,7 +473,7 @@ extern "C"{
 
 #ifdef HAVE_ML_H
     /* feature support.
-      mOpenCV::mMachineLearning::define_ruby_module();
+       mOpenCV::mMachineLearning::define_ruby_module();
     */
 #endif
   }

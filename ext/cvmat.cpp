@@ -417,7 +417,6 @@ rb_allocate(VALUE klass)
  * Number of channel is set by <i>channel</i>. <i>channel</i> should be 1..4.
  *
  */
-#include <stdio.h>
 VALUE
 rb_initialize(int argc, VALUE *argv, VALUE self)
 {
@@ -2762,32 +2761,35 @@ rb_fill_poly(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_fill_poly_bang(int argc, VALUE *argv, VALUE self)
 {
-  VALUE points, drawing_option;
-  rb_scan_args(argc, argv, "11", &points, &drawing_option);
+  VALUE polygons, drawing_option;
+  VALUE points;
+  int i, j;
+  int num_polygons;
+  int *num_points;
+  CvPoint **p;
+  rb_scan_args(argc, argv, "11", &polygons, &drawing_option);
+  // TODO: Check type of argument
   drawing_option = DRAWING_OPTION(drawing_option);
-  if (!POINT_SET_P(points))
-    rb_raise(rb_eTypeError, "argument 1(points) should be %s.", cCvSeq::rb_class());
-  /* // todo : draw multi-sequence polygon
-  CvSeq *seq = CVSEQ(points);
-  int contours = 1;
-  while(seq = seq->h_next)
-    contours++;
-  int **nps = ALLOCA_N(int*, contours);
-  CvPoint **ps = ALLOCA_N(CvPoint*, contours);  
-  seq = CVSEQ(points);
-  for (int i = 0; i < contours; i++) {    
+  num_polygons = RARRAY_LEN(polygons);
+  num_points = ALLOCA_N(int, num_polygons);
+  p = ALLOCA_N(CvPoint*, num_polygons);
+  for (j = 0; j < num_polygons; j++) {
+    points = rb_ary_entry(polygons, j);
+    num_points[j] = RARRAY_LEN(points);
+    p[j] = ALLOCA_N(CvPoint, num_points[j]);
+    for (i = 0; i < num_points[j]; i++) {
+      p[j][i] = VALUE_TO_CVPOINT(rb_ary_entry(points, i));
+    }
   }
-  */
-  int np = CVSEQ(points)->total;
-  VALUE tmp = cCvMat::new_object(1, np, CV_32SC2);
-  CvPoint *p = (CvPoint*)cvCvtSeqToArray(CVSEQ(points), CVMAT(tmp)->data.ptr, CV_WHOLE_SEQ);
+  
   cvFillPoly(CVARR(self),
-	     &p,
-	     &np,
-	     1, //contours
+	     p,
+	     num_points,
+	     num_polygons,
 	     DO_COLOR(drawing_option),	    
 	     DO_LINE_TYPE(drawing_option),
 	     DO_SHIFT(drawing_option));
+
   return self;
 }
 
@@ -2827,22 +2829,25 @@ rb_fill_convex_poly(int argc, VALUE *argv, VALUE self)
  * Fills convex polygon.
  * Same as CvMat#fill_convex_poly, but modifies the receiver in place.
  *
- * see CvMat#fill_cnovex_poly
+ * see CvMat#fill_convex_poly
  */
 VALUE
 rb_fill_convex_poly_bang(int argc, VALUE *argv, VALUE self)
 {
   VALUE points, drawing_option;
+  int i, num_points;
+  CvPoint *p;
   rb_scan_args(argc, argv, "11", &points, &drawing_option);
+  // TODO: Check type of argument
   drawing_option = DRAWING_OPTION(drawing_option);
-  if (!POINT_SET_P(points))
-    rb_raise(rb_eTypeError, "argument 1(points) should be %s.", cCvSeq::rb_class());
-  int np = CVSEQ(points)->total;
-  VALUE tmp = cCvMat::new_object(1, np, CV_32SC2);
-  CvPoint *p = (CvPoint*)cvCvtSeqToArray(CVSEQ(points), CVMAT(tmp)->data.ptr, CV_WHOLE_SEQ);
+  num_points = RARRAY_LEN(points);
+  p = ALLOCA_N(CvPoint, num_points);
+  for (i = 0; i < num_points; i++)
+    p[i] = VALUE_TO_CVPOINT(rb_ary_entry(points, i));
+
   cvFillConvexPoly(CVARR(self),
 		   p,
-		   np,
+		   num_points,
 		   DO_COLOR(drawing_option),	    
 		   DO_LINE_TYPE(drawing_option),
 		   DO_SHIFT(drawing_option));
@@ -2893,40 +2898,40 @@ rb_poly_line(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_poly_line_bang(int argc, VALUE *argv, VALUE self)
 {
-  VALUE points, drawing_option;
-  rb_scan_args(argc, argv, "11", &points, &drawing_option);
+  VALUE polygons, drawing_option;
+  VALUE points;
+  int i, j;
+  int num_polygons;
+  int *num_points;
+  CvPoint **p;
+  rb_scan_args(argc, argv, "11", &polygons, &drawing_option);
+  // TODO: Check type of argument
   drawing_option = DRAWING_OPTION(drawing_option);
-  /*
-  if (!POINT_SET_P(points))
-    rb_raise(rb_eTypeError, "argument 1(points) should be %s.", cCvSeq::rb_class());
-  int np = CVSEQ(points)->total;
-  VALUE tmp = cCvMat::new_object(1, np, CV_32SC2);
-  CvPoint *p = (CvPoint*)cvCvtSeqToArray(CVSEQ(points), CVMAT(tmp)->data.ptr, CV_WHOLE_SEQ);
-  // todo: multi-sequence polygon
+  num_polygons = RARRAY_LEN(polygons);
+  num_points = ALLOCA_N(int, num_polygons);
+  p = ALLOCA_N(CvPoint*, num_polygons);
+  for (j = 0; j < num_polygons; j++) {
+    points = rb_ary_entry(polygons, j);
+    num_points[j] = RARRAY_LEN(points);
+    p[j] = ALLOCA_N(CvPoint, num_points[j]);
+    for (i = 0; i < num_points[j]; i++) {
+      p[j][i] = VALUE_TO_CVPOINT(rb_ary_entry(points, i));
+    }
+  }
+
   cvPolyLine(CVARR(self),
-	     &p,
-	     &np,
-	     1, //contour
+	     p,
+	     num_points,
+	     num_polygons,
 	     DO_IS_CLOSED(drawing_option),
-	     DO_COLOR(drawing_option),
-	     DO_THICKNESS(drawing_option),
-	     DO_LINE_TYPE(drawing_option),
-	     DO_SHIFT(drawing_option));
-  */
-  CvPoint *pointset = 0;
-  int length = CVPOINTS_FROM_POINT_SET(points, &pointset);
-  cvPolyLine(CVARR(self),
-	     &pointset,
-	     &length,
-	     1, //contour
-	     DO_IS_CLOSED(drawing_option),
-	     DO_COLOR(drawing_option),
-	     DO_THICKNESS(drawing_option),
+	     DO_COLOR(drawing_option),	  
+	     DO_THICKNESS(drawing_option),  
 	     DO_LINE_TYPE(drawing_option),
 	     DO_SHIFT(drawing_option));
 
   return self;
 }
+
 
 /*
  * call-seq:

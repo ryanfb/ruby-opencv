@@ -39,27 +39,12 @@ class TestCvMat < OpenCVTestCase
     }
   end
 
-  def test_DRAWING_OPTION
-    CvMat::DRAWING_OPTION[:color].to_ary.each { |c|
-      assert_in_delta(0, c, 0.01)
-    }
-    assert_equal(1, CvMat::DRAWING_OPTION[:thickness])
-    assert_equal(8, CvMat::DRAWING_OPTION[:line_type])
-    assert_equal(0, CvMat::DRAWING_OPTION[:shift])
-  end
-
   def test_GOOD_FEATURES_TO_TRACK_OPTION
     assert_equal(0xff, CvMat::GOOD_FEATURES_TO_TRACK_OPTION[:max])
     assert_nil(CvMat::GOOD_FEATURES_TO_TRACK_OPTION[:mask])
     assert_equal(3, CvMat::GOOD_FEATURES_TO_TRACK_OPTION[:block_size])
     assert((not CvMat::GOOD_FEATURES_TO_TRACK_OPTION[:use_harris]))
     assert_in_delta(0.04, CvMat::GOOD_FEATURES_TO_TRACK_OPTION[:k], 0.01)
-  end
-
-  def test_FLOOD_FILL_OPTION
-    assert_equal(4, CvMat::FLOOD_FILL_OPTION[:connectivity])
-    assert((not CvMat::FLOOD_FILL_OPTION[:fixed_range]))
-    assert((not CvMat::FLOOD_FILL_OPTION[:mask_only]))
   end
 
   def test_FIND_CONTOURS_OPTION

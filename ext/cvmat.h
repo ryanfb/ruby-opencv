@@ -93,6 +93,7 @@ VALUE rb_convert_scale_abs(VALUE self, VALUE hash);
 VALUE rb_add(int argc, VALUE *argv, VALUE self);
 VALUE rb_sub(int argc, VALUE *argv, VALUE self);    
 VALUE rb_mul(int argc, VALUE *argv, VALUE self);
+VALUE rb_mat_mul(int argc, VALUE *argv, VALUE self);
 VALUE rb_div(int argc, VALUE *argv, VALUE self);    
 VALUE rb_and(int argc, VALUE *argv, VALUE self);
 VALUE rb_or(int argc, VALUE *argv, VALUE self);

@@ -1041,7 +1041,47 @@ class TestCvMat < OpenCVTestCase
   end
 
   def test_mat_mul
-    flunk('FIXME: CvMat#mat_mul is not implemented yet.')
+    m0 = create_cvmat(3, 3, :cv32f, 1) { |j, i, c|
+      CvScalar.new(c * 0.1)
+    }
+    m1 = create_cvmat(3, 3, :cv32f, 1) { |j, i, c|
+      CvScalar.new(c)
+    }
+    m2 = create_cvmat(3, 3, :cv32f, 1) { |j, i, c|
+      CvScalar.new(c + 1)
+    }
+
+    m3 = m0.mat_mul(m1)
+    m4 = m0 * m1
+
+    [m3, m4].each { |m|
+      assert_equal(m1.width, m.width)
+      assert_equal(m1.height, m.height)
+      assert_in_delta(1.5, m[0, 0][0], 0.001)
+      assert_in_delta(1.8, m[0, 1][0], 0.001)
+      assert_in_delta(2.1, m[0, 2][0], 0.001)
+      assert_in_delta(4.2, m[1, 0][0], 0.001)
+      assert_in_delta(5.4, m[1, 1][0], 0.001)
+      assert_in_delta(6.6, m[1, 2][0], 0.001)
+      assert_in_delta(6.9, m[2, 0][0], 0.001)
+      assert_in_delta(9, m[2, 1][0], 0.001)
+      assert_in_delta(11.1, m[2, 2][0], 0.001)
+    }
+
+    m5 = m0.mat_mul(m1, m2)
+    [m5].each { |m|
+      assert_equal(m1.width, m.width)
+      assert_equal(m1.height, m.height)
+      assert_in_delta(2.5, m[0, 0][0], 0.001)
+      assert_in_delta(3.8, m[0, 1][0], 0.001)
+      assert_in_delta(5.1, m[0, 2][0], 0.001)
+      assert_in_delta(8.2, m[1, 0][0], 0.001)
+      assert_in_delta(10.4, m[1, 1][0], 0.001)
+      assert_in_delta(12.6, m[1, 2][0], 0.001)
+      assert_in_delta(13.9, m[2, 0][0], 0.001)
+      assert_in_delta(17, m[2, 1][0], 0.001)
+      assert_in_delta(20.1, m[2, 2][0], 0.001)
+    }
   end
 
   def test_div

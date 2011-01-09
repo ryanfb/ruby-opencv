@@ -233,7 +233,8 @@ void define_ruby_class()
   rb_define_method(rb_klass, "sub", RUBY_METHOD_FUNC(rb_sub), -1);
   rb_define_alias(rb_klass, "-", "sub");
   rb_define_method(rb_klass, "mul", RUBY_METHOD_FUNC(rb_mul), -1);
-  rb_define_alias(rb_klass, "*", "mul");
+  rb_define_method(rb_klass, "mat_mul", RUBY_METHOD_FUNC(rb_mat_mul), -1);
+  rb_define_alias(rb_klass, "*", "mat_mul");
   rb_define_method(rb_klass, "div", RUBY_METHOD_FUNC(rb_div), -1);
   rb_define_alias(rb_klass, "/", "div");
   rb_define_method(rb_klass, "and", RUBY_METHOD_FUNC(rb_and), -1);
@@ -1693,7 +1694,7 @@ rb_mul(int argc, VALUE *argv, VALUE self)
   if (rb_scan_args(argc, argv, "11", &val, &scale) < 2)
     scale = rb_float_new(1.0);
   dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  if (rb_obj_is_kind_of(val, rb_klass)) {        
+  if (rb_obj_is_kind_of(val, rb_klass)) {
     cvMul(CVARR(self), CVARR(val), CVARR(dest), NUM2DBL(scale));
   }else{
     CvScalar scl = VALUE_TO_CVSCALAR(val);
@@ -1701,6 +1702,28 @@ rb_mul(int argc, VALUE *argv, VALUE self)
     cvSet(CVARR(mat), scl);
     cvMul(CVARR(self), CVARR(mat), CVARR(dest), NUM2DBL(scale));        
   }
+  return dest;
+}
+
+/*
+ * call-seq:
+ *   mat_mul(<i>val[,shiftvec]</i>) -> cvmat
+ * Performs matrix multiplication
+ *   dst = src1 * src2 + shiftvec
+ * <i>val</i> and <i>shiftvec</i> should be CvMat
+ * All the matrices should have the same data type and coordinated sizes. 
+ * Real or complex floating-point matrices are supported.
+ */
+VALUE
+rb_mat_mul(int argc, VALUE *argv, VALUE self)
+{
+  VALUE val, shiftvec, dest;
+  rb_scan_args(argc, argv, "11", &val, &shiftvec);
+  dest = new_object(CVMAT(self)->rows, CVMAT(val)->cols, cvGetElemType(CVARR(self)));
+  if (NIL_P(shiftvec))
+    cvMatMul(CVARR(self), CVARR(val), CVARR(dest));
+  else
+    cvMatMulAdd(CVARR(self), CVARR(val), CVARR(shiftvec), CVARR(dest));
   return dest;
 }
 

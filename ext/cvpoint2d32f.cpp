@@ -182,7 +182,7 @@ rb_to_s(VALUE self)
 {
   const int i = 4;
   VALUE str[i];
-  str[0] = rb_str_new2("<%s:(%f,%f)>");
+  str[0] = rb_str_new2("<%s:(%g,%g)>");
   str[1] = rb_str_new2(rb_class2name(CLASS_OF(self)));
   str[2] = rb_x(self);
   str[3] = rb_y(self);

@@ -51,6 +51,8 @@ define_ruby_class()
   rb_define_method(rb_klass, "width=", RUBY_METHOD_FUNC(rb_set_width), 1);
   rb_define_method(rb_klass, "height", RUBY_METHOD_FUNC(rb_height), 0);
   rb_define_method(rb_klass, "height=", RUBY_METHOD_FUNC(rb_set_height), 1);
+  rb_define_method(rb_klass, "to_s", RUBY_METHOD_FUNC(rb_to_s), 0);
+  rb_define_method(rb_klass, "to_ary", RUBY_METHOD_FUNC(rb_to_ary), 0);
 }
 
 /*
@@ -166,6 +168,36 @@ rb_set_height(VALUE self, VALUE y)
 {
   CVSIZE2D32F(self)->height = NUM2DBL(y);
   return self;
+}
+
+/*
+ * call-seq:
+ *   to_s -> "<OpenCV::CvSize2D32f:widthxheight>"
+ *
+ * Return width and height by String.
+ */
+VALUE
+rb_to_s(VALUE self)
+{
+  const int i = 4;
+  VALUE str[i];
+  str[0] = rb_str_new2("<%s:%gx%g>");
+  str[1] = rb_str_new2(rb_class2name(CLASS_OF(self)));
+  str[2] = rb_width(self);
+  str[3] = rb_height(self);
+  return rb_f_sprintf(i, str);
+}
+
+/*
+ * call-seq:
+ *   to_ary -> [width, height]
+ *
+ * Return width and height by Array.
+ */
+VALUE
+rb_to_ary(VALUE self)
+{
+  return rb_ary_new3(2, rb_width(self), rb_height(self));
 }
 
 VALUE

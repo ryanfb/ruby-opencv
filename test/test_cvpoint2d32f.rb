@@ -64,6 +64,11 @@ class TestCvPoint2D32f < OpenCVTestCase
     a = CvPoint2D32f.new(1.1, 2.2).to_ary
     assert_in_delta(1.1, a[0], 0.001)
     assert_in_delta(2.2, a[1], 0.001)
+
+    # Alias
+    a = CvPoint2D32f.new(1.1, 2.2).to_a
+    assert_in_delta(1.1, a[0], 0.001)
+    assert_in_delta(2.2, a[1], 0.001)
   end
 end
 

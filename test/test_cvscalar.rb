@@ -83,8 +83,11 @@ class TestCvScalar < OpenCVTestCase
     [[10, 20, 30, 40], [0.1, 0.2, 0.3, 0.4]].each { |a|
       s = CvScalar.new(*a)
       b = s.to_ary
-      assert_equal(Array, b.class)
-      assert_in_delta(a, b, 0.01)
+      c = s.to_a # Alias
+      [b, c].each { |x|
+        assert_equal(Array, x.class)
+        assert_in_delta(a, x, 0.01)
+      }
     }
   end
 

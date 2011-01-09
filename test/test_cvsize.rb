@@ -65,6 +65,11 @@ class TestCvSize < OpenCVTestCase
     a = CvSize.new(10, 20).to_ary
     assert_equal(10, a[0])
     assert_equal(20, a[1])
+
+    # Alias
+    a = CvSize.new(10, 20).to_a
+    assert_equal(10, a[0])
+    assert_equal(20, a[1])
   end
 end
 

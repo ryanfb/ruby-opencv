@@ -78,6 +78,12 @@ class TestCvPoint3D32f < OpenCVTestCase
     assert_in_delta(1.1, a[0], 0.001)
     assert_in_delta(2.2, a[1], 0.001)
     assert_in_delta(3.3, a[2], 0.001)
+
+    # Alias
+    a = CvPoint3D32f.new(1.1, 2.2, 3.3).to_a
+    assert_in_delta(1.1, a[0], 0.001)
+    assert_in_delta(2.2, a[1], 0.001)
+    assert_in_delta(3.3, a[2], 0.001)
   end
 end
 

@@ -78,6 +78,10 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(4, MATCH_TEMPLATE_METHOD[:ccoeff])
     assert_equal(5, MATCH_TEMPLATE_METHOD[:ccoeff_normed])
   end
+
+  def test_cvt_color_funcs
+    flunk('FIXME: cvtColor functions are not tested yet.')
+  end
 end
 
 

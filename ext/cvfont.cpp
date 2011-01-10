@@ -65,6 +65,7 @@ define_ruby_class()
   rb_define_method(rb_klass, "shear", RUBY_METHOD_FUNC(rb_shear), 0);
   rb_define_method(rb_klass, "thickness", RUBY_METHOD_FUNC(rb_thickness), 0);
   rb_define_method(rb_klass, "line_type", RUBY_METHOD_FUNC(rb_line_type), 0);
+  rb_define_method(rb_klass, "italic", RUBY_METHOD_FUNC(rb_italic), 0);
 }
 
 VALUE
@@ -173,6 +174,12 @@ VALUE
 rb_line_type(VALUE self)
 {
   return INT2FIX(CVFONT(self)->line_type);
+}
+
+VALUE
+rb_italic(VALUE self)
+{
+  return ((CVFONT(self)->font_face & CV_FONT_ITALIC) > 0) ? Qtrue : Qfalse;
 }
 
 __NAMESPACE_END_CVFONT

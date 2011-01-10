@@ -103,8 +103,8 @@ class TestCvMat_drawing < OpenCVTestCase
     m1.fill_poly!(pt, :color => CvColor::Blue, :line_type => :aa)
 
     # Uncomment the following lines to view the image
-    # GUI::Window.new('Fill poly: Blue, thickness = 1').show(m1)
-    # GUI::Window.new('Fill poly: Red, thickness = 3').show(m2)
+    # GUI::Window.new('Fill poly: Blue').show(m1)
+    # GUI::Window.new('Fill poly: Red').show(m2)
     # GUI::wait_key
   end
 
@@ -117,8 +117,8 @@ class TestCvMat_drawing < OpenCVTestCase
     m1.fill_convex_poly!(pt, :color => CvColor::Blue, :line_type => :aa)
 
     # Uncomment the following lines to view the image
-    # GUI::Window.new('Fill convex poly: Blue, thickness = 1').show(m1)
-    # GUI::Window.new('Fill convex poly: Red, thickness = 3').show(m2)
+    # GUI::Window.new('Fill convex poly: Blue').show(m1)
+    # GUI::Window.new('Fill convex poly: Red').show(m2)
     # GUI::wait_key
   end
 
@@ -135,6 +135,18 @@ class TestCvMat_drawing < OpenCVTestCase
     # GUI::Window.new('Poly line: Blue, thickness = 1').show(m1)
     # GUI::Window.new('Poly line: Red, thickness = 3').show(m2)
     # GUI::wait_key
+  end
+
+  def test_put_text
+    flunk('CvMat#put_text is not tested yet.')
+    m0 = create_cvmat(240, 320, :cv8u, 3) { CvColor::White }
+    m1 = m0.clone
+    m2 = m0.put_text('test', CvPoint.new(30, 40), CvColor::Red)
+
+    # Uncomment the following lines to view the image
+    GUI::Window.new('Put text: Blue, thickness = 1').show(m1)
+    GUI::Window.new('Put text: Red, thickness = 3').show(m2)
+    GUI::wait_key
   end
 end
 

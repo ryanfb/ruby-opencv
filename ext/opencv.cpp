@@ -168,6 +168,13 @@ define_ruby_module()
   /* 6: 64bit floating-point */
   rb_define_const(rb_module, "CV_64F", INT2FIX(CV_64F));
   
+  /* Color types of loaded images */
+  rb_define_const(rb_module, "CV_LOAD_IMAGE_UNCHANGED", INT2FIX(CV_LOAD_IMAGE_UNCHANGED));
+  rb_define_const(rb_module, "CV_LOAD_IMAGE_GRAYSCALE", INT2FIX(CV_LOAD_IMAGE_GRAYSCALE));
+  rb_define_const(rb_module, "CV_LOAD_IMAGE_COLOR", INT2FIX(CV_LOAD_IMAGE_COLOR));
+  rb_define_const(rb_module, "CV_LOAD_IMAGE_ANYDEPTH", INT2FIX(CV_LOAD_IMAGE_ANYDEPTH));
+  rb_define_const(rb_module, "CV_LOAD_IMAGE_ANYCOLOR", INT2FIX(CV_LOAD_IMAGE_ANYCOLOR));
+
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */
   rb_define_const(rb_module, "INVERSION_METHOD", inversion_method);

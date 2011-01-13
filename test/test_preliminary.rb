@@ -122,20 +122,6 @@ class TestPreliminary < OpenCVTestCase
     }
   end
   
-  def test_lena
-    # Check that the lena jpg image has loaded correctly
-    img = get_sample('lena.jpg', false)
-    # snap(img)     # uncomment this line to view the image, when regilding
-    assert_equal('2980cef5ac9bc061a5ab3f04775f3cf0', hash_img(img))    
-  end
-
-  def test_load
-    assert_raise(ArgumentError) { IplImage::load }
-    assert_raise(TypeError) { IplImage::load(4) }
-    assert_raise(ArgumentError) { IplImage::load('foo.jpg', 1, 1) }
-    assert_raise(StandardError) { IplImage::load('foo.jpg', 'foobar') }
-  end
-
   def test_types
     assert_equal(IplImage.new(7, 5, CV_8U, 1).class, IplImage)
     assert_equal(CvMat.new(5, 7, CV_32F).class, CvMat)

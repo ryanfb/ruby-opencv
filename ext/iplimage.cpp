@@ -79,7 +79,7 @@ rb_allocate(VALUE klass)
  * Number of channel is set by <i>channel</i>. <i>channel</i> should be 1..4.
  *
  * note: width = col, height = row, on CvMat. It is noted not to make a mistake
- * because the order of arguument is differenct to CvMat.
+ * because the order of argument is differenct to CvMat.
  */
 VALUE
 rb_initialize(int argc, VALUE *argv, VALUE self)
@@ -94,12 +94,12 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
- *   IplImage::load(<i>filename[,iscolor = nil]</i>)
+ *   IplImage::load(<i>filename[,iscolor = CV_LOAD_IMAGE_COLOR]</i>)
  *
  * Load an image from file.
- *  iscolor = true, the loaded image is forced to be color 3-channel image.
- *  iscolor = false, the loaded image is forced to be grayscale.
- *  iscolor = nil, the loaded image will be loaded as is (depend on the file).
+ *  iscolor = CV_LOAD_IMAGE_COLOR, the loaded image is forced to be a 3-channel color image
+ *  iscolor = CV_LOAD_IMAGE_GRAYSCALE, the loaded image is forced to be grayscale
+ *  iscolor = CV_LOAD_IMAGE_UNCHANGED, the loaded image will be loaded as is.
  * Currently the following file format are supported.
  * * Windows bitmaps - BMP,DIB
  * * JPEG files - JPEG,JPG,JPE
@@ -114,21 +114,16 @@ rb_load_image(int argc, VALUE *argv, VALUE self)
   VALUE filename, iscolor;
   rb_scan_args(argc, argv, "11", &filename, &iscolor);
   Check_Type(filename, T_STRING);
+
   int _iscolor;
-  switch (TYPE(iscolor)) {
-  case T_FALSE:
-    _iscolor = 0;
-    break;
-  case T_TRUE:
-    _iscolor = 1;
-    break;
-  case T_NIL:
-    _iscolor = -1;
-    break;
-  default:
-    rb_warn("argument 2 should be true(color)/false(non-color) or nil(auto).");
-    _iscolor = -1;        
+  if (TYPE(iscolor) == T_NIL) {
+    _iscolor = CV_LOAD_IMAGE_COLOR;
   }
+  else {
+    Check_Type(iscolor, T_FIXNUM);
+    _iscolor = FIX2INT(iscolor);
+  }
+  
   IplImage *image;
   if ((image = cvLoadImage(StringValueCStr(filename), _iscolor)) == NULL) {
     rb_raise(rb_eStandardError, "file does not exist or invalid format image.");

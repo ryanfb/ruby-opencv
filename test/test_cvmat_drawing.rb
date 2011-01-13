@@ -2,7 +2,6 @@
 # -*- mode: ruby; coding: utf-8-unix -*- 
 require 'test/unit'
 require 'opencv'
-require 'pp'
 require File.expand_path(File.dirname(__FILE__)) + '/helper'
 
 include OpenCV

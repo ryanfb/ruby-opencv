@@ -16,6 +16,13 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(4, CV_32S)
     assert_equal(5, CV_32F)
     assert_equal(6, CV_64F)
+
+    # Load image flags
+    assert_equal(-1, CV_LOAD_IMAGE_UNCHANGED)
+    assert_equal(0, CV_LOAD_IMAGE_GRAYSCALE)
+    assert_equal(1, CV_LOAD_IMAGE_COLOR)
+    assert_equal(2, CV_LOAD_IMAGE_ANYDEPTH)
+    assert_equal(4, CV_LOAD_IMAGE_ANYCOLOR)
   end
 
   def test_symbols

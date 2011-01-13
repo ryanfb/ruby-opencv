@@ -36,10 +36,6 @@ class OpenCVTestCase < Test::Unit::TestCase
     end
   end
 
-  def get_sample(filename, iscolor = nil)
-    IplImage::load('samples/' + filename, iscolor)
-  end
-  
   def snap(*images)
     win = []
     images.size.times { |i| win << GUI::Window.new("snap-#{i}") }

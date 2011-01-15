@@ -1662,7 +1662,7 @@ rb_convert_scale_abs(VALUE self, VALUE hash)
     scale = rb_hash_aref(hash, ID2SYM(rb_intern("scale"))),
     shift = rb_hash_aref(hash, ID2SYM(rb_intern("shift"))),
     dest = new_object(cvGetSize(CVARR(self)), CV_MAKETYPE(CV_8U, CV_MAT_CN(CVMAT(self)->type)));
-  cvConvertScale(CVARR(self), CVARR(dest), IF_DBL(scale, 1.0), IF_DBL(shift, 0.0));
+  cvConvertScaleAbs(CVARR(self), CVARR(dest), IF_DBL(scale, 1.0), IF_DBL(shift, 0.0));
   return dest;
 }
 
@@ -3007,7 +3007,7 @@ rb_put_text_bang(int argc, VALUE *argv, VALUE self)
  *   sobel(<i>xorder,yorder[,aperture_size=3]</i>) -> cvmat
  *
  * Calculates first, second, third or mixed image derivatives using extended Sobel operator.
- * <i>self</i> should be single-channel 8bit signed/unsigned or 32bit floating-point.
+ * <i>self</i> should be single-channel 8bit unsigned or 32bit floating-point.
  *
  * link:../images/CvMat_sobel.png
  */
@@ -3019,14 +3019,13 @@ rb_sobel(int argc, VALUE *argv, VALUE self)
     aperture_size = INT2FIX(3);
   switch(CV_MAT_DEPTH(CVMAT(self)->type)) {
   case CV_8U:
-  case CV_8S:
     dest = new_object(cvGetSize(CVARR(self)), CV_MAKETYPE(CV_16S, 1));
     break;
   case CV_32F:
     dest = new_object(cvGetSize(CVARR(self)), CV_MAKETYPE(CV_32F, 1));
     break;
   default:
-    rb_raise(rb_eNotImpError, "source depth should be CV_8U or CV_8S or CV_32F.");
+    rb_raise(rb_eRuntimeError, "source depth should be CV_8U or CV_32F.");
   }
   cvSobel(CVARR(self), CVARR(dest), NUM2INT(xorder), NUM2INT(yorder), NUM2INT(aperture_size));
   return dest;
@@ -3037,7 +3036,7 @@ rb_sobel(int argc, VALUE *argv, VALUE self)
  *   laplace(<i>[aperture_size = 3]</i>) -> cvmat
  *
  * Calculates Laplacian of the image.
- * <i>self</i> should be single-channel 8bit signed/unsigned or 32bit floating-point.
+ * <i>self</i> should be single-channel 8bit unsigned or 32bit floating-point.
  */
 VALUE
 rb_laplace(int argc, VALUE *argv, VALUE self)
@@ -3047,14 +3046,13 @@ rb_laplace(int argc, VALUE *argv, VALUE self)
     aperture_size = INT2FIX(3);
   switch(CV_MAT_DEPTH(CVMAT(self)->type)) {
   case CV_8U:
-  case CV_8S:
     dest = new_object(cvGetSize(CVARR(self)), CV_MAKETYPE(CV_16S, 1));
     break;
   case CV_32F:
     dest = new_object(cvGetSize(CVARR(self)), CV_MAKETYPE(CV_32F, 1));
     break;
   default:
-    rb_raise(rb_eNotImpError, "source depth should be CV_8U or CV_8S or CV_32F.");
+    rb_raise(rb_eRuntimeError, "source depth should be CV_8U or CV_32F.");
   }
   cvLaplace(CVARR(self), CVARR(dest), NUM2INT(aperture_size));
   return dest;
@@ -3108,7 +3106,7 @@ VALUE
 rb_corner_eigenvv(int argc, VALUE *argv, VALUE self)
 {
   VALUE block_size, aperture_size, dest;
-  if (rb_scan_args(argc, argv, "11", &block_size, &aperture_size) < 1)
+  if (rb_scan_args(argc, argv, "11", &block_size, &aperture_size) < 2)
     aperture_size = INT2FIX(3);
   Check_Type(block_size, T_FIXNUM);
   CvSize size = cvGetSize(CVARR(self));
@@ -3127,7 +3125,8 @@ VALUE
 rb_corner_min_eigen_val(int argc, VALUE *argv, VALUE self)
 {
   VALUE block_size, aperture_size, dest;
-  rb_scan_args(argc, argv, "11", &block_size, &aperture_size);
+  if (rb_scan_args(argc, argv, "11", &block_size, &aperture_size) < 2)
+    aperture_size = INT2FIX(3);
   dest = new_object(cvGetSize(CVARR(self)), CV_MAKETYPE(CV_32F, 1));
   cvCornerMinEigenVal(CVARR(self), CVARR(dest), FIX2INT(block_size), FIX2INT(aperture_size));
   return dest;
@@ -3178,28 +3177,33 @@ rbi_find_corner_sub_pix(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_good_features_to_track(int argc, VALUE *argv, VALUE self)
 {  
-  VALUE quality_level, min_distance, good_features_to_track_option, eigen, tmp, storage;
+  VALUE quality_level, min_distance, good_features_to_track_option;
+  CvMat *eigen, *tmp;
+  int i;
   rb_scan_args(argc, argv, "21", &quality_level, &min_distance, &good_features_to_track_option);
   good_features_to_track_option = GOOD_FEATURES_TO_TRACK_OPTION(good_features_to_track_option);
   CvMat *src = CVMAT(self);
-  eigen = cCvMat::new_object(cvGetSize(src), CV_MAKETYPE(CV_32F, 1));
-  tmp   = cCvMat::new_object(cvGetSize(src), CV_MAKETYPE(CV_32F, 1));
+  CvSize size = cvGetSize(src);
+  eigen = cvCreateMat(size.height, size.width, CV_MAKETYPE(CV_32F, 1));
+  tmp = cvCreateMat(size.height, size.width, CV_MAKETYPE(CV_32F, 1));
   int np = GF_MAX(good_features_to_track_option);
   if(!(np > 0))
     rb_raise(rb_eArgError, "option :max should be positive value.");
   CvPoint2D32f *p32 = (CvPoint2D32f*)cvAlloc(sizeof(CvPoint2D32f) * np);
   if(!p32)
     rb_raise(rb_eNoMemError, "failed allocate memory.");
-  cvGoodFeaturesToTrack(src, CVARR(eigen), CVARR(tmp), p32, &np, NUM2DBL(quality_level), NUM2DBL(min_distance),
+  cvGoodFeaturesToTrack(src, &eigen, &tmp, p32, &np, NUM2DBL(quality_level), NUM2DBL(min_distance),
 			GF_MASK(good_features_to_track_option),
 			GF_BLOCK_SIZE(good_features_to_track_option),
 			GF_USE_HARRIS(good_features_to_track_option),
 			GF_K(good_features_to_track_option));
-  storage = cCvMemStorage::new_object();
-  CvSeq *pseq = cvCreateSeq(CV_SEQ_POINT_SET, sizeof(CvSeq), sizeof(CvPoint2D32f), CVMEMSTORAGE(storage));
-  cvSeqPushMulti(pseq, p32, np);
+  VALUE corners = rb_ary_new2(np);
+  for (i = 0; i < np; i++)
+    rb_ary_store(corners, i, cCvPoint2D32f::new_object(p32[i]));
   cvFree(&p32);
-  return cCvSeq::new_sequence(cCvSeq::rb_class(), pseq, cCvPoint2D32f::rb_class(), storage);
+  cvReleaseMat(&eigen);
+  cvReleaseMat(&tmp);
+  return corners;
 }
 
 /*

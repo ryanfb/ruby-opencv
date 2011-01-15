@@ -31,10 +31,8 @@ class TestCvMat_drawing < OpenCVTestCase
     m1.line!(CvPoint.new(1, 0), CvPoint.new(m0.width - 1, m0.height - 1),
              :color => CvColor::Blue, :thickness => 1, :line_type => :aa)
 
-    # Uncomment the following lines to view the image
-    # GUI::Window.new('Line: Blue, thickness = 1').show(m1)
-    # GUI::Window.new('Line: Red, thickness = 3').show(m2)
-    # GUI::wait_key
+    # Uncomment the following line to view the image
+    # snap(['Line: Blue, thickness = 1', m1], ['Line: Red, thickness = 3', m2])
   end
 
   def test_rectangle
@@ -45,10 +43,8 @@ class TestCvMat_drawing < OpenCVTestCase
     m1.rectangle!(CvPoint.new(20, 20), CvPoint.new(m0.width - 20, m0.height - 20),
                   :color => CvColor::Blue, :thickness => 1, :line_type => :aa)
 
-    # Uncomment the following lines to view the image
-    # GUI::Window.new('Rectangle: Blue, thickness = 1').show(m1)
-    # GUI::Window.new('Rectangle: Red, thickness = 3').show(m2)
-    # GUI::wait_key
+    # Uncomment the following line to view the image
+    # snap(['Rectangle: Blue, thickness = 1', m1], ['Rectangle: Red, thickness = 3', m2])
   end
 
   def test_circle
@@ -58,10 +54,8 @@ class TestCvMat_drawing < OpenCVTestCase
                    :color => CvColor::Red, :thickness => 3, :line_type => :aa)
     m1.circle!(CvPoint.new(m0.width / 2, m0.height / 2), 80,
                :color => CvColor::Blue, :thickness => 1, :line_type => :aa)
-    # Uncomment the following lines to view the image
-    # GUI::Window.new('Circle: Blue, thickness = 1').show(m1)
-    # GUI::Window.new('Circle: Red, thickness = 3').show(m2)
-    # GUI::wait_key
+    # Uncomment the following line to view the image
+    # snap(['Circle: Blue, thickness = 1', m1], ['Circle: Red, thickness = 3', m2])
   end
 
   def test_ellipse
@@ -72,10 +66,8 @@ class TestCvMat_drawing < OpenCVTestCase
     m1.ellipse!(CvPoint.new(m0.width / 2, m0.height / 2), CvSize.new(100, 60), 30, 0, 360,
                 :color => CvColor::Blue, :thickness => 1, :line_type => :aa)
 
-    # Uncomment the following lines to view the image
-    # GUI::Window.new('Ellipse: Blue, thickness = 1').show(m1)
-    # GUI::Window.new('Ellipse: Red, thickness = 3').show(m2)
-    # GUI::wait_key
+    # Uncomment the following line to view the image
+    # snap(['Ellipse: Blue, thickness = 1', m1], ['Ellipse: Red, thickness = 3', m2])
   end
 
   def test_ellipse_box
@@ -85,10 +77,8 @@ class TestCvMat_drawing < OpenCVTestCase
     m2 = m0.ellipse_box(box, :color => CvColor::Red, :thickness => 3, :line_type => :aa)
     m1.ellipse_box!(box, :color => CvColor::Blue, :thickness => 1, :line_type => :aa)
 
-    # Uncomment the following lines to view the image
-    # GUI::Window.new('Ellipse box: Blue, thickness = 1').show(m1)
-    # GUI::Window.new('Ellipse box: Red, thickness = 3').show(m2)
-    # GUI::wait_key
+    # Uncomment the following line to view the image
+    # snap(['Ellipse box: Blue, thickness = 1', m1], ['Ellipse box: Red, thickness = 3', m2])
   end
 
   def test_fill_poly
@@ -101,10 +91,8 @@ class TestCvMat_drawing < OpenCVTestCase
     m2 = m0.fill_poly(pt, :color => CvColor::Red, :line_type => :aa)
     m1.fill_poly!(pt, :color => CvColor::Blue, :line_type => :aa)
 
-    # Uncomment the following lines to view the image
-    # GUI::Window.new('Fill poly: Blue').show(m1)
-    # GUI::Window.new('Fill poly: Red').show(m2)
-    # GUI::wait_key
+    # Uncomment the following line to view the image
+    # snap(['Fill poly: Blue', m1], ['Fill poly: Red', m2])
   end
 
   def test_fill_convex_poly
@@ -115,10 +103,8 @@ class TestCvMat_drawing < OpenCVTestCase
     m2 = m0.fill_convex_poly(pt, :color => CvColor::Red, :line_type => :aa)
     m1.fill_convex_poly!(pt, :color => CvColor::Blue, :line_type => :aa)
 
-    # Uncomment the following lines to view the image
-    # GUI::Window.new('Fill convex poly: Blue').show(m1)
-    # GUI::Window.new('Fill convex poly: Red').show(m2)
-    # GUI::wait_key
+    # Uncomment the following line to view the image
+    # snap(['Fill convex poly: Blue', m1], ['Fill convex poly: Red', m2])
   end
 
   def test_poly_line
@@ -130,10 +116,8 @@ class TestCvMat_drawing < OpenCVTestCase
     m2 = m0.poly_line(pt, :color => CvColor::Red, :thickness => 3, :line_type => :aa)
     m1.poly_line!(pt, :color => CvColor::Blue, :thickness => 1, :line_type => :aa)
 
-    # Uncomment the following lines to view the image
-    # GUI::Window.new('Poly line: Blue, thickness = 1').show(m1)
-    # GUI::Window.new('Poly line: Red, thickness = 3').show(m2)
-    # GUI::wait_key
+    # Uncomment the following line to view the image
+    # snap(['Fill poly line: Blue, thickness = 1', m1], ['Fill poly line: Red, thickness = 3', m2])
   end
 
   def test_put_text
@@ -145,9 +129,7 @@ class TestCvMat_drawing < OpenCVTestCase
     m2 = m0.put_text('test 2', CvPoint.new(30, 80), font, CvColor::Red)
 
     # Uncomment the following lines to view the image
-    # GUI::Window.new('Put text: Blue, thickness = 1').show(m1)
-    # GUI::Window.new('Put text: Red, thickness = 3').show(m2)
-    # GUI::wait_key
+    # snap(['Put text: Blue, thickness = 1', m1], ['Put text: Red, thickness = 3', m2])
   end
 end
 

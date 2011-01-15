@@ -39,9 +39,29 @@ class OpenCVTestCase < Test::Unit::TestCase
   end
 
   def snap(*images)
-    win = []
-    images.size.times { |i| win << GUI::Window.new("snap-#{i}") }
-    win.each_with_index { |w, i| w.show images[i] }
+    n = -1
+    images.map! { |val|
+      n += 1
+      if val.is_a? Hash
+        val
+      elsif val.is_a? Array
+        {:title => val[0], :image => val[1] }
+      else
+        {:title => "snap-#{n}", :image => val }
+      end
+    }
+
+    pos = CvPoint.new(0, 0)
+    images.each { |img|
+      w = GUI::Window.new(img[:title])
+      w.show(img[:image])
+      w.move(pos)
+      pos.x += img[:image].width
+      if pos.x > 800
+        pos.y += img[:image].height
+        pos.x = 0
+      end
+    }
     
     GUI::wait_key
     GUI::Window::destroy_all

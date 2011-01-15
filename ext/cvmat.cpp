@@ -3174,6 +3174,26 @@ rbi_find_corner_sub_pix(int argc, VALUE *argv, VALUE self)
   return Qnil;
 }
 
+/*
+ * call-seq:
+ *   good_features_to_track(<i>quality_level, min_distance[, good_features_to_track_option]</i>)
+ *         -> array (include CvPoint2D32f)
+ * Determines strong corners on an image.
+ *
+ * quality_level – Multiplier for the max/min eigenvalue; specifies the minimal accepted quality of image corners
+ * min_distance – Limit, specifying the minimum possible distance between the returned corners; Euclidian distance is used
+ * <i>good_features_to_track_option</i> should be Hash include these keys.
+ *   :mask
+ *      Region of interest. The function selects points either in the specified region or in the whole image
+ *      if the mask is nil.
+ *   :block_size
+ *      Size of the averaging block, passed to the underlying CornerMinEigenVal or CornerHarris used by the function.
+ *   :use_harris
+ *      If true, Harris operator ( CornerHarris ) is used instead of default CornerMinEigenVal
+ *   :k
+ *      Free parameter of Harris detector; used only if ( :use_harris => true )
+ * note: <i>good_features_to_track_option</i>'s default value is CvMat::GOOD_FEATURES_TO_TRACK_OPTION
+ */
 VALUE
 rb_good_features_to_track(int argc, VALUE *argv, VALUE self)
 {  

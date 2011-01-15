@@ -39,6 +39,45 @@ class TestCvMat < OpenCVTestCase
     }
   end
 
+  def test_load
+    mat = CvMat.load(FILENAME_CAT)
+    assert_equal(CvMat, mat.class)
+    assert_equal(375, mat.cols)
+    assert_equal(500, mat.rows)
+    assert_equal(:cv8u, mat.depth)
+    assert_equal(3, mat.channel)
+    assert_equal('ebc0b85d3ac44ea60181c997f35d13df', hash_img(mat))
+
+    mat = CvMat.load(FILENAME_CAT, CV_LOAD_IMAGE_GRAYSCALE)
+    assert_equal(CvMat, mat.class)
+    assert_equal(375, mat.cols)
+    assert_equal(500, mat.rows)
+    assert_equal(:cv8u, mat.depth)
+    assert_equal(1, mat.channel)
+    assert_equal('f0ae1d7f2d6b3a64d093e3181361f3a4', hash_img(mat))
+
+    mat = CvMat.load(FILENAME_CAT, CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_ANYCOLOR)
+    assert_equal(CvMat, mat.class)
+    assert_equal(375, mat.cols)
+    assert_equal(500, mat.rows)
+    assert_equal(:cv8u, mat.depth)
+    assert_equal(3, mat.channel)
+    assert_equal('ebc0b85d3ac44ea60181c997f35d13df', hash_img(mat))
+
+    assert_raise(ArgumentError) {
+      CvMat.load
+    }
+    assert_raise(TypeError) {
+      CvMat.load(123)
+    }
+    assert_raise(TypeError) {
+      CvMat.load(FILENAME_CAT, 'foobar')
+    }
+    assert_raise(StandardError) {
+      CvMat.load('file/does/not/exist')
+    }
+  end
+
   def test_GOOD_FEATURES_TO_TRACK_OPTION
     assert_equal(0xff, CvMat::GOOD_FEATURES_TO_TRACK_OPTION[:max])
     assert_nil(CvMat::GOOD_FEATURES_TO_TRACK_OPTION[:mask])
@@ -1742,8 +1781,8 @@ class TestCvMat < OpenCVTestCase
 
   def test_solve
     elems1 = [3, 4, 5,
-             8, 9, 6,
-             3, 5, 9]
+              8, 9, 6,
+              3, 5, 9]
     elems2 = [3,
               4,
               5]

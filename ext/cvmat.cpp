@@ -155,6 +155,7 @@ void define_ruby_class()
   rb_hash_aset(find_fundamental_matrix_option, ID2SYM(rb_intern("desirable_level")), rb_float_new(0.99));
 
   rb_define_method(rb_klass, "initialize", RUBY_METHOD_FUNC(rb_initialize), -1);
+  rb_define_singleton_method(rb_klass, "load", RUBY_METHOD_FUNC(rb_load_imageM), -1);
   // Ruby/OpenCV original functions
   rb_define_method(rb_klass, "method_missing", RUBY_METHOD_FUNC(rb_method_missing), -1);
   rb_define_method(rb_klass, "to_s", RUBY_METHOD_FUNC(rb_to_s), 0);
@@ -427,6 +428,46 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
                                CV_MAKETYPE(CVMETHOD("DEPTH", depth, CV_8U), argc < 4 ? 3 : FIX2INT(channel)));
   return self;
 }
+
+/*
+ * call-seq:
+ *   CvMat::load(<i>filename[,iscolor = CV_LOAD_IMAGE_COLOR]</i>)
+ *
+ * Load an image from file.
+ *  iscolor = CV_LOAD_IMAGE_COLOR, the loaded image is forced to be a 3-channel color image
+ *  iscolor = CV_LOAD_IMAGE_GRAYSCALE, the loaded image is forced to be grayscale
+ *  iscolor = CV_LOAD_IMAGE_UNCHANGED, the loaded image will be loaded as is.
+ * Currently the following file format are supported.
+ * * Windows bitmaps - BMP,DIB
+ * * JPEG files - JPEG,JPG,JPE
+ * * Portable Network Graphics - PNG
+ * * Portable image format - PBM,PGM,PPM
+ * * Sun rasters - SR,RAS     
+ * * TIFF files - TIFF,TIF
+ */
+VALUE
+rb_load_imageM(int argc, VALUE *argv, VALUE self)
+{
+  VALUE filename, iscolor;
+  rb_scan_args(argc, argv, "11", &filename, &iscolor);
+  Check_Type(filename, T_STRING);
+
+  int _iscolor;
+  if (TYPE(iscolor) == T_NIL) {
+    _iscolor = CV_LOAD_IMAGE_COLOR;
+  }
+  else {
+    Check_Type(iscolor, T_FIXNUM);
+    _iscolor = FIX2INT(iscolor);
+  }
+  
+  CvMat *mat;
+  if ((mat = cvLoadImageM(StringValueCStr(filename), _iscolor)) == NULL) {
+    rb_raise(rb_eStandardError, "file does not exist or invalid format image.");
+  }
+  return OPENCV_OBJECT(rb_klass, mat);
+}
+
 
 /* 
  * nodoc

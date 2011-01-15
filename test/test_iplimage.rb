@@ -8,8 +8,6 @@ include OpenCV
 
 # Tests for OpenCV::IplImage
 class TestIplImage < OpenCVTestCase
-  FILENAME_CAT = File.expand_path(File.dirname(__FILE__)) + '/samples/cat.jpg'
-  
   def test_initialize
     img = IplImage.new(10, 20)
     assert_equal(10, img.width)
@@ -26,6 +24,7 @@ class TestIplImage < OpenCVTestCase
 
   def test_load
     img = IplImage.load(FILENAME_CAT)
+    assert_equal(IplImage, img.class)
     assert_equal(375, img.width)
     assert_equal(500, img.height)
     assert_equal(:cv8u, img.depth)
@@ -33,6 +32,7 @@ class TestIplImage < OpenCVTestCase
     assert_equal('f2e4dc5d6d3fc285203762ff53d150c7', hash_img(img))
 
     img = IplImage.load(FILENAME_CAT, CV_LOAD_IMAGE_GRAYSCALE)
+    assert_equal(IplImage, img.class)
     assert_equal(375, img.width)
     assert_equal(500, img.height)
     assert_equal(:cv8u, img.depth)
@@ -43,6 +43,7 @@ class TestIplImage < OpenCVTestCase
     assert_equal('b1a0c1c5504961b62e15fa7d57a2e7e0', hash_img(img))
 
     img = IplImage.load(FILENAME_CAT, CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_ANYCOLOR)
+    assert_equal(IplImage, img.class)
     assert_equal(375, img.width)
     assert_equal(500, img.height)
     assert_equal(:cv8u, img.depth)

@@ -6,6 +6,8 @@ require 'opencv'
 include OpenCV
 
 class OpenCVTestCase < Test::Unit::TestCase
+  FILENAME_CAT = File.expand_path(File.dirname(__FILE__)) + '/samples/cat.jpg'
+  
   CvMat.class_eval do
     # Range check for debug
     alias original_aref []

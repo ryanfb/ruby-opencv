@@ -127,7 +127,7 @@ class TestCvMat_imageprocessing < OpenCVTestCase
   end
 
   def test_find_corner_sub_pix
-    flunk('FIXME: CvMat#corner_min_eigen_val is not implemented yet.')
+    flunk('FIXME: CvMat#find_corner_sub_pix is not implemented yet.')
   end
 
   def test_good_features_to_track
@@ -228,6 +228,21 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal('f170c05fa50c3ac2a762d7b3f5c4ae2f', hash_img(mat1))
     assert_equal('f170c05fa50c3ac2a762d7b3f5c4ae2f', hash_img(mat2))
     assert_equal('4d949d5083405381ad9ea09dcd95e5a2', hash_img(mat3))
+  end
+
+  def test_resize
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    mat1 = mat0.resize(CvSize.new(512, 512))
+    mat2 = mat0.resize(CvSize.new(512, 512), :linear)
+    mat3 = mat0.resize(CvSize.new(512, 512), :nn)
+    mat4 = mat0.resize(CvSize.new(128, 128), :area)
+    mat5 = mat0.resize(CvSize.new(128, 128), :cubic)
+
+    assert_equal('b2203ccca2c17b042a90b79704c0f535', hash_img(mat1))
+    assert_equal('b2203ccca2c17b042a90b79704c0f535', hash_img(mat2))
+    assert_equal('ba8f2dee2329aaa6309de4770fc8fa55', hash_img(mat3))
+    assert_equal('8a28a2748b0cfc87205d65c625187867', hash_img(mat4))
+    assert_equal('de5c30fcd9e817aa282ab05388de995b', hash_img(mat5))
   end
 end
 

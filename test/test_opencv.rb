@@ -87,7 +87,63 @@ class TestOpenCV < OpenCVTestCase
   end
 
   def test_cvt_color_funcs
-    flunk('FIXME: cvtColor functions are not tested yet.')
+    mat_1ch = CvMat.new(1, 1, :cv8u, 1)
+    mat_1ch[0] = CvScalar.new(10)
+
+    mat_3ch = CvMat.new(1, 1, :cv8u, 3)
+    mat_3ch[0] = CvScalar.new(10, 20, 30)
+
+    mat_4ch = CvMat.new(1, 1, :cv8u, 4)
+    mat_4ch[0] = CvScalar.new(10, 20, 30, 40)
+
+    gray_rgb = (0.299 * mat_3ch[0][0] + 0.587 * mat_3ch[0][1] + 0.114 * mat_3ch[0][2]).round
+    gray_bgr = (0.299 * mat_3ch[0][2] + 0.587 * mat_3ch[0][1] + 0.114 * mat_3ch[0][0]).round
+
+    # RGB(A) <=> RGB(A)
+    [mat_3ch.BGR2BGRA, mat_3ch.RGB2RGBA].each { |m|
+      assert_equal(4, m.channel)
+      assert_cvscalar_equal(CvScalar.new(10, 20, 30, 255), m[0])
+    }
+    [mat_3ch.BGR2RGBA, mat_3ch.RGB2BGRA].each { |m|
+      assert_equal(4, m.channel)
+      assert_cvscalar_equal(CvScalar.new(30, 20, 10, 255), m[0])
+    }
+    [mat_4ch.BGRA2BGR, mat_4ch.RGBA2RGB].each { |m|
+      assert_equal(3, m.channel)
+      assert_cvscalar_equal(CvScalar.new(10, 20, 30, 0), m[0])
+    }
+    [mat_4ch.RGBA2BGR, mat_4ch.BGRA2RGB].each { |m|
+      assert_equal(3, m.channel)
+      assert_cvscalar_equal(CvScalar.new(30, 20, 10, 0), m[0])
+    }
+    [mat_3ch.BGR2RGB, mat_3ch.RGB2BGR].each { |m|
+      assert_equal(3, m.channel)
+      assert_cvscalar_equal(CvScalar.new(30, 20, 10, 0), m[0])
+    }
+    [mat_4ch.BGRA2RGBA, mat_4ch.RGBA2BGRA].each { |m|
+      assert_equal(4, m.channel)
+      assert_cvscalar_equal(CvScalar.new(30, 20, 10, 40), m[0])
+    }
+
+    # RGB <=> GRAY
+    [mat_3ch.BGR2GRAY, mat_4ch.BGRA2GRAY].each { |m|
+      assert_equal(1, m.channel)
+      assert_cvscalar_equal(CvScalar.new(gray_bgr, 0, 0, 0), m[0])
+    }
+    [mat_3ch.RGB2GRAY, mat_4ch.RGBA2GRAY].each { |m|
+      assert_equal(1, m.channel)
+      assert_cvscalar_equal(CvScalar.new(gray_rgb, 0, 0, 0), m[0])
+    }
+    [mat_1ch.GRAY2BGR, mat_1ch.GRAY2RGB].each { |m|
+      assert_equal(3, m.channel)
+      assert_cvscalar_equal(CvScalar.new(10, 10, 10, 0), m[0])
+    }
+    [mat_1ch.GRAY2BGRA, mat_1ch.GRAY2RGBA].each { |m|
+      assert_equal(4, m.channel)
+      assert_cvscalar_equal(CvScalar.new(10, 10, 10, 255), m[0])
+    }
+
+    flunk('FIXME: Most cvtColor functions are not tested yet.')
   end
 end
 

@@ -247,17 +247,11 @@ void define_ruby_class()
   rb_define_method(rb_klass, "not", RUBY_METHOD_FUNC(rb_not), 0);
   rb_define_method(rb_klass, "not!", RUBY_METHOD_FUNC(rb_not_bang), 0);
   rb_define_method(rb_klass, "eq", RUBY_METHOD_FUNC(rb_eq), 1);
-  // rb_define_alias(rb_klass, "==", "eq");
   rb_define_method(rb_klass, "gt", RUBY_METHOD_FUNC(rb_gt), 1);
-  // rb_define_alias(rb_klass, ">", "gt");
   rb_define_method(rb_klass, "ge", RUBY_METHOD_FUNC(rb_ge), 1);
-  // rb_define_alias(rb_klass, ">=", "ge");
   rb_define_method(rb_klass, "lt", RUBY_METHOD_FUNC(rb_lt), 1);
-  // rb_define_alias(rb_klass, "<", "lt");
   rb_define_method(rb_klass, "le", RUBY_METHOD_FUNC(rb_le), 1);
-  // rb_define_alias(rb_klass, "<=", "le");
   rb_define_method(rb_klass, "ne", RUBY_METHOD_FUNC(rb_ne), 1);
-  // rb_define_alias(rb_klass, "!=", "ne");
   rb_define_method(rb_klass, "in_range", RUBY_METHOD_FUNC(rb_in_range), 2);
   rb_define_method(rb_klass, "abs_diff", RUBY_METHOD_FUNC(rb_abs_diff), 1);
   rb_define_method(rb_klass, "count_non_zero", RUBY_METHOD_FUNC(rb_count_non_zero), 0);
@@ -1189,13 +1183,6 @@ rb_aref(VALUE self, VALUE args)
   case 2:
     scalar = cvGet2D(CVARR(self), index[0], index[1]);
     break;
-    /*
-    // cvGet3D should not be used in this method.
-    // "self" is always an instance of CvMat, and its data are 1D or 2D array.
-  case 3:
-    scalar = cvGet3D(CVARR(self), index[0], index[1], index[2]);
-    break;
-    */
   default:
     scalar = cvGetND(CVARR(self), index);
   }
@@ -1225,13 +1212,6 @@ rb_aset(VALUE self, VALUE args)
   case 2:
     cvSet2D(CVARR(self), index[0], index[1], scalar);
     break;
-    // cvGet3D should not be used in this method.
-    // "self" is always an instance of CvMat, and its data are 1D or 2D array.
-    /*
-  case 3:
-     cvSet3D(CVARR(self), index[0], index[1], index[2], scalar);
-    break;
-    */
   default:
     cvSetND(CVARR(self), index, scalar);
   }
@@ -3340,7 +3320,7 @@ rb_resize(int argc, VALUE *argv, VALUE self)
   rb_scan_args(argc, argv, "11", &size, &interpolation);
   VALUE dest = new_object(VALUE_TO_CVSIZE(size), cvGetElemType(CVARR(self)));
   cvResize(CVARR(self), CVARR(dest), CVMETHOD("INTERPOLATION_METHOD", interpolation, CV_INTER_LINEAR));
-  return self;
+  return dest;
 }
 
 /*

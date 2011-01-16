@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# -*- mode: ruby; coding: utf-8-unix -*- 
+# -*- mode: ruby; coding: utf-8-unix -*-
 require 'test/unit'
 require 'opencv'
 require File.expand_path(File.dirname(__FILE__)) + '/helper'
@@ -127,7 +127,7 @@ class TestCvMat_imageprocessing < OpenCVTestCase
   end
 
   def test_find_corner_sub_pix
-    flunk('FIXME: CvMat#corner_min_eigen_val is not implemented yet.')    
+    flunk('FIXME: CvMat#corner_min_eigen_val is not implemented yet.')
   end
 
   def test_good_features_to_track
@@ -193,6 +193,41 @@ class TestCvMat_imageprocessing < OpenCVTestCase
       mat0.good_features_to_track(0.2, 5, :max => 0)
     }
   end
-end
 
+  def test_sample_line
+    flunk('FIXME: CvMat#sample_line is not implemented yet.')
+  end
+
+  def test_rect_sub_pix
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    center = CvPoint2D32f.new(mat0.width / 2, mat0.height / 2)
+    mat1 = mat0.rect_sub_pix(center)
+    mat2 = mat0.rect_sub_pix(center, mat0.size)
+    mat3 = mat0.rect_sub_pix(center, CvSize.new(512, 512))
+
+    assert_equal('b3dc0e31260dd42b5341471e23e825d3', hash_img(mat1))
+    assert_equal('b3dc0e31260dd42b5341471e23e825d3', hash_img(mat2))
+    assert_equal('cc27ce8f4068efedcd31c4c782c3825c', hash_img(mat3))
+  end
+
+  def test_quadrangle_sub_pix
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    angle = 60 * Math::PI / 180
+    map_matrix = CvMat.new(2, 3, :cv32f, 1)
+    map_matrix[0] = CvScalar.new(Math.cos(angle))
+    map_matrix[1] = CvScalar.new(-Math.sin(angle))
+    map_matrix[2] = CvScalar.new(mat0.width * 0.5)
+    map_matrix[3] = CvScalar.new(-map_matrix[1][0])
+    map_matrix[4] = map_matrix[0]
+    map_matrix[5] = CvScalar.new(mat0.height * 0.5)
+
+    mat1 = mat0.quadrangle_sub_pix(map_matrix)
+    mat2 = mat0.quadrangle_sub_pix(map_matrix, mat0.size)
+    mat3 = mat0.quadrangle_sub_pix(map_matrix, CvSize.new(512, 512))
+
+    assert_equal('f170c05fa50c3ac2a762d7b3f5c4ae2f', hash_img(mat1))
+    assert_equal('f170c05fa50c3ac2a762d7b3f5c4ae2f', hash_img(mat2))
+    assert_equal('4d949d5083405381ad9ea09dcd95e5a2', hash_img(mat3))
+  end
+end
 

@@ -175,8 +175,8 @@ VALUE rbi_find_corner_sub_pix(int argc, VALUE *argv, VALUE self);
 VALUE rb_good_features_to_track(int argc, VALUE *argv, VALUE self);
 
 VALUE rb_sample_line(int argc, VALUE *argv, VALUE self);
-VALUE rb_rect_sub_pix(VALUE self, VALUE center, VALUE size);
-VALUE rb_quadrangle_sub_pix(VALUE self, VALUE map_matrix, VALUE size);
+VALUE rb_rect_sub_pix(int argc, VALUE *argv, VALUE self);
+VALUE rb_quadrangle_sub_pix(int argc, VALUE *argv, VALUE self);
 VALUE rb_resize(int argc, VALUE *argv, VALUE self);
 VALUE rb_warp_affine(int argc, VALUE *argv, VALUE self);
 VALUE rb_rotation(VALUE self, VALUE center, VALUE angle, VALUE scale);

@@ -244,5 +244,78 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal('8a28a2748b0cfc87205d65c625187867', hash_img(mat4))
     assert_equal('de5c30fcd9e817aa282ab05388de995b', hash_img(mat5))
   end
+
+  def test_warp_affine
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    map_matrix = CvMat.new(2, 3, :cv32f, 1)
+    # center: (128, 128), angle: 25 deg., scale: 1.0
+    map_matrix[0] = CvScalar.new(0.90631)
+    map_matrix[1] = CvScalar.new(0.42262)
+    map_matrix[2] = CvScalar.new(-42.10254)
+    map_matrix[3] = CvScalar.new(-0.42262)
+    map_matrix[4] = CvScalar.new(0.90631)
+    map_matrix[5] = CvScalar.new(66.08774)
+
+    mat1 = mat0.warp_affine(map_matrix)
+    mat2 = mat0.warp_affine(map_matrix, :nn)
+    mat3 = mat0.warp_affine(map_matrix, :linear, :fill_outliers, CvColor::Yellow)
+    mat4 = mat0.warp_affine(map_matrix, :linear, :inverse_map)
+
+    assert_equal('da3d7cdefabbaf84c4080ecd40d00897', hash_img(mat1))
+    assert_equal('b4abcd12c4e1103c3de87bf9ad854936', hash_img(mat2))
+    assert_equal('26f6b10e955125c91fd7e63a63cc06a3', hash_img(mat3))
+    assert_equal('cc4eb5d8eb7cb2c0b76941bc38fb91b1', hash_img(mat4))
+
+    assert_raise(TypeError) {
+      mat0.warp_affine("foobar")
+    }
+  end
+
+  def test_rotation_matrix2D
+    mat1 = CvMat.rotation_matrix2D(CvPoint2D32f.new(10, 20), 60, 2.0)
+    expected = [1.0, 1.73205, -34.64102,
+                -1.73205, 1.0, 17.32051]
+    assert_equal(2, mat1.rows)
+    assert_equal(3, mat1.cols)
+    assert_equal(:cv32f, mat1.depth)
+    assert_equal(1, mat1.channel)
+    expected.each_with_index { |x, i|
+      assert_in_delta(x, mat1[i][0], 0.001)
+    }
+  end
+
+  def test_warp_perspective
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    # Homography
+    #   <src>     =>    <dst>
+    # (0, 0)      =>  (50, 0)
+    # (255, 0)    =>  (205, 0)
+    # (255, 255)  =>  (255, 220)
+    # (0, 255)    =>  (0, 275)
+    map_matrix = CvMat.new(3, 3, :cv32f, 1)
+    map_matrix[0] = CvScalar.new(0.72430)
+    map_matrix[1] = CvScalar.new(-0.19608) 
+    map_matrix[2] = CvScalar.new(50.00000) 
+    map_matrix[3] = CvScalar.new(0.0) 
+    map_matrix[4] = CvScalar.new(0.62489)
+    map_matrix[5] = CvScalar.new(0.0)
+    map_matrix[6] = CvScalar.new(0.00057)
+    map_matrix[7] = CvScalar.new(-0.00165)
+    map_matrix[8] = CvScalar.new(1.00000)
+    
+    mat1 = mat0.warp_perspective(map_matrix)
+    mat2 = mat0.warp_perspective(map_matrix, :nn)
+    mat3 = mat0.warp_perspective(map_matrix, :linear, :inverse_map)
+    mat4 = mat0.warp_perspective(map_matrix, :linear, :fill_outliers, CvColor::Yellow)
+
+    assert_equal('bba3a5395f9dd9a400a0083ae74d8986', hash_img(mat1))
+    assert_equal('a0cc4f329f459410293b75b417fc4f25', hash_img(mat2))
+    assert_equal('3e34e6ed2404056bb72e86edf02610cb', hash_img(mat3))
+    assert_equal('71bd12857d2e4ac0c919652c2963b4e1', hash_img(mat4))
+
+    assert_raise(TypeError) {
+      mat0.warp_perspective("foobar")
+    }
+  end
 end
 

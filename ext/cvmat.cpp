@@ -318,7 +318,7 @@ void define_ruby_class()
   rb_define_method(rb_klass, "quadrangle_sub_pix", RUBY_METHOD_FUNC(rb_quadrangle_sub_pix), -1);
   rb_define_method(rb_klass, "resize", RUBY_METHOD_FUNC(rb_resize), -1);
   rb_define_method(rb_klass, "warp_affine", RUBY_METHOD_FUNC(rb_warp_affine), -1);
-  rb_define_singleton_method(rb_klass, "rotation", RUBY_METHOD_FUNC(rb_rotation), 3);
+  rb_define_singleton_method(rb_klass, "rotation_matrix2D", RUBY_METHOD_FUNC(rb_rotation_matrix2D), 3);
   rb_define_method(rb_klass, "warp_perspective", RUBY_METHOD_FUNC(rb_warp_perspective), -1);
   //rb_define_method(rb_klass, "get_perspective_transform", RUBY_METHOD_FUNC(rb_get_perspective_transform), -1);
   //rb_define_alias(rb_klass, "warp_perspective_q_matrix", "get_perspective_transform");
@@ -3345,7 +3345,7 @@ rb_warp_affine(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
- *   CvMat.rotation(<i>center,angle,scale</i>) -> cvmat
+ *   CvMat.rotation_matrix2D(<i>center,angle,scale</i>) -> cvmat
  *
  * Create new affine matrix of 2D rotation (2x3 32bit floating-point matrix).
  * <i>center</i> is center of rotation (x, y).
@@ -3359,7 +3359,7 @@ rb_warp_affine(int argc, VALUE *argv, VALUE self)
  *  where a = scale * cos(angle), b = scale * sin(angle)
  */
 VALUE
-rb_rotation(VALUE self, VALUE center, VALUE angle, VALUE scale)
+rb_rotation_matrix2D(VALUE self, VALUE center, VALUE angle, VALUE scale)
 {
   VALUE map_matrix = new_object(cvSize(3,2), CV_MAKETYPE(CV_32F, 1));
   cv2DRotationMatrix(VALUE_TO_CVPOINT2D32F(center), NUM2DBL(angle), NUM2DBL(scale), CVMAT(map_matrix));

@@ -317,5 +317,43 @@ class TestCvMat_imageprocessing < OpenCVTestCase
       mat0.warp_perspective("foobar")
     }
   end
+
+  def test_remap
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    matx = CvMat.new(mat0.height, mat0.width, :cv32f, 1).clear
+    maty = CvMat.new(mat0.height, mat0.width, :cv32f, 1).clear
+
+    cos30, sin30 = Math.cos(30 * Math::PI / 180), Math.sin(30 * Math::PI / 180)
+    half_width, half_height = mat0.width / 2, mat0.height / 2
+    mat0.height.times { |j|
+      mat0.width.times { |i|
+        x0 = i - half_width
+        y0 = j - half_height
+        x = x0 * cos30 - y0 * sin30 + half_width
+        y = x0 * sin30 + y0 * cos30 + half_height
+        matx[j, i] = CvScalar.new(x)
+        maty[j, i] = CvScalar.new(y)
+      }
+    }
+
+    mat1 = mat0.remap(matx, maty)
+    mat2 = mat0.remap(matx, maty, :nn)
+    mat3 = mat0.remap(matx, maty, :linear, :fill_outliers, CvColor::Yellow)
+
+    assert_equal('586716c0262a3e03a54b9fc6e671e5f7', hash_img(mat1))
+    assert_equal('5461ecdee23d5e8a9099500d631c9f0f', hash_img(mat2))
+    assert_equal('1f6b73925056298c566e8e727627d929', hash_img(mat3))
+
+    assert_raise(TypeError) {
+      mat0.remap('foo', maty)
+    }
+    assert_raise(TypeError) {
+      mat0.remap(matx, 'bar')
+    }
+  end
+
+  def test_log_polar
+    flunk('FIXME: CvMat#log_polar is not implemented yet.')
+  end
 end
 

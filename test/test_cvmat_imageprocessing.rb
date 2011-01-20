@@ -318,6 +318,72 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     }
   end
 
+  def test_find_homography
+    # Nx2
+    src = CvMat.new(4, 2, :cv32f, 1)
+    dst = CvMat.new(4, 2, :cv32f, 1)
+
+    # Nx3 (Homogeneous coordinates)
+    src2 = CvMat.new(4, 3, :cv32f, 1)
+    dst2 = CvMat.new(4, 3, :cv32f, 1)
+    
+    # Homography
+    #   <src>     =>    <dst>
+    # (0, 0)      =>  (50, 0)
+    # (255, 0)    =>  (205, 0)
+    # (255, 255)  =>  (255, 220)
+    # (0, 255)    =>  (0, 275)
+    [[0, 0], [255, 0], [255, 255], [0, 255]].each_with_index { |coord, i|
+      src[i, 0] = coord[0]
+      src[i, 1] = coord[1]
+
+      src2[i, 0] = coord[0] * 2
+      src2[i, 1] = coord[1] * 2
+      src2[i, 2] = 2
+    }
+    [[50, 0], [205, 0], [255, 220], [0, 275]].each_with_index { |coord, i|
+      dst[i, 0] = coord[0]
+      dst[i, 1] = coord[1]
+
+      dst2[i, 0] = coord[0] * 2
+      dst2[i, 1] = coord[1] * 2
+      dst2[i, 2] = 2
+    }
+
+    mat1 = CvMat.find_homography(src, dst)
+    mat2 = CvMat.find_homography(src, dst, :all)
+    mat3 = CvMat.find_homography(src, dst, :ransac)
+    mat4 = CvMat.find_homography(src, dst, :lmeds)
+    mat5, status5 = CvMat.find_homography(src, dst, :ransac, 5, true)
+    mat6, status6 = CvMat.find_homography(src, dst, :ransac, 5, true)
+    mat7 = CvMat.find_homography(src, dst, :ransac, 5, false)
+    mat8 = CvMat.find_homography(src, dst, :ransac, 5, nil)
+    mat9 = CvMat.find_homography(src, dst, :all, 5, true)
+    mat10, status10 = CvMat.find_homography(src2, dst2, :ransac, 5, true)
+
+    [mat1, mat2, mat3, mat4, mat5, mat6, mat7, mat8, mat9, mat10].each { |mat|
+      assert_equal(3, mat.rows)
+      assert_equal(3, mat.cols)
+      assert_equal(:cv32f, mat.depth)
+      assert_equal(1, mat.channel)
+      [0.72430, -0.19608, 50.0,
+       0.0, 0.62489, 0.0,
+       0.00057, -0.00165, 1.0].each_with_index { |x, i|
+        assert_in_delta(x, mat[i][0], 0.0001)
+      }
+    }
+    
+    [status5, status6, status10].each { |status|
+      assert_equal(1, status.rows)
+      assert_equal(4, status.cols)
+      assert_equal(:cv8u, status.depth)      
+      assert_equal(1, status.channel)
+      4.times { |i|
+        assert_in_delta(1.0, status[i][0], 0.0001)
+      }
+    }
+  end
+
   def test_remap
     mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
     matx = CvMat.new(mat0.height, mat0.width, :cv32f, 1).clear

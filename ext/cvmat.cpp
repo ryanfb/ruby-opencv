@@ -320,6 +320,7 @@ void define_ruby_class()
   rb_define_method(rb_klass, "warp_affine", RUBY_METHOD_FUNC(rb_warp_affine), -1);
   rb_define_singleton_method(rb_klass, "rotation_matrix2D", RUBY_METHOD_FUNC(rb_rotation_matrix2D), 3);
   rb_define_method(rb_klass, "warp_perspective", RUBY_METHOD_FUNC(rb_warp_perspective), -1);
+  rb_define_singleton_method(rb_klass, "find_homography", RUBY_METHOD_FUNC(rb_find_homograpy), -1);
   //rb_define_method(rb_klass, "get_perspective_transform", RUBY_METHOD_FUNC(rb_get_perspective_transform), -1);
   //rb_define_alias(rb_klass, "warp_perspective_q_matrix", "get_perspective_transform");
   rb_define_method(rb_klass, "remap", RUBY_METHOD_FUNC(rb_remap), -1);
@@ -3341,6 +3342,46 @@ rb_warp_affine(int argc, VALUE *argv, VALUE self)
   cvWarpAffine(CVARR(self), CVARR(dest), CVMAT(map_matrix),
                CVMETHOD("INTERPOLATION_METHOD", interpolation, CV_INTER_LINEAR) | CVMETHOD("WARP_FLAG", option, CV_WARP_FILL_OUTLIERS), VALUE_TO_CVSCALAR(fill_value));
   return dest;
+}
+
+
+/*
+ * call-seq:
+ *   CvMat.find_homograpy(<i>src_points, dst_points[,method = :all][,ransac_reproj_threshold = 0][,get_status = nil]</i>) -> cvmat
+ * 
+ * Finds the perspective transformation between two planes.
+ * <i>src_points:</i> Coordinates of the points in the original plane, 2xN, Nx2, 3xN or Nx3 1-channel array (the latter two are for representation in homogeneous coordinates), where N is the number of points. 1xN or Nx1 2- or 3-channel array can also be passed.
+ * <i>dst_points:</i> Point coordinates in the destination plane, 2xN, Nx2, 3xN or Nx3 1-channel, or 1xN or Nx1 2- or 3-channel array.
+ * <i>method:</i> The method used to computed homography matrix; one of the following symbols:
+ *     :all - a regular method using all the points
+ *     :ransac - RANSAC-based robust method
+ *     :lmeds - Least-Median robust method
+ * <i>ransac_reproj_threshold:</i> The maximum allowed reprojection error to treat a point pair as an inlier (used in the RANSAC method only). If src_points and dst_points are measured in pixels, it usually makes sense to set this parameter somewhere in the range 1 to 10.
+ * <i>get_status</i> If true, the optional output mask set by a robust method (:ransac or :lmeds) is returned additionally.
+ */
+VALUE
+rb_find_homograpy(int argc, VALUE *argv, VALUE self)
+{
+  VALUE src_points, dst_points, method, ransac_reproj_threshold, get_status;
+  rb_scan_args(argc, argv, "23", &src_points, &dst_points, &method, &ransac_reproj_threshold, &get_status);
+
+  VALUE homography = new_object(cvSize(3, 3), CV_32FC1);
+  int _method = CVMETHOD("HOMOGRAPHY_CALC_METHOD", method, 0);
+  double _ransac_reproj_threshold = NIL_P(ransac_reproj_threshold) ? 0.0 : NUM2DBL(ransac_reproj_threshold);
+
+  if ((_method != 0) && (!NIL_P(get_status)) && IF_BOOL(get_status, 1, 0, 0)) {
+    CvMat *src = CVMAT(src_points);
+    int num_points = MAX(src->rows, src->cols);
+    VALUE status = new_object(cvSize(num_points, 1), CV_8UC1);
+    cvFindHomography(src, CVMAT(dst_points), CVMAT(homography),
+		     _method, _ransac_reproj_threshold, CVMAT(status));
+    return rb_assoc_new(homography, status);
+  }
+  else {
+    cvFindHomography(CVMAT(src_points), CVMAT(dst_points), CVMAT(homography),
+		     _method, _ransac_reproj_threshold, NULL);
+    return homography;
+  }
 }
 
 /*

@@ -57,6 +57,11 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(8, WARP_FLAG[:fill_outliers])
     assert_equal(16, WARP_FLAG[:inverse_map])
 
+    # Homography calculation methods
+    assert_equal(0, HOMOGRAPHY_CALC_METHOD[:all])
+    assert_equal(4, HOMOGRAPHY_CALC_METHOD[:lmeds])
+    assert_equal(8, HOMOGRAPHY_CALC_METHOD[:ransac])
+
     # Anti aliasing flags
     assert_equal(16, CONNECTIVITY[:aa])
     assert_equal(16, CONNECTIVITY[:anti_alias])

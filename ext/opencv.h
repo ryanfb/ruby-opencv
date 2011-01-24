@@ -175,6 +175,7 @@ void resist_root_object(void *ptr, VALUE root);
 void unresist_object(void *ptr);
 void free_object(void *ptr);
 void release_object(void *ptr);
+void release_iplconvkernel_object(void *ptr);
 
 VALUE rb_module_opencv();
 void define_ruby_module();
@@ -192,6 +193,12 @@ inline VALUE
 OPENCV_OBJECT(VALUE klass, void *ptr)
 {
   return Data_Wrap_Struct(klass, 0, release_object, ptr);
+}
+
+inline VALUE
+IPLCONVKERNEL_OBJECT(VALUE klass, void *ptr)
+{
+  return Data_Wrap_Struct(klass, 0, release_iplconvkernel_object, ptr);
 }
 
 inline VALUE

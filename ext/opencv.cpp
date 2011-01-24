@@ -117,6 +117,18 @@ release_object(void *ptr)
   }
 }
 
+/*
+ * Release IplConvKernel object from memory and delete from hashtable.
+ */
+void
+release_iplconvkernel_object(void *ptr)
+{
+  if(ptr){
+    unresist_object(ptr);
+    cvReleaseStructuringElement((IplConvKernel**)(&ptr));
+  }
+}
+
 VALUE rb_module;
 VALUE rb_opencv_constants;
 

@@ -237,6 +237,7 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     mat3 = mat0.resize(CvSize.new(512, 512), :nn)
     mat4 = mat0.resize(CvSize.new(128, 128), :area)
     mat5 = mat0.resize(CvSize.new(128, 128), :cubic)
+    mat6 = mat0.clone
 
     assert_equal('b2203ccca2c17b042a90b79704c0f535', hash_img(mat1))
     assert_equal('b2203ccca2c17b042a90b79704c0f535', hash_img(mat2))
@@ -420,6 +421,76 @@ class TestCvMat_imageprocessing < OpenCVTestCase
 
   def test_log_polar
     flunk('FIXME: CvMat#log_polar is not implemented yet.')
+  end
+
+  def test_erode
+    mat0 = create_cvmat(9, 9, :cv8u, 1) { |j, i, c|
+      if i >= 3 and i < 6 and j >= 3 and j < 6
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    mat1 = create_cvmat(9, 9, :cv8u, 1) { |j, i, c|
+      if i >= 1 and i < 8 and j >= 1 and j < 8
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    mat2 = create_cvmat(5, 5, :cv8u, 1) { |j, i, c|
+      if i == 2 or j == 2
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    mat3 = mat0.erode
+    mat4 = mat0.erode(nil, 1)
+    mat5 = mat1.erode(nil, 2)
+    mat6 = mat1.erode(IplConvKernel.new(5, 5, 2, 2, :cross))
+    mat7 = mat0.clone
+    mat7.erode!
+    
+    assert_equal('075eb0e281328f768eb862735d16979d', hash_img(mat3))
+    assert_equal('075eb0e281328f768eb862735d16979d', hash_img(mat4))
+    assert_equal('9f02fc4438b1d69fea75a10dfd2b66b0', hash_img(mat5))
+    assert_equal('9f02fc4438b1d69fea75a10dfd2b66b0', hash_img(mat6))
+    assert_equal('075eb0e281328f768eb862735d16979d', hash_img(mat7))
+  end
+
+  def test_dilate
+    mat0 = create_cvmat(9, 9, :cv8u, 1) { |j, i, c|
+      if i == 4 and j == 4
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    mat1 = create_cvmat(5, 5, :cv8u, 1) { |j, i, c|
+      if i == 2 or j == 2
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    mat2 = mat0.dilate
+    mat3 = mat0.dilate(nil, 1)
+    mat4 = mat0.dilate(nil, 2)
+    mat5 = mat1.dilate(IplConvKernel.new(5, 5, 2, 2, :cross))
+    mat6 = mat0.clone
+    mat6.dilate!
+
+    assert_equal('9f02fc4438b1d69fea75a10dfd2b66b0', hash_img(mat2))
+    assert_equal('9f02fc4438b1d69fea75a10dfd2b66b0', hash_img(mat3))
+    assert_equal('ebf07f2a0edd2fd0fe26ff5921c6871b', hash_img(mat4))
+    assert_equal('2841937c35c311e947bee49864b9d295', hash_img(mat5))
+    assert_equal('9f02fc4438b1d69fea75a10dfd2b66b0', hash_img(mat6))
   end
 end
 

@@ -492,5 +492,100 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal('2841937c35c311e947bee49864b9d295', hash_img(mat5))
     assert_equal('9f02fc4438b1d69fea75a10dfd2b66b0', hash_img(mat6))
   end
+
+  def test_morphology_open
+    mat0 = create_cvmat(64, 64, :cv8u, 1) { |j, i, c|
+      if i >= 8 and i < 56 and j >= 8 and j < 56 and (i + j) % 15 != 0
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    mat1 = mat0.morphology_open
+    mat2 = mat0.morphology_open(nil, 2)
+    kernel = IplConvKernel.new(5, 5, 2, 2, :cross)
+    mat3 = mat0.morphology_open(kernel)
+
+    assert_equal('165c36ad069db33735f0d4c2823f43b7', hash_img(mat1))
+    assert_equal('e5af47b2827ed20450222321c1678ed3', hash_img(mat2))
+    assert_equal('63ccb07cb93efb1563657f51e3d89252', hash_img(mat3))
+  end
+
+  def test_morphology_close
+    mat0 = create_cvmat(64, 64, :cv8u, 1) { |j, i, c|
+      if i >= 8 and i < 56 and j >= 8 and j < 56 and (i + j) % 15 != 0
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    mat1 = mat0.morphology_close
+    mat2 = mat0.morphology_close(nil, 2)
+    kernel = IplConvKernel.new(5, 5, 2, 2, :cross)
+    mat3 = mat0.morphology_close(kernel)
+
+    assert_equal('752914aae1cff07a2b3ce528b6ac3332', hash_img(mat1))
+    assert_equal('0908b8f98999a198e8a1fbc743de52e5', hash_img(mat2))
+    assert_equal('831c513d6ed86bce3f15c697de4a72f8', hash_img(mat3))
+  end
+
+  def test_morphology_gradient
+    mat0 = create_cvmat(64, 64, :cv8u, 1) { |j, i, c|
+      if i >= 8 and i < 56 and j >= 8 and j < 56 and (i + j) % 15 != 0
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    mat1 = mat0.morphology_gradient
+    mat2 = mat0.morphology_gradient(nil, 2)
+    kernel = IplConvKernel.new(5, 5, 2, 2, :cross)
+    mat3 = mat0.morphology_gradient(kernel)
+
+    assert_equal('e15d131ae29a58237f8d9a89669c3a47', hash_img(mat1))
+    assert_equal('31d158672f699f961c59908e0bd72d5c', hash_img(mat2))
+    assert_equal('1e8007c211d6f464cf8584e8e83b3c35', hash_img(mat3))
+  end
+
+  def test_morphology_tophat
+    mat0 = create_cvmat(64, 64, :cv8u, 1) { |j, i, c|
+      if i >= 8 and i < 56 and j >= 8 and j < 56 and (i + j) % 15 != 0
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    mat1 = mat0.morphology_tophat
+    mat2 = mat0.morphology_tophat(nil, 2)
+    kernel = IplConvKernel.new(5, 5, 2, 2, :cross)
+    mat3 = mat0.morphology_tophat(kernel)
+
+    assert_equal('26f89a4f449ec8328499960acbfd44f2', hash_img(mat1))
+    assert_equal('102833c2e96eaa706eea5854d2aeaf5a', hash_img(mat2))
+    assert_equal('1760c5b63a52df37069164fe3e901aa4', hash_img(mat3))
+  end
+
+  def test_morphology_blackhat
+    mat0 = create_cvmat(64, 64, :cv8u, 1) { |j, i, c|
+      if i >= 8 and i < 56 and j >= 8 and j < 56 and (i + j) % 15 != 0
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    mat1 = mat0.morphology_blackhat
+    mat2 = mat0.morphology_blackhat(nil, 2)
+    kernel = IplConvKernel.new(5, 5, 2, 2, :cross)
+    mat3 = mat0.morphology_blackhat(kernel)
+
+    assert_equal('3773d2802aad82c91ea8e14a324e5fc3', hash_img(mat1))
+    assert_equal('3fc6bc283fa952e1fd566944d94b3e9a', hash_img(mat2))
+    assert_equal('18b1d51637b912a38133341ee006c6ff', hash_img(mat3))
+  end
 end
 

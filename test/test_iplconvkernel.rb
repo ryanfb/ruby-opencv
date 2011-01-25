@@ -48,5 +48,3 @@ class TestIplConvKernel < OpenCVTestCase
   end
 end
 
-
-

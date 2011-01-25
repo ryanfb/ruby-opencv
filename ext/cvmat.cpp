@@ -3580,11 +3580,14 @@ rb_morphology_close(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_morphology_gradient(int argc, VALUE *argv, VALUE self)
 {
-  VALUE element, iteration, temp, dest;
+  VALUE element, iteration, dest;
   rb_scan_args(argc, argv, "02", &element, &iteration);
-  temp = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvMorphologyEx(CVARR(self), CVARR(dest), CVARR(temp), IPLCONVKERNEL(element), CV_MOP_GRADIENT, IF_INT(iteration, 1));
+  CvArr* self_ptr = CVARR(self);
+  CvSize size = cvGetSize(self_ptr);
+  CvMat* temp = cvCreateMat(size.height, size.width, cvGetElemType(self_ptr));
+  dest = new_object(size, cvGetElemType(self_ptr));
+  cvMorphologyEx(self_ptr, CVARR(dest), temp, IPLCONVKERNEL(element), CV_MOP_GRADIENT, IF_INT(iteration, 1));
+  cvReleaseMat(&temp);
   return dest;
 }
 

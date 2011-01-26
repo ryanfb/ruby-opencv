@@ -1374,8 +1374,6 @@ rb_range_bang(int argc, VALUE *argv, VALUE self)
 }
 
 
-
-
 /*
  * call-seq:
  *   reshape(<i>[:rows => num][, :channel => cn]</i>) -> cvmat(refer self)
@@ -3631,7 +3629,6 @@ rb_morphology_blackhat(int argc, VALUE *argv, VALUE self)
  *
  * Smooths the image by simple blur with no scaling.
  * * 8bit unsigned -> return 16bit unsigned
- * * 8bit signed -> return 16bit signed
  * * 32bit floating point -> return 32bit floating point
  * <b>support single-channel image only.</b>
  */
@@ -3645,9 +3642,6 @@ rb_smooth_blur_no_scale(int argc, VALUE *argv, VALUE self)
   switch (CV_MAT_DEPTH(type)) {
   case CV_8U:
     dest_type = CV_16U;
-    break;
-  case CV_8S:
-    dest_type = CV_16S;
     break;
   case CV_32F:
     dest_type = CV_32F;

@@ -704,5 +704,24 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     mat3 = mat0.smooth_bilateral(7, 7)
     mat4 = CvMat.new(64, 64, :cv8u, 3).smooth_bilateral
   end
+
+  def test_filter2d
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_GRAYSCALE)
+    kernel = CvMat.new(3, 3, :cv32f, 1)
+    
+    # Laplacian filter kernel
+    laplace4 = [0, 1, 0,
+                1, -4, 1,
+                0, 1, 0]
+    laplace4.each_with_index { |x, i| kernel[i] = CvScalar.new(x) }
+
+    mat1 = mat0.filter2d(kernel)
+    mat2 = mat0.filter2d(kernel, CvPoint.new(-1, -1))
+    mat3 = mat0.filter2d(kernel, CvPoint.new(0, 0))
+
+    assert_equal('14a01cc47078e8f8fe4f0fd510d5521b', hash_img(mat1))
+    assert_equal('14a01cc47078e8f8fe4f0fd510d5521b', hash_img(mat2))
+    assert_equal('30e04de43f9240df6aadbaea6467b8fe', hash_img(mat3))
+  end
 end
 

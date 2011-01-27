@@ -723,5 +723,19 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal('14a01cc47078e8f8fe4f0fd510d5521b', hash_img(mat2))
     assert_equal('30e04de43f9240df6aadbaea6467b8fe', hash_img(mat3))
   end
+
+  def test_copy_make_border_constant
+    mat0 = create_cvmat(32, 32, :cv8u, 1) { CvScalar.new(128) }
+    mat1 = mat0.copy_make_border_constant(CvSize.new(64, 48), CvPoint.new(16, 8), 255)
+
+    assert_equal('5e231f8ca051b8f93e4aaa42d193d095', hash_img(mat1))
+  end
+
+  def test_copy_make_border_replicate
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    mat1 = mat0.copy_make_border_replicate(CvSize.new(300, 300), CvPoint.new(30, 30))
+
+    assert_equal('ecc7e69d110f9934fa31f8ec85b30275', hash_img(mat1))
+  end
 end
 

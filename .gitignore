@@ -5,3 +5,7 @@ examples/data
 Makefile
 mkmf.log
 opencv.bundle
+GPATH
+GRTAGS
+GSYMS
+GTAGS

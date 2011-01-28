@@ -737,5 +737,101 @@ class TestCvMat_imageprocessing < OpenCVTestCase
 
     assert_equal('ecc7e69d110f9934fa31f8ec85b30275', hash_img(mat1))
   end
+
+  def test_integral
+    mat0 = create_cvmat(3, 3, :cv8u, 1) { |j, i, n| CvScalar.new(n) }
+
+    sum, sqsum, tilted_sum = mat0.integral(true, true)
+    [sum, sqsum, tilted_sum].each { |s|
+      assert_equal(mat0.height + 1, s.height)
+      assert_equal(mat0.width + 1, s.width)
+      assert_equal(:cv64f, s.depth)
+      assert_equal(1, s.channel)
+    }
+
+    expected_sum = [0, 0, 0, 0,
+                    0, 0, 1, 3,
+                    0, 3, 8, 15,
+                    0, 9, 21, 36]
+    expected_sum.each_with_index { |x, i|
+      assert_in_delta(x, sum[i][0], 0.001)
+    }
+    expected_sqsum = [0, 0, 0, 0,
+                      0, 0, 1, 5,
+                      0, 9, 26, 55,
+                      0, 45, 111, 204]
+    expected_sqsum.each_with_index { |x, i|
+      assert_in_delta(x, sqsum[i][0], 0.001)
+    }
+
+    expected_tilted_sum = [0, 0, 0, 0,
+                           0, 0, 1, 2,
+                           0, 4, 7, 8,
+                           4, 16, 22, 20]
+    expected_tilted_sum.each_with_index { |x, i|
+      assert_in_delta(x, tilted_sum[i][0], 0.001)
+    }
+  end
+
+  def test_threshold_binary
+    mat0 = create_cvmat(3, 3, :cv8u, 1) { |j, i, n| CvScalar.new(n) }
+    mat1 = mat0.threshold_binary(3, 7)
+    expected = [0, 0, 0,
+                0, 7, 7,
+                7, 7, 7]
+    expected.each_with_index { |x, i|
+      assert_equal(x, mat1[i][0])
+    }
+
+    flunk('FIXME: Cases of CV_THRESH_OTSU are not tested yet.')
+  end
+
+  def test_threshold_binary_inverse
+    mat0 = create_cvmat(3, 3, :cv8u, 1) { |j, i, n| CvScalar.new(n) }
+    mat1 = mat0.threshold_binary_inverse(3, 7)
+    expected = [7, 7, 7,
+                7, 0, 0,
+                0, 0, 0]
+    expected.each_with_index { |x, i|
+      assert_equal(x, mat1[i][0])
+    }
+    flunk('FIXME: Cases of CV_THRESH_OTSU are not tested yet.')
+  end
+
+  def test_threshold_trunc
+    mat0 = create_cvmat(3, 3, :cv8u, 1) { |j, i, n| CvScalar.new(n) }
+    mat1 = mat0.threshold_trunc(3)
+    expected = [0, 1, 2,
+                3, 3, 3,
+                3, 3, 3]
+    expected.each_with_index { |x, i|
+      assert_equal(x, mat1[i][0])
+    }
+    flunk('FIXME: Cases of CV_THRESH_OTSU are not tested yet.')
+  end
+
+  def test_threshold_to_zero
+    mat0 = create_cvmat(3, 3, :cv8u, 1) { |j, i, n| CvScalar.new(n) }
+    mat1 = mat0.threshold_to_zero(3)
+    expected = [0, 0, 0,
+                0, 4, 5,
+                6, 7, 8]
+    expected.each_with_index { |x, i|
+      assert_equal(x, mat1[i][0])
+    }
+    flunk('FIXME: Cases of CV_THRESH_OTSU are not tested yet.')
+  end
+
+  def test_threshold_to_zero_inverse
+    mat0 = create_cvmat(3, 3, :cv8u, 1) { |j, i, n| CvScalar.new(n) }
+    mat1 = mat0.threshold_to_zero_inverse(3)
+    expected = [0, 1, 2,
+                3, 0, 0,
+                0, 0, 0]
+    expected.each_with_index { |x, i|
+      assert_equal(x, mat1[i][0])
+    }
+    flunk('FIXME: Cases of CV_THRESH_OTSU are not tested yet.')
+  end
 end
 

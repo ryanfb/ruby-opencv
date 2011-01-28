@@ -3879,7 +3879,7 @@ rb_threshold_trunc(int argc, VALUE *argv, VALUE self)
   VALUE threshold, use_otsu, dest;
   rb_scan_args(argc, argv, "11", &threshold, &use_otsu);
   dest = cCvMat::new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvThreshold(CVARR(self), CVARR(dest), NUM2DBL(threshold), 0, CV_THRESH_BINARY_INV | (use_otsu == Qtrue ? CV_THRESH_OTSU : 0));
+  cvThreshold(CVARR(self), CVARR(dest), NUM2DBL(threshold), 0, CV_THRESH_TRUNC | (use_otsu == Qtrue ? CV_THRESH_OTSU : 0));
   return dest;
 }
 

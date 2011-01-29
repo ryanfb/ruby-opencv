@@ -301,6 +301,25 @@ define_ruby_module()
   RESIST_CVMETHOD(match_template_method, "ccoeff", CV_TM_CCOEFF);
   RESIST_CVMETHOD(match_template_method, "ccoeff_normed", CV_TM_CCOEFF_NORMED);
 
+  VALUE morphological_operation = rb_hash_new();
+  /* {:open, :close, :gradient, :tophat, :blackhat}: Types of morphological operations */
+  rb_define_const(rb_module, "MORPHOLOGICAL_OPERATION", morphological_operation);
+  RESIST_CVMETHOD(morphological_operation, "open", CV_MOP_OPEN);
+  RESIST_CVMETHOD(morphological_operation, "close", CV_MOP_CLOSE);
+  RESIST_CVMETHOD(morphological_operation, "gradient", CV_MOP_GRADIENT);
+  RESIST_CVMETHOD(morphological_operation, "tophat", CV_MOP_TOPHAT);
+  RESIST_CVMETHOD(morphological_operation, "blackhat", CV_MOP_BLACKHAT);
+
+  VALUE smoothing_type = rb_hash_new();
+  /* {:blur_no_scale, :blur, :gaussian, :median, :bilateral}: Types of smoothing */
+  rb_define_const(rb_module, "SMOOTHING_TYPE", smoothing_type);
+  RESIST_CVMETHOD(smoothing_type, "blur_no_scale", CV_BLUR_NO_SCALE);
+  RESIST_CVMETHOD(smoothing_type, "blur", CV_BLUR);
+  RESIST_CVMETHOD(smoothing_type, "gaussian", CV_GAUSSIAN);
+  RESIST_CVMETHOD(smoothing_type, "median", CV_MEDIAN);
+  RESIST_CVMETHOD(smoothing_type, "bilateral", CV_BILATERAL);
+
+
   /* color convert methods */
   rb_define_module_function(rb_module, "BGR2BGRA", RUBY_METHOD_FUNC(rb_BGR2BGRA), 1);
   rb_define_module_function(rb_module, "RGB2RGBA", RUBY_METHOD_FUNC(rb_RGB2RGBA), 1);

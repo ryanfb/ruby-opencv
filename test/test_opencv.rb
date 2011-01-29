@@ -115,6 +115,20 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(1, STRUCTURING_ELEMENT_SHAPE[:cross])
     assert_equal(2, STRUCTURING_ELEMENT_SHAPE[:ellipse])
     assert_equal(100, STRUCTURING_ELEMENT_SHAPE[:custom])
+
+    # Types of morphological operations
+    assert_equal(2, MORPHOLOGICAL_OPERATION[:open])
+    assert_equal(3, MORPHOLOGICAL_OPERATION[:close])
+    assert_equal(4, MORPHOLOGICAL_OPERATION[:gradient])
+    assert_equal(5, MORPHOLOGICAL_OPERATION[:tophat])
+    assert_equal(6, MORPHOLOGICAL_OPERATION[:blackhat])
+
+    # Types of the smoothing
+    assert_equal(0, SMOOTHING_TYPE[:blur_no_scale])
+    assert_equal(1, SMOOTHING_TYPE[:blur])
+    assert_equal(2, SMOOTHING_TYPE[:gaussian])
+    assert_equal(3, SMOOTHING_TYPE[:median])
+    assert_equal(4, SMOOTHING_TYPE[:bilateral])
   end
 
   def test_cvt_color_funcs

@@ -493,6 +493,47 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal('9f02fc4438b1d69fea75a10dfd2b66b0', hash_img(mat6))
   end
 
+  def test_morphology
+    mat0 = create_cvmat(64, 64, :cv8u, 1) { |j, i, c|
+      if i >= 8 and i < 56 and j >= 8 and j < 56 and (i + j) % 15 != 0
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+
+    # Open
+    kernel = IplConvKernel.new(5, 5, 2, 2, :cross)
+    mat1 = mat0.morphology(CV_MOP_OPEN, kernel)
+    mat2 = mat0.morphology(:open, kernel)
+    assert_equal('63ccb07cb93efb1563657f51e3d89252', hash_img(mat1))
+    assert_equal('63ccb07cb93efb1563657f51e3d89252', hash_img(mat2))
+
+    # Close
+    mat1 = mat0.morphology(CV_MOP_CLOSE, kernel)
+    mat2 = mat0.morphology(:close, kernel)
+    assert_equal('831c513d6ed86bce3f15c697de4a72f8', hash_img(mat1))
+    assert_equal('831c513d6ed86bce3f15c697de4a72f8', hash_img(mat2))
+
+    # Gradient
+    mat1 = mat0.morphology(CV_MOP_GRADIENT, kernel)
+    mat2 = mat0.morphology(:gradient, kernel)
+    assert_equal('1e8007c211d6f464cf8584e8e83b3c35', hash_img(mat1))
+    assert_equal('1e8007c211d6f464cf8584e8e83b3c35', hash_img(mat2))
+
+    # Top hat
+    mat1 = mat0.morphology(CV_MOP_TOPHAT, kernel)
+    mat2 = mat0.morphology(CV_MOP_TOPHAT, kernel)
+    assert_equal('1760c5b63a52df37069164fe3e901aa4', hash_img(mat1))
+    assert_equal('1760c5b63a52df37069164fe3e901aa4', hash_img(mat2))
+
+    # Black hat
+    mat1 = mat0.morphology(CV_MOP_BLACKHAT, kernel)
+    mat2 = mat0.morphology(:blackhat, kernel)
+    assert_equal('18b1d51637b912a38133341ee006c6ff', hash_img(mat1))
+    assert_equal('18b1d51637b912a38133341ee006c6ff', hash_img(mat2))
+  end
+  
   def test_morphology_open
     mat0 = create_cvmat(64, 64, :cv8u, 1) { |j, i, c|
       if i >= 8 and i < 56 and j >= 8 and j < 56 and (i + j) % 15 != 0
@@ -506,12 +547,10 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     mat2 = mat0.morphology_open(nil, 2)
     kernel = IplConvKernel.new(5, 5, 2, 2, :cross)
     mat3 = mat0.morphology_open(kernel)
-    mat4 = mat0.morphology(CV_MOP_OPEN, kernel)
 
     assert_equal('165c36ad069db33735f0d4c2823f43b7', hash_img(mat1))
     assert_equal('e5af47b2827ed20450222321c1678ed3', hash_img(mat2))
     assert_equal('63ccb07cb93efb1563657f51e3d89252', hash_img(mat3))
-    assert_equal('63ccb07cb93efb1563657f51e3d89252', hash_img(mat4))
   end
 
   def test_morphology_close
@@ -603,9 +642,9 @@ class TestCvMat_imageprocessing < OpenCVTestCase
 
     # Blur no scale
     mat1 = mat0.smooth(CV_BLUR_NO_SCALE)
-    mat2 = mat0.smooth(CV_BLUR_NO_SCALE, 3, 3)
+    mat2 = mat0.smooth(:blur_no_scale, 3, 3)
     mat3 = mat0.smooth(CV_BLUR_NO_SCALE, 7, 7)
-    mat4 = CvMat.new(32, 32, :cv32f, 1).smooth_blur_no_scale
+    mat4 = CvMat.new(32, 32, :cv32f, 1).smooth(:blur_no_scale)
 
     [mat1, mat2, mat3].each { |m|
       assert_equal(1, m.channel)
@@ -620,11 +659,11 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     
     # Blur
     mat1 = mat0.smooth(CV_BLUR)
-    mat2 = mat0.smooth(CV_BLUR, 3, 3)
+    mat2 = mat0.smooth(:blur, 3, 3)
     mat3 = mat0.smooth(CV_BLUR, 7, 7)
-    mat4 = CvMat.new(32, 32, :cv16u, 1).smooth(CV_BLUR)
+    mat4 = CvMat.new(32, 32, :cv16u, 1).smooth(:blur)
     mat5 = CvMat.new(32, 32, :cv32f, 1).smooth(CV_BLUR)
-    mat6 = CvMat.new(32, 32, :cv8u, 3).smooth(CV_BLUR)
+    mat6 = CvMat.new(32, 32, :cv8u, 3).smooth(:blur)
 
     [mat1, mat2, mat3].each { |m|
       assert_equal(1, m.channel)
@@ -643,9 +682,9 @@ class TestCvMat_imageprocessing < OpenCVTestCase
 
     # Gaussian
     mat1 = mat0.smooth(CV_GAUSSIAN)
-    mat2 = mat0.smooth(CV_GAUSSIAN, 3, 3)
+    mat2 = mat0.smooth(:gaussian, 3, 3)
     mat3 = mat0.smooth(CV_GAUSSIAN, 3, 3, 3)
-    mat4 = mat0.smooth(CV_GAUSSIAN, 3, 3, 3, 3)
+    mat4 = mat0.smooth(:gaussian, 3, 3, 3, 3)
     mat5 = mat0.smooth(CV_GAUSSIAN, 7, 7, 5, 3)
 
     mat6 = CvMat.new(32, 32, :cv16u, 1).smooth(CV_GAUSSIAN)
@@ -684,7 +723,7 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     }
     
     mat1 = mat0.smooth(CV_MEDIAN)
-    mat2 = mat0.smooth(CV_MEDIAN, 3)
+    mat2 = mat0.smooth(:median, 3)
     mat3 = mat0.smooth(CV_MEDIAN, 7)
     mat4 = CvMat.new(64, 64, :cv8u, 3).smooth(CV_MEDIAN)
 
@@ -702,7 +741,7 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     }
 
     mat1 = mat0.smooth(CV_BILATERAL)
-    mat2 = mat0.smooth(CV_BILATERAL, 3, 3)
+    mat2 = mat0.smooth(:bilateral, 3, 3)
     mat3 = mat0.smooth(CV_BILATERAL, 7, 7)
     mat4 = CvMat.new(64, 64, :cv8u, 3).smooth(CV_BILATERAL)
     flunk('FIXME: Cases of CvMat#smooth(CV_BILATERAL) are not tested yet.')

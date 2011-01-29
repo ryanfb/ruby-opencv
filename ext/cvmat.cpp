@@ -3571,7 +3571,7 @@ rb_morphology(int argc, VALUE *argv, VALUE self)
 {
   VALUE element, iteration, operation;
   rb_scan_args(argc, argv, "12", &operation, &element, &iteration);
-  return rb_morphology_internal(element, iteration, FIX2INT(operation), self);
+  return rb_morphology_internal(element, iteration, CVMETHOD("MORPHOLOGICAL_OPERATION", operation, -1), self);
 }
 
 /*
@@ -3654,7 +3654,8 @@ rb_smooth(int argc, VALUE *argv, VALUE self)
 {
   VALUE smoothtype, p1, p2, p3, p4;
   rb_scan_args(argc, argv, "14", &smoothtype, &p1, &p2, &p3, &p4);
-  int _smoothtype = FIX2INT(smoothtype);
+  int _smoothtype = CVMETHOD("SMOOTHING_TYPE", smoothtype, -1);
+  
   VALUE (*smooth_func)(int c, VALUE* v, VALUE s);
   switch (_smoothtype) {
     case CV_BLUR_NO_SCALE:

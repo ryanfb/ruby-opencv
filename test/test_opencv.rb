@@ -29,6 +29,13 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(1, CV_SHAPE_CROSS)
     assert_equal(2, CV_SHAPE_ELLIPSE)
     assert_equal(100, CV_SHAPE_CUSTOM)
+
+    # Types of morphological operations
+    assert_equal(2, CV_MOP_OPEN)
+    assert_equal(3, CV_MOP_CLOSE)
+    assert_equal(4, CV_MOP_GRADIENT)
+    assert_equal(5, CV_MOP_TOPHAT)
+    assert_equal(6, CV_MOP_BLACKHAT)
   end
 
   def test_symbols

@@ -330,6 +330,7 @@ void define_ruby_class()
   rb_define_method(rb_klass, "erode!", RUBY_METHOD_FUNC(rb_erode_bang), -1);
   rb_define_method(rb_klass, "dilate", RUBY_METHOD_FUNC(rb_dilate), -1);
   rb_define_method(rb_klass, "dilate!", RUBY_METHOD_FUNC(rb_dilate_bang), -1);
+  rb_define_method(rb_klass, "morphology", RUBY_METHOD_FUNC(rb_morphology), -1);
   rb_define_method(rb_klass, "morphology_open", RUBY_METHOD_FUNC(rb_morphology_open), -1);
   rb_define_method(rb_klass, "morphology_close", RUBY_METHOD_FUNC(rb_morphology_close), -1);
   rb_define_method(rb_klass, "morphology_gradient", RUBY_METHOD_FUNC(rb_morphology_gradient), -1);
@@ -3421,7 +3422,7 @@ rb_warp_perspective(int argc, VALUE *argv, VALUE self)
     rb_raise(rb_eTypeError, "argument 1 (map matrix) should be %s (3x3).", rb_class2name(cCvMat::rb_class()));
   VALUE dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
   cvWarpPerspective(CVARR(self), CVARR(dest), CVMAT(map_matrix),
-                    CVMETHOD("INTERPOLATION_METHOD", interpolation, CV_INTER_LINEAR) | CVMETHOD("WARP_FLAG", option, CV_WARP_FILL_OUTLIERS), VALUE_TO_CVSCALAR(fillval));
+                    CVMETHOD("INTERPOLATION_METHOD", interpolation, CV_INTER_LINEAR) | CVMETHOD("WARP_FLAG",option, CV_WARP_FILL_OUTLIERS), VALUE_TO_CVSCALAR(fillval));
   return dest;
 }
 
@@ -3534,6 +3535,44 @@ rb_dilate_bang(int argc, VALUE *argv, VALUE self)
   return self;
 }
 
+VALUE
+rb_morphology_internal(VALUE element, VALUE iteration, int operation, VALUE self)
+{
+  CvArr* self_ptr = CVARR(self);
+  CvSize size = cvGetSize(self_ptr);
+  VALUE dest = new_object(size, cvGetElemType(self_ptr));
+  if (operation == CV_MOP_GRADIENT) {
+    CvMat* temp = cvCreateMat(size.height, size.width, cvGetElemType(self_ptr));
+    cvMorphologyEx(self_ptr, CVARR(dest), temp, IPLCONVKERNEL(element), CV_MOP_GRADIENT, IF_INT(iteration, 1));
+    cvReleaseMat(&temp);
+  }
+  else {
+    cvMorphologyEx(self_ptr, CVARR(dest), 0, IPLCONVKERNEL(element), operation, IF_INT(iteration, 1));
+  }
+  return dest;
+}
+
+/*
+ * call-seq:
+ *   morpholohy(<i>operation[,element = nil][,iteration = 1]</i>) -> cvmat
+ *
+ * Performs advanced morphological transformations.
+ * <i>operation</i>
+ * Type of morphological operation, one of:
+ *   CV_MOP_OPEN - opening
+ *   CV_MOP_CLOSE - closing
+ *   CV_MOP_GRADIENT - morphological gradient
+ *   CV_MOP_TOPHAT - top hat
+ *   CV_MOP_BLACKHAT - black hat
+ */
+VALUE
+rb_morphology(int argc, VALUE *argv, VALUE self)
+{
+  VALUE element, iteration, operation;
+  rb_scan_args(argc, argv, "12", &operation, &element, &iteration);
+  return rb_morphology_internal(element, iteration, FIX2INT(operation), self);
+}
+
 /*
  * call-seq:
  *   morpholohy_open(<i>[element = nil][,iteration = 1]</i>) -> cvmat
@@ -3544,11 +3583,9 @@ rb_dilate_bang(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_morphology_open(int argc, VALUE *argv, VALUE self)
 {
-  VALUE element, iteration, dest;
+  VALUE element, iteration;
   rb_scan_args(argc, argv, "02", &element, &iteration);
-  dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvMorphologyEx(CVARR(self), CVARR(dest), 0, IPLCONVKERNEL(element), CV_MOP_OPEN, IF_INT(iteration, 1));
-  return dest;
+  return rb_morphology_internal(element, iteration, CV_MOP_OPEN, self);
 }
 
 /*
@@ -3561,11 +3598,9 @@ rb_morphology_open(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_morphology_close(int argc, VALUE *argv, VALUE self)
 {
-  VALUE element, iteration, dest;
+  VALUE element, iteration;
   rb_scan_args(argc, argv, "02", &element, &iteration);
-  dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvMorphologyEx(CVARR(self), CVARR(dest), 0, IPLCONVKERNEL(element), CV_MOP_CLOSE, IF_INT(iteration, 1));
-  return dest;
+  return rb_morphology_internal(element, iteration, CV_MOP_CLOSE, self);
 }
 
 /*
@@ -3578,15 +3613,9 @@ rb_morphology_close(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_morphology_gradient(int argc, VALUE *argv, VALUE self)
 {
-  VALUE element, iteration, dest;
+  VALUE element, iteration;
   rb_scan_args(argc, argv, "02", &element, &iteration);
-  CvArr* self_ptr = CVARR(self);
-  CvSize size = cvGetSize(self_ptr);
-  CvMat* temp = cvCreateMat(size.height, size.width, cvGetElemType(self_ptr));
-  dest = new_object(size, cvGetElemType(self_ptr));
-  cvMorphologyEx(self_ptr, CVARR(dest), temp, IPLCONVKERNEL(element), CV_MOP_GRADIENT, IF_INT(iteration, 1));
-  cvReleaseMat(&temp);
-  return dest;
+  return rb_morphology_internal(element, iteration, CV_MOP_GRADIENT, self);
 }
 
 /*
@@ -3599,11 +3628,9 @@ rb_morphology_gradient(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_morphology_tophat(int argc, VALUE *argv, VALUE self)
 {
-  VALUE element, iteration, dest;
+  VALUE element, iteration;
   rb_scan_args(argc, argv, "02", &element, &iteration);
-  dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvMorphologyEx(CVARR(self), CVARR(dest), 0, IPLCONVKERNEL(element), CV_MOP_TOPHAT, IF_INT(iteration, 1));
-  return dest;
+  return rb_morphology_internal(element, iteration, CV_MOP_TOPHAT, self);
 }
 
 /*
@@ -3618,9 +3645,7 @@ rb_morphology_blackhat(int argc, VALUE *argv, VALUE self)
 {
   VALUE element, iteration, dest;
   rb_scan_args(argc, argv, "02", &element, &iteration);
-  dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvMorphologyEx(CVARR(self), CVARR(dest), 0, IPLCONVKERNEL(element), CV_MOP_BLACKHAT, IF_INT(iteration, 1));
-  return dest;
+  return rb_morphology_internal(element, iteration, CV_MOP_BLACKHAT, self);
 }
 
 /*

@@ -190,6 +190,7 @@ VALUE rb_erode(int argc, VALUE *argv, VALUE self);
 VALUE rb_erode_bang(int argc, VALUE *argv, VALUE self);
 VALUE rb_dilate(int argc, VALUE *argv, VALUE self);
 VALUE rb_dilate_bang(int argc, VALUE *argv, VALUE self);
+VALUE rb_morphology(int argc, VALUE *argv, VALUE self);
 VALUE rb_morphology_open(int argc, VALUE *argv, VALUE self);
 VALUE rb_morphology_close(int argc, VALUE *argv, VALUE self);
 VALUE rb_morphology_gradient(int argc, VALUE *argv, VALUE self);

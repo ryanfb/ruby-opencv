@@ -43,6 +43,14 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(2, CV_GAUSSIAN)
     assert_equal(3, CV_MEDIAN)
     assert_equal(4, CV_BILATERAL)
+
+    # Thresholding types
+    assert_equal(0, CV_THRESH_BINARY)
+    assert_equal(1, CV_THRESH_BINARY_INV)
+    assert_equal(2, CV_THRESH_TRUNC)
+    assert_equal(3, CV_THRESH_TOZERO)
+    assert_equal(4, CV_THRESH_TOZERO_INV)
+    assert_equal(8, CV_THRESH_OTSU)
   end
 
   def test_symbols
@@ -129,6 +137,14 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(2, SMOOTHING_TYPE[:gaussian])
     assert_equal(3, SMOOTHING_TYPE[:median])
     assert_equal(4, SMOOTHING_TYPE[:bilateral])
+
+    # Thresholding types
+    assert_equal(0, THRESHOLD_TYPE[:binary])
+    assert_equal(1, THRESHOLD_TYPE[:binary_inv])
+    assert_equal(2, THRESHOLD_TYPE[:trunc])
+    assert_equal(3, THRESHOLD_TYPE[:tozero])
+    assert_equal(4, THRESHOLD_TYPE[:tozero_inv])
+    assert_equal(8, THRESHOLD_TYPE[:otsu])
   end
 
   def test_cvt_color_funcs

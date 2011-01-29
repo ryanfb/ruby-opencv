@@ -207,6 +207,14 @@ define_ruby_module()
   rb_define_const(rb_module, "CV_MEDIAN", INT2FIX(CV_MEDIAN));
   rb_define_const(rb_module, "CV_BILATERAL", INT2FIX(CV_BILATERAL));
 
+  /* Thresholding types */
+  rb_define_const(rb_module, "CV_THRESH_BINARY", INT2FIX(CV_THRESH_BINARY));
+  rb_define_const(rb_module, "CV_THRESH_BINARY_INV", INT2FIX(CV_THRESH_BINARY_INV));
+  rb_define_const(rb_module, "CV_THRESH_TRUNC", INT2FIX(CV_THRESH_TRUNC));
+  rb_define_const(rb_module, "CV_THRESH_TOZERO", INT2FIX(CV_THRESH_TOZERO));
+  rb_define_const(rb_module, "CV_THRESH_TOZERO_INV", INT2FIX(CV_THRESH_TOZERO_INV));
+  rb_define_const(rb_module, "CV_THRESH_OTSU", INT2FIX(CV_THRESH_OTSU));
+
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */
   rb_define_const(rb_module, "INVERSION_METHOD", inversion_method);
@@ -319,6 +327,15 @@ define_ruby_module()
   RESIST_CVMETHOD(smoothing_type, "median", CV_MEDIAN);
   RESIST_CVMETHOD(smoothing_type, "bilateral", CV_BILATERAL);
 
+  VALUE threshold_type = rb_hash_new();
+  /* {:binary, :binary_inv, :trunc, :tozero, :tozero_inv, :otsu} : Thresholding types */
+  rb_define_const(rb_module, "THRESHOLD_TYPE", threshold_type);
+  RESIST_CVMETHOD(threshold_type, "binary", CV_THRESH_BINARY);
+  RESIST_CVMETHOD(threshold_type, "binary_inv", CV_THRESH_BINARY_INV);
+  RESIST_CVMETHOD(threshold_type, "trunc", CV_THRESH_TRUNC);
+  RESIST_CVMETHOD(threshold_type, "tozero", CV_THRESH_TOZERO);
+  RESIST_CVMETHOD(threshold_type, "tozero_inv", CV_THRESH_TOZERO_INV);
+  RESIST_CVMETHOD(threshold_type, "otsu", CV_THRESH_OTSU);
 
   /* color convert methods */
   rb_define_module_function(rb_module, "BGR2BGRA", RUBY_METHOD_FUNC(rb_BGR2BGRA), 1);

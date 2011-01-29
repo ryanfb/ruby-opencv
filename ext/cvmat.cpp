@@ -347,6 +347,7 @@ void define_ruby_class()
   rb_define_method(rb_klass, "copy_make_border_constant", RUBY_METHOD_FUNC(rb_copy_make_border_constant), -1);
   rb_define_method(rb_klass, "copy_make_border_replicate", RUBY_METHOD_FUNC(rb_copy_make_border_replicate), -1);
   rb_define_method(rb_klass, "integral", RUBY_METHOD_FUNC(rb_integral), -1);
+  rb_define_method(rb_klass, "threshold", RUBY_METHOD_FUNC(rb_threshold), -1);
   rb_define_method(rb_klass, "threshold_binary", RUBY_METHOD_FUNC(rb_threshold_binary), -1);
   rb_define_method(rb_klass, "threshold_binary_inverse", RUBY_METHOD_FUNC(rb_threshold_binary_inverse), -1);
   rb_define_method(rb_klass, "threshold_trunc", RUBY_METHOD_FUNC(rb_threshold_trunc), -1);
@@ -3883,6 +3884,42 @@ rb_integral(int argc, VALUE *argv, VALUE self)
   return dest;
 }
 
+VALUE
+rb_threshold_internal(int threshold_type, VALUE threshold, VALUE max_value, VALUE use_otsu, VALUE self)
+{
+  CvArr* self_ptr = CVARR(self);
+  VALUE dest = cCvMat::new_object(cvGetSize(self_ptr), cvGetElemType(self_ptr));
+  int otsu = (use_otsu == Qtrue) && ((threshold_type & CV_THRESH_OTSU) == 0);
+  int type = threshold_type | (otsu ? CV_THRESH_OTSU : 0);
+  double otsu_threshold = cvThreshold(self_ptr, CVARR(dest), NUM2DBL(threshold), NUM2DBL(max_value), type);
+
+  if ((use_otsu == Qtrue) || (threshold_type & CV_THRESH_OTSU)) {
+    return rb_assoc_new(dest, DBL2NUM(otsu_threshold));
+  }
+  else
+    return dest;
+}
+
+/*
+ * call-seq:
+ *   threshold(<i>threshold, max_value, threshold_type[,use_otsu = false]</i>)
+ *
+ * Applies fixed-level threshold to array elements.
+ *
+ */
+VALUE
+rb_threshold(int argc, VALUE *argv, VALUE self)
+{
+  VALUE threshold, max_value, threshold_type, use_otsu;
+  rb_scan_args(argc, argv, "31", &threshold, &max_value, &threshold_type, &use_otsu);
+  const int INVALID_TYPE = -1;
+  int type = CVMETHOD("THRESHOLD_TYPE", threshold_type, INVALID_TYPE);
+  if (type == INVALID_TYPE)
+    rb_raise(rb_eArgError, "Invalid threshold type.");
+  
+  return rb_threshold_internal(type, threshold, max_value, use_otsu, self);
+}
+
 /*
  * call-seq:
  *   threshold_binary(<i>threshold, max_value[,use_otsu = false]</i>)
@@ -3895,11 +3932,9 @@ rb_integral(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_threshold_binary(int argc, VALUE *argv, VALUE self)
 {
-  VALUE threshold, max_value, use_otsu, dest;
+  VALUE threshold, max_value, use_otsu;
   rb_scan_args(argc, argv, "21", &threshold, &max_value, &use_otsu);
-  dest = cCvMat::new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvThreshold(CVARR(self), CVARR(dest), NUM2DBL(threshold), NUM2DBL(max_value), CV_THRESH_BINARY | (use_otsu == Qtrue ? CV_THRESH_OTSU : 0));
-  return dest;
+  return rb_threshold_internal(CV_THRESH_BINARY, threshold, max_value, use_otsu, self);
 }
 
 /*
@@ -3914,11 +3949,9 @@ rb_threshold_binary(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_threshold_binary_inverse(int argc, VALUE *argv, VALUE self)
 {
-  VALUE threshold, max_value, use_otsu, dest;
+  VALUE threshold, max_value, use_otsu;
   rb_scan_args(argc, argv, "21", &threshold, &max_value, &use_otsu);
-  dest = cCvMat::new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvThreshold(CVARR(self), CVARR(dest), NUM2DBL(threshold), NUM2DBL(max_value), CV_THRESH_BINARY_INV | (use_otsu == Qtrue ? CV_THRESH_OTSU : 0));
-  return dest;
+  return rb_threshold_internal(CV_THRESH_BINARY_INV, threshold, max_value, use_otsu, self);
 }
 
 /*
@@ -3933,11 +3966,9 @@ rb_threshold_binary_inverse(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_threshold_trunc(int argc, VALUE *argv, VALUE self)
 {
-  VALUE threshold, use_otsu, dest;
+  VALUE threshold, use_otsu;
   rb_scan_args(argc, argv, "11", &threshold, &use_otsu);
-  dest = cCvMat::new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvThreshold(CVARR(self), CVARR(dest), NUM2DBL(threshold), 0, CV_THRESH_TRUNC | (use_otsu == Qtrue ? CV_THRESH_OTSU : 0));
-  return dest;
+  return rb_threshold_internal(CV_THRESH_TRUNC, threshold, INT2NUM(0), use_otsu, self);
 }
 
 /*
@@ -3952,11 +3983,9 @@ rb_threshold_trunc(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_threshold_to_zero(int argc, VALUE *argv, VALUE self)
 {
-  VALUE threshold, use_otsu, dest;
+  VALUE threshold, use_otsu;
   rb_scan_args(argc, argv, "11", &threshold, &use_otsu);
-  dest = cCvMat::new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvThreshold(CVARR(self), CVARR(dest), NUM2DBL(threshold), 0, CV_THRESH_TOZERO | (use_otsu == Qtrue ? CV_THRESH_OTSU : 0));
-  return dest;
+  return rb_threshold_internal(CV_THRESH_TOZERO, threshold, INT2NUM(0), use_otsu, self);
 }
 
 /*
@@ -3971,11 +4000,9 @@ rb_threshold_to_zero(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_threshold_to_zero_inverse(int argc, VALUE *argv, VALUE self)
 {
-  VALUE threshold, use_otsu, dest;
+  VALUE threshold, use_otsu;
   rb_scan_args(argc, argv, "11", &threshold, &use_otsu);
-  dest = cCvMat::new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvThreshold(CVARR(self), CVARR(dest), NUM2DBL(threshold), 0, CV_THRESH_TOZERO_INV | (use_otsu == Qtrue ? CV_THRESH_OTSU : 0));
-  return dest;
+  return rb_threshold_internal(CV_THRESH_TOZERO_INV, threshold, INT2NUM(0), use_otsu, self);
 }
 
 /*

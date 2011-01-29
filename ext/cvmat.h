@@ -207,6 +207,7 @@ VALUE rb_filter2d(int argc, VALUE *argv, VALUE self);
 VALUE rb_copy_make_border_constant(int argc, VALUE *argv, VALUE self);
 VALUE rb_copy_make_border_replicate(int argc, VALUE *argv, VALUE self);
 VALUE rb_integral(int argc, VALUE *argv, VALUE self);
+VALUE rb_threshold(int argc, VALUE *argv, VALUE self);
 VALUE rb_threshold_binary(int argc, VALUE *argv, VALUE self);
 VALUE rb_threshold_binary_inverse(int argc, VALUE *argv, VALUE self);
 VALUE rb_threshold_trunc(int argc, VALUE *argv, VALUE self);

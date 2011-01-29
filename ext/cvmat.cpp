@@ -337,6 +337,7 @@ void define_ruby_class()
   rb_define_method(rb_klass, "morphology_tophat", RUBY_METHOD_FUNC(rb_morphology_tophat), -1);
   rb_define_method(rb_klass, "morphology_blackhat", RUBY_METHOD_FUNC(rb_morphology_blackhat), -1);
 
+  rb_define_method(rb_klass, "smooth", RUBY_METHOD_FUNC(rb_smooth), -1);
   rb_define_method(rb_klass, "smooth_blur_no_scale", RUBY_METHOD_FUNC(rb_smooth_blur_no_scale), -1);
   rb_define_method(rb_klass, "smooth_blur", RUBY_METHOD_FUNC(rb_smooth_blur), -1);
   rb_define_method(rb_klass, "smooth_gaussian", RUBY_METHOD_FUNC(rb_smooth_gaussian), -1);
@@ -3646,6 +3647,36 @@ rb_morphology_blackhat(int argc, VALUE *argv, VALUE self)
   VALUE element, iteration, dest;
   rb_scan_args(argc, argv, "02", &element, &iteration);
   return rb_morphology_internal(element, iteration, CV_MOP_BLACKHAT, self);
+}
+
+VALUE
+rb_smooth(int argc, VALUE *argv, VALUE self)
+{
+  VALUE smoothtype, p1, p2, p3, p4;
+  rb_scan_args(argc, argv, "14", &smoothtype, &p1, &p2, &p3, &p4);
+  int _smoothtype = FIX2INT(smoothtype);
+  VALUE (*smooth_func)(int c, VALUE* v, VALUE s);
+  switch (_smoothtype) {
+    case CV_BLUR_NO_SCALE:
+      smooth_func = rb_smooth_blur_no_scale;
+      break;
+    case CV_BLUR:
+      smooth_func = rb_smooth_blur;
+      break;
+    case CV_GAUSSIAN:
+      smooth_func = rb_smooth_gaussian;
+      break;
+    case CV_MEDIAN:
+      smooth_func = rb_smooth_median;
+      break;
+    case CV_BILATERAL:
+      smooth_func = rb_smooth_bilateral;
+      break;
+    default:
+      smooth_func = rb_smooth_gaussian;
+      break;
+    }
+  return (*smooth_func)(argc - 1, argv + 1, self);
 }
 
 /*

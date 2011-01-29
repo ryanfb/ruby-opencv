@@ -598,6 +598,116 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal('18b1d51637b912a38133341ee006c6ff', hash_img(mat4))
   end
 
+  def test_smooth
+    mat0 = CvMat.load(FILENAME_LENA32x32, CV_LOAD_IMAGE_GRAYSCALE)
+
+    # Blur no scale
+    mat1 = mat0.smooth(CV_BLUR_NO_SCALE)
+    mat2 = mat0.smooth(CV_BLUR_NO_SCALE, 3, 3)
+    mat3 = mat0.smooth(CV_BLUR_NO_SCALE, 7, 7)
+    mat4 = CvMat.new(32, 32, :cv32f, 1).smooth_blur_no_scale
+
+    [mat1, mat2, mat3].each { |m|
+      assert_equal(1, m.channel)
+      assert_equal(:cv16u, m.depth)
+    }
+    assert_equal(1, mat4.channel)
+    assert_equal(:cv32f, mat4.depth)
+
+    assert_equal('3c9074c87b65117798f48e41a17b2f30', hash_img(mat1))
+    assert_equal('3c9074c87b65117798f48e41a17b2f30', hash_img(mat2))
+    assert_equal('9c549aa406a425a65b036c2f9a2689e0', hash_img(mat3))
+    
+    # Blur
+    mat1 = mat0.smooth(CV_BLUR)
+    mat2 = mat0.smooth(CV_BLUR, 3, 3)
+    mat3 = mat0.smooth(CV_BLUR, 7, 7)
+    mat4 = CvMat.new(32, 32, :cv16u, 1).smooth(CV_BLUR)
+    mat5 = CvMat.new(32, 32, :cv32f, 1).smooth(CV_BLUR)
+    mat6 = CvMat.new(32, 32, :cv8u, 3).smooth(CV_BLUR)
+
+    [mat1, mat2, mat3].each { |m|
+      assert_equal(1, m.channel)
+      assert_equal(:cv8u, m.depth)
+    }
+    assert_equal(1, mat4.channel)
+    assert_equal(:cv16u, mat4.depth)
+    assert_equal(1, mat5.channel)
+    assert_equal(:cv32f, mat5.depth)
+    assert_equal(3, mat6.channel)
+    assert_equal(:cv8u, mat6.depth)
+
+    assert_equal('f2473b5b964ae8950f6a7fa5cde4c67a', hash_img(mat1))
+    assert_equal('f2473b5b964ae8950f6a7fa5cde4c67a', hash_img(mat2))
+    assert_equal('d7bb344fc0f6ec0da4b9754d319e4e4a', hash_img(mat3))
+
+    # Gaussian
+    mat1 = mat0.smooth(CV_GAUSSIAN)
+    mat2 = mat0.smooth(CV_GAUSSIAN, 3, 3)
+    mat3 = mat0.smooth(CV_GAUSSIAN, 3, 3, 3)
+    mat4 = mat0.smooth(CV_GAUSSIAN, 3, 3, 3, 3)
+    mat5 = mat0.smooth(CV_GAUSSIAN, 7, 7, 5, 3)
+
+    mat6 = CvMat.new(32, 32, :cv16u, 1).smooth(CV_GAUSSIAN)
+    mat7 = CvMat.new(32, 32, :cv32f, 1).smooth(CV_GAUSSIAN)
+    mat8 = CvMat.new(32, 32, :cv8u, 3).smooth(CV_GAUSSIAN)
+
+    [mat1, mat2, mat3, mat4, mat5].each { |m|
+      assert_equal(1, m.channel)
+      assert_equal(:cv8u, m.depth)
+    }
+    assert_equal(1, mat6.channel)
+    assert_equal(:cv16u, mat6.depth)
+    assert_equal(1, mat7.channel)
+    assert_equal(:cv32f, mat7.depth)
+    assert_equal(3, mat8.channel)
+    assert_equal(:cv8u, mat8.depth)
+
+    assert_equal('580c88f3e0e317a5770be3f28f31eda2', hash_img(mat1))
+    assert_equal('580c88f3e0e317a5770be3f28f31eda2', hash_img(mat2))
+    assert_equal('a1ffaa14522719e37d75eec18ff8b309', hash_img(mat3))
+    assert_equal('a1ffaa14522719e37d75eec18ff8b309', hash_img(mat4))
+    assert_equal('f7f8b4eff3240ffc8f259ce975936d92', hash_img(mat5))
+
+    # Median
+    mat0 = create_cvmat(64, 64, :cv8u, 1) { |j, i, c|
+      if (i + j) % 15 != 0
+        CvScalar.new(255)
+      else
+        CvScalar.new(0)
+      end
+    }
+    (-1..1).each { |dy|
+      (-1..1).each { |dx|
+        mat0[32 + dy, 32 + dx] = CvScalar.new(0)
+      }
+    }
+    
+    mat1 = mat0.smooth(CV_MEDIAN)
+    mat2 = mat0.smooth(CV_MEDIAN, 3)
+    mat3 = mat0.smooth(CV_MEDIAN, 7)
+    mat4 = CvMat.new(64, 64, :cv8u, 3).smooth(CV_MEDIAN)
+
+    assert_equal('7343a41c542e034db356636c06134961', hash_img(mat1))
+    assert_equal('7343a41c542e034db356636c06134961', hash_img(mat2))
+    assert_equal('6ae59e64850377ee5470c854761551ea', hash_img(mat3))
+
+    # Bilateral
+    mat0 = create_cvmat(64, 64, :cv8u, 1) { |j, i, c|
+      if i > 32
+        (i + j) % 15 != 0 ? CvScalar.new(32) : CvScalar.new(224)
+      else
+        (i + j) % 15 != 0 ? CvScalar.new(224) : CvScalar.new(32)
+      end
+    }
+
+    mat1 = mat0.smooth(CV_BILATERAL)
+    mat2 = mat0.smooth(CV_BILATERAL, 3, 3)
+    mat3 = mat0.smooth(CV_BILATERAL, 7, 7)
+    mat4 = CvMat.new(64, 64, :cv8u, 3).smooth(CV_BILATERAL)
+    flunk('FIXME: Cases of CvMat#smooth(CV_BILATERAL) are not tested yet.')
+  end
+
   def test_smooth_blur_no_scale
     mat0 = CvMat.load(FILENAME_LENA32x32, CV_LOAD_IMAGE_GRAYSCALE)
 

@@ -36,6 +36,13 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(4, CV_MOP_GRADIENT)
     assert_equal(5, CV_MOP_TOPHAT)
     assert_equal(6, CV_MOP_BLACKHAT)
+
+    # Types of the smoothing
+    assert_equal(0, CV_BLUR_NO_SCALE)
+    assert_equal(1, CV_BLUR)
+    assert_equal(2, CV_GAUSSIAN)
+    assert_equal(3, CV_MEDIAN)
+    assert_equal(4, CV_BILATERAL)
   end
 
   def test_symbols

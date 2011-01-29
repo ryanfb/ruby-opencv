@@ -200,6 +200,13 @@ define_ruby_module()
   rb_define_const(rb_module, "CV_SHAPE_ELLIPSE", INT2FIX(CV_SHAPE_ELLIPSE));
   rb_define_const(rb_module, "CV_SHAPE_CUSTOM", INT2FIX(CV_SHAPE_CUSTOM));
 
+  /* Types of the smoothing */
+  rb_define_const(rb_module, "CV_BLUR_NO_SCALE", INT2FIX(CV_BLUR_NO_SCALE));
+  rb_define_const(rb_module, "CV_BLUR", INT2FIX(CV_BLUR));
+  rb_define_const(rb_module, "CV_GAUSSIAN", INT2FIX(CV_GAUSSIAN));
+  rb_define_const(rb_module, "CV_MEDIAN", INT2FIX(CV_MEDIAN));
+  rb_define_const(rb_module, "CV_BILATERAL", INT2FIX(CV_BILATERAL));
+
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */
   rb_define_const(rb_module, "INVERSION_METHOD", inversion_method);

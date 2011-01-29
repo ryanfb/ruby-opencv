@@ -197,6 +197,7 @@ VALUE rb_morphology_gradient(int argc, VALUE *argv, VALUE self);
 VALUE rb_morphology_tophat(int argc, VALUE *argv, VALUE self);
 VALUE rb_morphology_blackhat(int argc, VALUE *argv, VALUE self);
 
+VALUE rb_smooth(int argc, VALUE *argv, VALUE self);
 VALUE rb_smooth_blur_no_scale(int argc, VALUE *argv, VALUE self);
 VALUE rb_smooth_blur(int argc, VALUE *argv, VALUE self);
 VALUE rb_smooth_gaussian(int argc, VALUE *argv, VALUE self);

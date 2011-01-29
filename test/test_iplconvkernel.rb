@@ -9,17 +9,21 @@ include OpenCV
 # Tests for OpenCV::IplConvKernel
 class TestIplConvKernel < OpenCVTestCase
   def test_initialize
-    [:rect, :cross, :ellipse].each { |sym|
-      kernel = IplConvKernel.new(5, 5, 2, 2, sym)
+    [:rect, :cross, :ellipse, CV_SHAPE_RECT, CV_SHAPE_CROSS, CV_SHAPE_ELLIPSE].each { |shape|
+      kernel = IplConvKernel.new(5, 5, 2, 2, shape)
       assert_not_nil(kernel)
     }
 
     values = [1] * 25
-    kernel = IplConvKernel.new(5, 5, 2, 2, :custom, values)
-    assert_not_nil(kernel)
+    [:custom, CV_SHAPE_CUSTOM].each { |shape|
+      kernel = IplConvKernel.new(5, 5, 2, 2, shape, values)
+      assert_not_nil(kernel)
+    }
 
-    assert_raise(ArgumentError) {
-      IplConvKernel.new(5, 5, 2, 2, :custom)
+    [:custom, CV_SHAPE_CUSTOM].each { |shape|
+      assert_raise(ArgumentError) {
+        IplConvKernel.new(5, 5, 2, 2, shape)
+      }
     }
 
     assert_raise(TypeError) {

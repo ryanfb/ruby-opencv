@@ -187,6 +187,12 @@ define_ruby_module()
   rb_define_const(rb_module, "CV_LOAD_IMAGE_ANYDEPTH", INT2FIX(CV_LOAD_IMAGE_ANYDEPTH));
   rb_define_const(rb_module, "CV_LOAD_IMAGE_ANYCOLOR", INT2FIX(CV_LOAD_IMAGE_ANYCOLOR));
 
+  /* Shape of the structuring elements */
+  rb_define_const(rb_module, "CV_SHAPE_RECT", INT2FIX(CV_SHAPE_RECT));
+  rb_define_const(rb_module, "CV_SHAPE_CROSS", INT2FIX(CV_SHAPE_CROSS));
+  rb_define_const(rb_module, "CV_SHAPE_ELLIPSE", INT2FIX(CV_SHAPE_ELLIPSE));
+  rb_define_const(rb_module, "CV_SHAPE_CUSTOM", INT2FIX(CV_SHAPE_CUSTOM));
+
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */
   rb_define_const(rb_module, "INVERSION_METHOD", inversion_method);
@@ -240,6 +246,14 @@ define_ruby_module()
   rb_define_const(rb_module, "CONNECTIVITY", connectivity);
   RESIST_CVMETHOD(connectivity, "aa", CV_AA);
   RESIST_CVMETHOD(connectivity, "anti_alias", CV_AA);
+
+  VALUE structuring_element_shape = rb_hash_new();
+  /* {:rect, :cross, :ellipse, :custom}: Shape of the structuring elements */
+  rb_define_const(rb_module, "STRUCTURING_ELEMENT_SHAPE", structuring_element_shape);
+  RESIST_CVMETHOD(structuring_element_shape, "rect", CV_SHAPE_RECT);
+  RESIST_CVMETHOD(structuring_element_shape, "cross", CV_SHAPE_CROSS);
+  RESIST_CVMETHOD(structuring_element_shape, "ellipse", CV_SHAPE_ELLIPSE);
+  RESIST_CVMETHOD(structuring_element_shape, "custom", CV_SHAPE_CUSTOM);
 
   VALUE retrieval_mode = rb_hash_new();
   /* {:external, :list, :ccomp, :tree}: Retrieval mode */

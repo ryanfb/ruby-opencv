@@ -23,6 +23,12 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(1, CV_LOAD_IMAGE_COLOR)
     assert_equal(2, CV_LOAD_IMAGE_ANYDEPTH)
     assert_equal(4, CV_LOAD_IMAGE_ANYCOLOR)
+
+    # Structuring element shapes    
+    assert_equal(0, CV_SHAPE_RECT)
+    assert_equal(1, CV_SHAPE_CROSS)
+    assert_equal(2, CV_SHAPE_ELLIPSE)
+    assert_equal(100, CV_SHAPE_CUSTOM)
   end
 
   def test_symbols
@@ -89,6 +95,12 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(3, MATCH_TEMPLATE_METHOD[:ccorr_normed])
     assert_equal(4, MATCH_TEMPLATE_METHOD[:ccoeff])
     assert_equal(5, MATCH_TEMPLATE_METHOD[:ccoeff_normed])
+
+    # Structuring element shapes
+    assert_equal(0, STRUCTURING_ELEMENT_SHAPE[:rect])
+    assert_equal(1, STRUCTURING_ELEMENT_SHAPE[:cross])
+    assert_equal(2, STRUCTURING_ELEMENT_SHAPE[:ellipse])
+    assert_equal(100, STRUCTURING_ELEMENT_SHAPE[:custom])
   end
 
   def test_cvt_color_funcs

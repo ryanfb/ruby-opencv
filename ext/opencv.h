@@ -249,11 +249,11 @@ CVMETHOD(const char *name, VALUE method, int ifnone = 0)
       return ifnone;
     }else{
       return FIX2INT(value);
-    }if (rb_obj_is_kind_of(value, rb_cNumeric))
-     default:
-       rb_raise(rb_eTypeError, "");
+    }
+  default:
+    rb_raise(rb_eTypeError, "");
   }
-  return 0;
+  return ifnone;
 }
 
 inline int

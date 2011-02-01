@@ -1068,5 +1068,90 @@ class TestCvMat_imageprocessing < OpenCVTestCase
       assert_equal(x, mat1[i][0])
     }
   end
+
+  def test_pyr_down
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    mat1 = mat0.pyr_down
+    mat2 = mat0.pyr_down(:gaussian_5x5)
+
+    assert_equal('de9ff2ffcf8e43f28564a201cf90b7f4', hash_img(mat1))
+    assert_equal('de9ff2ffcf8e43f28564a201cf90b7f4', hash_img(mat2))
+  end
+
+  def test_pyr_up
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    mat1 = mat0.pyr_up
+    mat2 = mat0.pyr_up(:gaussian_5x5)
+
+    assert_equal('02430c6cf143d3d104e25bc829f1fa93', hash_img(mat1))
+    assert_equal('02430c6cf143d3d104e25bc829f1fa93', hash_img(mat2))
+  end
+
+  def test_flood_fill
+    mat0 = create_cvmat(128, 128, :cv8u, 1) { |j, i, c|
+      if (i >= 32 and i < 96) and (j >= 32 and j < 96)
+        CvScalar.new(255)
+      elsif (i >= 16 and i < 112) and (j >= 16 and j < 112)
+        CvScalar.new(192)
+      else
+        CvScalar.new(128)
+      end
+    }
+
+    point = CvPoint.new(20, 20)
+    mat1, comp1, mask1 = mat0.flood_fill(point, 0)
+    mat2, comp2, mask2 = mat0.flood_fill(point, 0, CvScalar.new(64))
+    mat3, comp3, mask3 = mat0.flood_fill(point, 0, CvScalar.new(0), CvScalar.new(64))
+    mat4, comp4, mask4 = mat0.flood_fill(point, 0, CvScalar.new(0), CvScalar.new(64),
+                                         {:connectivity => 8, :fixed_range => true, :mask_only => true})
+    mat05 = mat0.clone
+    mat5, comp5, mask5 = mat05.flood_fill!(point, 0, CvScalar.new(0), CvScalar.new(64),
+                                         {:connectivity => 8, :fixed_range => true, :mask_only => true})
+
+    assert_equal('8c6a235fdf4c9c4f6822a45daac5b1af', hash_img(mat1))
+    assert_equal(5120.0, comp1.area)
+    assert_equal(16, comp1.rect.x)
+    assert_equal(16, comp1.rect.y)
+    assert_equal(96, comp1.rect.width)
+    assert_equal(96, comp1.rect.height)
+    assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), comp1.value)
+    assert_equal('98ebfcc49df7b8ebca6dd1c931ce7c34', hash_img(mask1))
+
+    assert_equal('7456e5de74bb8b4e783d04bbf1904644', hash_img(mat2))
+    assert_equal(12288.0, comp2.area)
+    assert_equal(0, comp2.rect.x)
+    assert_equal(0, comp2.rect.y)
+    assert_equal(128, comp2.rect.width)
+    assert_equal(128, comp2.rect.height)
+    assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), comp2.value)
+    assert_equal('3c23b0e491bb59dc9af75bf191d24458', hash_img(mask2))
+
+    assert_equal('df720005423762ca1b68e06571f58b21', hash_img(mat3))
+    assert_equal(9216.0, comp3.area)
+    assert_equal(16, comp3.rect.x)
+    assert_equal(16, comp3.rect.y)
+    assert_equal(96, comp3.rect.width)
+    assert_equal(96, comp3.rect.height)
+    assert_cvscalar_equal(CvScalar.new(0, 0, 0, 0), comp3.value)
+
+    assert_equal('7833f4c85c77056db71e33ae8072a1b5', hash_img(mat4))
+    assert_equal(9216.0, comp4.area)
+    assert_equal(16, comp4.rect.x)
+    assert_equal(16, comp4.rect.y)
+    assert_equal(96, comp4.rect.width)
+    assert_equal(96, comp4.rect.height)
+    assert_cvscalar_equal(CvScalar.new(220, 0, 0, 0), comp4.value)
+    assert_equal('33e01cdd72d7630e4231ffa63557da3e', hash_img(mask4))
+
+    assert_equal('7833f4c85c77056db71e33ae8072a1b5', hash_img(mat5))
+    assert_equal('7833f4c85c77056db71e33ae8072a1b5', hash_img(mat05))
+    assert_equal(9216.0, comp5.area)
+    assert_equal(16, comp5.rect.x)
+    assert_equal(16, comp5.rect.y)
+    assert_equal(96, comp5.rect.width)
+    assert_equal(96, comp5.rect.height)
+    assert_cvscalar_equal(CvScalar.new(220, 0, 0, 0), comp5.value)
+    assert_equal('33e01cdd72d7630e4231ffa63557da3e', hash_img(mask5))
+  end
 end
 

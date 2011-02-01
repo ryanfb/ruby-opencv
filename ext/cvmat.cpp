@@ -4142,7 +4142,7 @@ rb_flood_fill_bang(int argc, VALUE *argv, VALUE self)
 	      VALUE_TO_CVPOINT(seed_point),
 	      VALUE_TO_CVSCALAR(new_val),
 	      NIL_P(lo_diff) ? cvScalar(0) : VALUE_TO_CVSCALAR(lo_diff),
-	      NIL_P(lo_diff) ? cvScalar(0) : VALUE_TO_CVSCALAR(up_diff),
+	      NIL_P(up_diff) ? cvScalar(0) : VALUE_TO_CVSCALAR(up_diff),
 	      CVCONNECTEDCOMP(comp),
 	      flags,
 	      CVARR(mask));

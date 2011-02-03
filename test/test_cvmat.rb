@@ -2,7 +2,6 @@
 # -*- mode: ruby; coding: utf-8-unix -*- 
 require 'test/unit'
 require 'opencv'
-require 'pp'
 require File.expand_path(File.dirname(__FILE__)) + '/helper'
 
 include OpenCV
@@ -1683,7 +1682,6 @@ class TestCvMat < OpenCVTestCase
   end
 
   def test_perspective_transform
-    # flunk('FIXME: CvMat#perspective_transform is not tested yet.')
     mat = CvMat.new(1, 1, :cv32f, 2)
     mat[0] = CvScalar.new(2, 3)
     transmat = CvMat.new(3, 3, :cv32f, 1).clear

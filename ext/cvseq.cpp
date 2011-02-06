@@ -68,6 +68,7 @@ define_ruby_class()
    */
   VALUE opencv = rb_module_opencv();
   rb_klass = rb_define_class_under(opencv, "CvSeq", rb_cObject);
+  rb_include_module(rb_klass, rb_mEnumerable);
   rb_define_alloc_func(rb_klass, rb_allocate);
   rb_define_private_method(rb_klass, "initialize", RUBY_METHOD_FUNC(rb_initialize), -1);
   rb_define_method(rb_klass, "total", RUBY_METHOD_FUNC(rb_total), 0);
@@ -92,12 +93,10 @@ define_ruby_class()
   rb_define_alias(rb_klass, "pop_front", "shift");
   rb_define_method(rb_klass, "each", RUBY_METHOD_FUNC(rb_each), 0);
   rb_define_method(rb_klass, "each_index", RUBY_METHOD_FUNC(rb_each_index), 0);
-  rb_define_method(rb_klass, "each_with_index", RUBY_METHOD_FUNC(rb_each_with_index), 0);
   rb_define_method(rb_klass, "insert", RUBY_METHOD_FUNC(rb_insert), 2);
   rb_define_method(rb_klass, "remove", RUBY_METHOD_FUNC(rb_remove), 1);
-  rb_define_method(rb_klass, "clear", RUBY_METHOD_FUNC(rb_clear), 0);
-
   rb_define_alias(rb_klass, "delete_at", "remove");
+  rb_define_method(rb_klass, "clear", RUBY_METHOD_FUNC(rb_clear), 0);
 }
 
 VALUE
@@ -447,21 +446,6 @@ rb_each_index(VALUE self)
   return self;
 }
 
-/*
- * call-seq:
- *   each_with_index{|obj, i| ... } -> self
- *
- * Calls block with two arguments, the sequence-block and its index, for each sequence-block in sequence.
- */
-VALUE
-rb_each_with_index(VALUE self)
-{
-  CvSeq *seq = CVSEQ(self);
-  VALUE klass = seqblock_class(seq);
-  for(int i = 0; i < seq->total; i++)
-    rb_yield_values(2, REFER_OBJECT(klass, cvGetSeqElem(seq, i), self), INT2FIX(i));
-  return self;
-}
 
 /*
  * call-seq:

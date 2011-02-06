@@ -43,7 +43,6 @@ VALUE rb_unshift(VALUE self, VALUE args);
 VALUE rb_shift(VALUE self);
 VALUE rb_each(VALUE self);
 VALUE rb_each_index(VALUE self);
-VALUE rb_each_with_index(VALUE self);
 VALUE rb_insert(VALUE self, VALUE index, VALUE object);
 VALUE rb_remove(VALUE self, VALUE index);
 VALUE rb_clear(VALUE self);

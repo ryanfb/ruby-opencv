@@ -13,6 +13,8 @@ class TestCvSeq < OpenCVTestCase
     assert_not_nil(CvSeq.new(CvPoint))
     assert_not_nil(CvSeq.new(CvPoint2D32f))
     assert_not_nil(CvSeq.new(CvPoint3D32f))
+
+    assert(CvSeq.new(CvPoint).is_a? Enumerable)
   end
 
   def test_total

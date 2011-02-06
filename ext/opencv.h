@@ -165,6 +165,10 @@ extern "C"{
 #define RSTRING_PTR(arg) (RSTRING(arg)->ptr)
 #endif
 
+#ifndef DBL2NUM
+#define DBL2NUM(dbl) (rb_float_new(dbl))
+#endif
+
 
 // OpenCV module
 __NAMESPACE_BEGIN_OPENCV
@@ -204,7 +208,7 @@ IPLCONVKERNEL_OBJECT(VALUE klass, void *ptr)
 inline VALUE
 GENERIC_OBJECT(VALUE klass, void *ptr)
 {
-  return Data_Wrap_Struct(klass, 0, 0, ptr);
+  return Data_Wrap_Struct(klass, 0, -1, ptr);
 }
 
 inline VALUE

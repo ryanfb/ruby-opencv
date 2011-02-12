@@ -10,6 +10,7 @@ include OpenCV
 class TestCvMat_imageprocessing < OpenCVTestCase
   FILENAME_LENA256x256 = File.expand_path(File.dirname(__FILE__)) + '/samples/lena-256x256.jpg'
   FILENAME_LENA32x32 = File.expand_path(File.dirname(__FILE__)) + '/samples/lena-32x32.jpg'
+  FILENAME_CONTOURS = File.expand_path(File.dirname(__FILE__)) + '/samples/contours.jpg'
 
   def test_sobel
     mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_GRAYSCALE)
@@ -1106,7 +1107,7 @@ class TestCvMat_imageprocessing < OpenCVTestCase
                                          {:connectivity => 8, :fixed_range => true, :mask_only => true})
     mat05 = mat0.clone
     mat5, comp5, mask5 = mat05.flood_fill!(point, 0, CvScalar.new(0), CvScalar.new(64),
-                                         {:connectivity => 8, :fixed_range => true, :mask_only => true})
+                                           {:connectivity => 8, :fixed_range => true, :mask_only => true})
 
     assert_equal('8c6a235fdf4c9c4f6822a45daac5b1af', hash_img(mat1))
     assert_equal(5120.0, comp1.area)
@@ -1152,6 +1153,111 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal(96, comp5.rect.height)
     assert_cvscalar_equal(CvScalar.new(220, 0, 0, 0), comp5.value)
     assert_equal('33e01cdd72d7630e4231ffa63557da3e', hash_img(mask5))
+  end
+
+  def test_find_contours
+    mat0 = CvMat.load(FILENAME_CONTOURS, CV_LOAD_IMAGE_GRAYSCALE)
+
+    # Make binary image
+    mat0.height.times { |j|
+      mat0.width.times { |i|
+        mat0[j, i] = (mat0[j, i][0] < 128) ? CvColor::Black : CvColor::White
+      }
+    }
+
+    [mat0.find_contours, mat0.find_contours(:mode => CV_RETR_LIST),
+     mat0.find_contours(:method => CV_CHAIN_APPROX_SIMPLE),
+     mat0.find_contours(:mode => CV_RETR_LIST, :method => CV_CHAIN_APPROX_SIMPLE)].each { |contours|
+      assert_not_nil(contours)
+      assert_equal(8, contours.total)
+      assert_not_nil(contours.h_next)
+      assert_equal(4, contours.h_next.total)
+      assert_not_nil(contours.h_next.h_next)
+      assert_equal(8, contours.h_next.h_next.total)
+      assert_not_nil(contours.h_next.h_next.h_next)
+      assert_equal(4, contours.h_next.h_next.h_next.total)
+      assert_nil(contours.v_next)
+      assert_nil(contours.h_next.v_next)
+      assert_nil(contours.h_next.h_next.v_next)
+      assert_nil(contours.h_next.h_next.h_next.v_next)
+    }
+    
+    contours = mat0.find_contours(:mode => CV_RETR_TREE)
+    assert_not_nil(contours)
+    assert_equal(4, contours.total)
+    assert_not_nil(contours.v_next)
+    assert_equal(8, contours.v_next.total)
+    assert_nil(contours.v_next.v_next)
+    assert_not_nil(contours.h_next)
+    assert_equal(4, contours.h_next.total)
+    assert_not_nil(contours.h_next.v_next)
+    assert_equal(8, contours.h_next.v_next.total)
+    assert_nil(contours.h_next.v_next.v_next)
+
+    contours = mat0.find_contours(:mode => CV_RETR_CCOMP)
+    assert_not_nil(contours)
+    assert_equal(4, contours.total)
+    assert_not_nil(contours.v_next)
+    assert_equal(8, contours.v_next.total)
+    assert_nil(contours.v_next.v_next)
+    assert_not_nil(contours.h_next)
+    assert_equal(4, contours.h_next.total)
+    assert_not_nil(contours.h_next.v_next)
+    assert_equal(8, contours.h_next.v_next.total)
+    assert_nil(contours.h_next.v_next.v_next)
+
+    contours = mat0.find_contours(:mode => CV_RETR_EXTERNAL)
+    assert_not_nil(contours)
+    assert_equal(4, contours.total)
+    assert_nil(contours.v_next)
+    assert_not_nil(contours.h_next)
+    assert_equal(4, contours.h_next.total)
+    assert_nil(contours.h_next.v_next)
+
+    contours = mat0.find_contours(:mode => CV_RETR_TREE, :method => CV_CHAIN_APPROX_NONE)
+    assert_not_nil(contours)
+    assert_equal(474, contours.total)
+    assert_not_nil(contours.v_next)
+    assert_equal(318, contours.v_next.total)
+    assert_nil(contours.v_next.v_next)
+    assert_not_nil(contours.h_next)
+    assert_equal(396, contours.h_next.total)
+    assert_not_nil(contours.h_next.v_next)
+    assert_equal(240, contours.h_next.v_next.total)
+    assert_nil(contours.h_next.v_next.v_next)
+
+    contours = mat0.find_contours(:mode => CV_RETR_EXTERNAL, :method => CV_CHAIN_CODE)
+    assert_equal(474, contours.total)
+    assert_equal(396, contours.h_next.total)
+
+    contours = mat0.find_contours(:mode => CV_RETR_EXTERNAL, :method => CV_CHAIN_APPROX_TC89_L1)
+    assert_equal(4, contours.total)
+    assert_equal(4, contours.h_next.total)
+
+    contours = mat0.find_contours(:mode => CV_RETR_EXTERNAL, :method => CV_CHAIN_APPROX_TC89_KCOS)
+    assert_equal(4, contours.total)
+    assert_equal(4, contours.h_next.total)
+  end
+
+  def show(mat0, contours)
+    mat1 = mat0.clone.set_zero
+    contours.each { |a|
+      mat1[a.y, a.x] = CvColor::White
+    }
+
+    contours.h_next.each { |a|
+      mat1[a.y, a.x] = CvColor::White
+    }
+
+    contours.h_next.h_next.each { |a|
+      mat1[a.y, a.x] = CvColor::White
+    }
+
+    contours.h_next.h_next.h_next.each { |a|
+      mat1[a.y, a.x] = CvColor::White
+    }
+
+    snap mat0, mat1
   end
 end
 

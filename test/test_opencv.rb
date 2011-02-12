@@ -51,6 +51,21 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(3, CV_THRESH_TOZERO)
     assert_equal(4, CV_THRESH_TOZERO_INV)
     assert_equal(8, CV_THRESH_OTSU)
+
+    # Retrieval mode
+    assert_equal(0, CV_RETR_EXTERNAL)
+    assert_equal(1, CV_RETR_LIST)
+    assert_equal(2, CV_RETR_CCOMP)
+    assert_equal(3, CV_RETR_TREE)
+
+    # Approximation method
+    assert_equal(0, CV_CHAIN_CODE)
+    assert_equal(1, CV_CHAIN_APPROX_NONE)
+    assert_equal(2, CV_CHAIN_APPROX_SIMPLE)
+    assert_equal(3, CV_CHAIN_APPROX_TC89_L1)
+    assert_equal(4, CV_CHAIN_APPROX_TC89_KCOS)
+    assert_equal(5, CV_LINK_RUNS)
+
   end
 
   def test_symbols

@@ -4210,29 +4210,27 @@ rb_find_contours_bang(int argc, VALUE *argv, VALUE self)
   SUPPORT_8UC1_ONLY(self);
   VALUE find_contours_option, klass, element_klass, storage;
   rb_scan_args(argc, argv, "01", &find_contours_option);
-  CvSeq *contour = 0;
+  CvSeq *contour = NULL;
   find_contours_option = FIND_CONTOURS_OPTION(find_contours_option);
   int mode = FC_MODE(find_contours_option);
   int method = FC_METHOD(find_contours_option);
-  int header, header_size, element_size;
+  int header_size, element_size;
   if (method == CV_CHAIN_CODE) {
     klass = cCvChain::rb_class();
     element_klass = cCvChainCode::rb_class();
-    header = CV_SEQ_CHAIN_CONTOUR;
     header_size = sizeof(CvChain);
     element_size = sizeof(CvChainCode);
-  } else {
+  }
+  else {
     klass = cCvContour::rb_class();
     element_klass = cCvPoint::rb_class();
-    header = CV_SEQ_CONTOUR;
     header_size = sizeof(CvContour);
     element_size = sizeof(CvPoint);
   }
   storage = cCvMemStorage::new_object();
-  if(cvFindContours(CVARR(self), CVMEMSTORAGE(storage), &contour, header, mode, method, FC_OFFSET(find_contours_option)) == 0)
+  if(cvFindContours(CVARR(self), CVMEMSTORAGE(storage),
+  		    &contour, header_size, mode, method, FC_OFFSET(find_contours_option)) == 0)
     return Qnil;
-  if(!contour)
-    contour = cvCreateSeq(header, header_size, element_size, CVMEMSTORAGE(storage));
   return cCvSeq::new_sequence(klass, contour, element_klass, storage);
 }
 

@@ -221,20 +221,22 @@ class TestCvSeq < OpenCVTestCase
     assert_equal(60, seq1[1].y)
   end
 
-  def test_h_prev
-    flunk('FIXME: CvSeq#h_prev is not tested yet.')
-  end
+  # These methods are tested in TestCvMat_imageprocessing#test_find_contours
+  # (test_cvmat_imageprocessing.rb)
+  # def test_h_prev
+  #   flunk('FIXME: CvSeq#h_prev is not tested yet.')
+  # end
 
-  def test_h_next
-    flunk('FIXME: CvSeq#h_next is not tested yet.')
-  end
+  # def test_h_next
+  #   flunk('FIXME: CvSeq#h_next is not tested yet.')
+  # end
 
-  def test_v_prev
-    flunk('FIXME: CvSeq#v_prev is not tested yet.')
-  end
+  # def test_v_prev
+  #   flunk('FIXME: CvSeq#v_prev is not tested yet.')
+  # end
 
-  def test_v_next
-    flunk('FIXME: CvSeq#v_next is not tested yet.')
-  end
+  # def test_v_next
+  #   flunk('FIXME: CvSeq#v_next is not tested yet.')
+  # end
 end
 

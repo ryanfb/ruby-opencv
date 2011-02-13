@@ -139,22 +139,25 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
   CvSeq *seq = NULL;
   storage = CHECK_CVMEMSTORAGE(storage);
   int type = 0, size = 0;
-  if(klass == cCvIndex::rb_class()){
+  if (klass == cCvIndex::rb_class()) {
     type = CV_SEQ_ELTYPE_INDEX;
     size = sizeof(CvIndex);
-  }else if(klass == cCvPoint::rb_class()){
+  }
+  else if (klass == cCvPoint::rb_class()) {
     type = CV_SEQ_ELTYPE_POINT;
     size = sizeof(CvPoint);
-  }else if(klass == cCvPoint2D32f::rb_class()){
+  }
+  else if (klass == cCvPoint2D32f::rb_class()) {
     type = CV_SEQ_ELTYPE_POINT;
     size = sizeof(CvPoint2D32f);
-  }else if(klass == cCvPoint3D32f::rb_class()){
+  }
+  else if (klass == cCvPoint3D32f::rb_class()) {
     type = CV_SEQ_ELTYPE_POINT3D;
     size = sizeof(CvPoint3D32f);
   }
   // auto_extend(self);
   // todo: more various class will be support.
-  if(!size)
+  if (!size)
     rb_raise(rb_eTypeError, "unsupport %s class for sequence-block.", rb_class2name(klass));
   seq = cvCreateSeq(type, sizeof(CvSeq), size, CVMEMSTORAGE(storage));
   DATA_PTR(self) = seq;

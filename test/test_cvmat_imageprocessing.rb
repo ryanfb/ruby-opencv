@@ -1238,26 +1238,5 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal(4, contours.total)
     assert_equal(4, contours.h_next.total)
   end
-
-  def show(mat0, contours)
-    mat1 = mat0.clone.set_zero
-    contours.each { |a|
-      mat1[a.y, a.x] = CvColor::White
-    }
-
-    contours.h_next.each { |a|
-      mat1[a.y, a.x] = CvColor::White
-    }
-
-    contours.h_next.h_next.each { |a|
-      mat1[a.y, a.x] = CvColor::White
-    }
-
-    contours.h_next.h_next.h_next.each { |a|
-      mat1[a.y, a.x] = CvColor::White
-    }
-
-    snap mat0, mat1
-  end
 end
 

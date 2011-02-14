@@ -34,26 +34,34 @@
  */
 __NAMESPACE_BEGIN_OPENCV
 __NAMESPACE_BEGIN_CVSEQ
-    
-// contain sequence-block class
-st_table *seqblock_klass = st_init_numtable();
-    
-VALUE
-seqblock_class(void *ptr)
-{
-  VALUE klass;
-  if(!st_lookup(seqblock_klass, (st_data_t)ptr, (st_data_t*)&klass)){
-    rb_raise(rb_eTypeError, "Invalid sequence error.");
-  }
-  return klass;
-}
+
+VALUE rb_allocate(VALUE klass);
+void cvseq_free(void *ptr);
 
 VALUE rb_klass;
+// contain sequence-block class
+st_table *seqblock_klass_table = st_init_numtable();
 
 VALUE
 rb_class()
 {
   return rb_klass;
+}
+
+VALUE
+seqblock_class(void *ptr)
+{
+  VALUE klass;
+  if (!st_lookup(seqblock_klass_table, (st_data_t)ptr, (st_data_t*)&klass)) {
+    rb_raise(rb_eTypeError, "Invalid sequence error.");
+  }
+  return klass;
+}
+
+void
+resist_class_information_of_sequence(CvSeq *seq, VALUE klass)
+{
+  st_insert(seqblock_klass_table, (st_data_t)seq, (st_data_t)klass);
 }
 
 void
@@ -102,22 +110,19 @@ define_ruby_class()
 VALUE
 rb_allocate(VALUE klass)
 {
-  return Data_Wrap_Struct(klass, mark_root_object, free, 0);
-}
-    
-void
-free(void *ptr)
-{
-  if(ptr){
-    unresist_object(ptr);
-    st_delete(seqblock_klass, (st_data_t*)&ptr, 0);
-  }
+  CvSeq *ptr = ALLOC(CvSeq);
+  return Data_Wrap_Struct(klass, 0, cvseq_free, ptr);
 }
 
 void
-resist_class_information_of_sequence(CvSeq *seq, VALUE klass)
+cvseq_free(void *ptr)
 {
-  st_insert(seqblock_klass, (st_data_t)seq, (st_data_t)klass);
+  if (ptr) {
+    CvSeq *seq = (CvSeq*)ptr;
+    st_delete(seqblock_klass_table, (st_data_t*)&ptr, NULL);
+    if (seq->storage)
+      cvReleaseMemStorage(&(seq->storage));
+  }
 }
 
 /*
@@ -132,12 +137,19 @@ resist_class_information_of_sequence(CvSeq *seq, VALUE klass)
 VALUE
 rb_initialize(int argc, VALUE *argv, VALUE self)
 {
-  VALUE klass, storage;
-  rb_scan_args(argc, argv, "11", &klass, &storage);
+  VALUE klass, storage_value;
+  CvMemStorage *storage;
+
+  if (rb_scan_args(argc, argv, "11", &klass, &storage_value) > 1) {
+    storage_value = CHECK_CVMEMSTORAGE(storage_value);
+    storage = CVMEMSTORAGE(storage_value);
+  }
+  else
+    storage = cvCreateMemStorage(0);
+  
   if(!rb_obj_is_kind_of(klass, rb_cClass))
     rb_raise(rb_eTypeError, "argument 1 (sequence-block class) should be %s.", rb_class2name(rb_cClass));
-  CvSeq *seq = NULL;
-  storage = CHECK_CVMEMSTORAGE(storage);
+
   int type = 0, size = 0;
   if (klass == cCvIndex::rb_class()) {
     type = CV_SEQ_ELTYPE_INDEX;
@@ -155,15 +167,14 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
     type = CV_SEQ_ELTYPE_POINT3D;
     size = sizeof(CvPoint3D32f);
   }
-  // auto_extend(self);
   // todo: more various class will be support.
   if (!size)
     rb_raise(rb_eTypeError, "unsupport %s class for sequence-block.", rb_class2name(klass));
-  seq = cvCreateSeq(type, sizeof(CvSeq), size, CVMEMSTORAGE(storage));
+  
+  CvSeq* seq = cvCreateSeq(type, sizeof(CvSeq), size, storage);
   DATA_PTR(self) = seq;
-  resist_root_object(seq, storage);
-  // resist class information of this sequence.
-  st_insert(seqblock_klass, (st_data_t)seq, (st_data_t)klass);
+  resist_class_information_of_sequence(seq, klass);
+  
   return self;
 }
     
@@ -500,15 +511,20 @@ new_object(CvSeq *seq, VALUE klass, VALUE storage)
 }
 */
 
+void
+unresist_cvseq(void *ptr)
+{
+  if (ptr)
+    st_delete(seqblock_klass_table, (st_data_t*)&ptr, NULL);
+}
+
 VALUE
 new_sequence(VALUE klass, CvSeq *seq, VALUE element_klass, VALUE storage)
 {
   resist_root_object(seq, storage);
   if (!NIL_P(element_klass))
-    st_insert(seqblock_klass, (st_data_t)seq, (st_data_t)element_klass);  
-  VALUE object = Data_Wrap_Struct(klass, mark_root_object, free, seq);
-  auto_extend(object);
-  return object;
+    resist_class_information_of_sequence(seq, element_klass);
+  return Data_Wrap_Struct(klass, mark_root_object, unresist_cvseq, seq);
 }
 
 VALUE

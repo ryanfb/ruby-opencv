@@ -58,7 +58,7 @@ void
 mark_root_object(void *ptr)
 {
   VALUE value;
-  if(ptr && st_lookup(root_table, (st_data_t)ptr, (st_data_t*)&value)){      
+  if (ptr && st_lookup(root_table, (st_data_t)ptr, (st_data_t*)&value)) {
     rb_gc_mark(value);
   }
 }
@@ -70,7 +70,7 @@ VALUE
 lookup_root_object(void *ptr)
 {
   VALUE value = 0;
-  if(ptr)
+  if (ptr)
     st_lookup(root_table, (st_data_t)ptr, (st_data_t*)&value);
   return value;
 }
@@ -99,7 +99,7 @@ unresist_object(void *ptr)
 void
 free_object(void *ptr)
 {
-  if(ptr){      
+  if (ptr) {
     unresist_object(ptr);
     cvFree(&ptr);
   }
@@ -111,7 +111,7 @@ free_object(void *ptr)
 void
 release_object(void *ptr)
 {
-  if(ptr){
+  if (ptr) {
     unresist_object(ptr);
     cvRelease(&ptr);
   }
@@ -123,7 +123,7 @@ release_object(void *ptr)
 void
 release_iplconvkernel_object(void *ptr)
 {
-  if(ptr){
+  if (ptr) {
     unresist_object(ptr);
     cvReleaseStructuringElement((IplConvKernel**)(&ptr));
   }
@@ -150,7 +150,7 @@ error_callback(int status,
                void *user_data)
 {
   int error_code = (CvStatus)cvGetErrStatus();
-  if(error_code){
+  if (error_code) {
     OPENCV_RSTERR(); // = CV_StsOk
     rb_warn("OpenCV error code (%d) : %s (%d in %s)", error_code, function_name, line, file_name);
     rb_raise(mCvError::by_code(error_code), "%s", error_message);
@@ -161,7 +161,7 @@ error_callback(int status,
 void
 define_ruby_module()
 {
-  if(rb_module)
+  if (rb_module)
     return;
   rb_module = rb_define_module("OpenCV");
   

@@ -3193,7 +3193,7 @@ rb_good_features_to_track(int argc, VALUE *argv, VALUE self)
     rb_raise(rb_eArgError, "option :max should be positive value.");
   CvPoint2D32f *p32 = (CvPoint2D32f*)cvAlloc(sizeof(CvPoint2D32f) * np);
   if(!p32)
-    rb_raise(rb_eNoMemError, "failed allocate memory.");
+    rb_raise(rb_eNoMemError, "failed to allocate memory.");
   cvGoodFeaturesToTrack(src, &eigen, &tmp, p32, &np, NUM2DBL(quality_level), NUM2DBL(min_distance),
 			GF_MASK(good_features_to_track_option),
 			GF_BLOCK_SIZE(good_features_to_track_option),
@@ -4152,7 +4152,7 @@ rb_flood_fill_bang(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
- *   find_contours([find_contours_options]) -> cvchain or chcontour or nil
+ *   find_contours([find_contours_options]) -> cvchain or cvcontour or nil
  *
  * Finds contours in binary image, and return contours as CvContour or CvChain.
  * If contours not found, return nil.

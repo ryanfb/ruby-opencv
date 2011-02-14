@@ -74,6 +74,7 @@ define_ruby_class()
   rb_define_method(rb_klass, "create_tree", RUBY_METHOD_FUNC(rb_create_tree), -1);
   rb_define_method(rb_klass, "in?", RUBY_METHOD_FUNC(rb_in_q), 1);
   rb_define_method(rb_klass, "measure_distance", RUBY_METHOD_FUNC(rb_measure_distance), 1);
+  rb_define_method(rb_klass, "point_polygon_test", RUBY_METHOD_FUNC(rb_point_polygon_test), 2);
 }
 
 VALUE
@@ -206,7 +207,7 @@ rb_create_tree(int argc, VALUE *argv, VALUE self)
  * call-seq:
  *    in?(<i>point</i>) -> true or nil or false
  *
- * Determines whether the <i>point</i> is inside contour(true), outside(false), or lies on an edge(nil).
+ * Determines whether the <i>point</i> is inside contour(true), outside(false) or lies on an edge(nil).
  */
 VALUE
 rb_in_q(VALUE self, VALUE point)
@@ -225,6 +226,35 @@ VALUE
 rb_measure_distance(VALUE self, VALUE point)
 {
   return rb_float_new(cvPointPolygonTest(CVARR(self), VALUE_TO_CVPOINT2D32F(point), 1));
+}
+
+/*
+ * call-seq:
+ *    point_polygon_test(<i>point, measure_dist</i>) -> float
+ *
+ * Determines whether the point is inside a contour, outside, or lies on an edge (or coinsides with a vertex).
+ * It returns positive, negative or zero value, correspondingly. When measure_dist = false or 0, the return value is +1, -1 and 0, respectively. When measure_dist = true or 1, it is a signed distance between the point and the nearest contour edge.
+ */
+VALUE
+rb_point_polygon_test(VALUE self, VALUE point, VALUE measure_dist)
+{
+  int measure_dist_flag;
+  double dist;
+  
+  if (measure_dist == Qtrue)
+    measure_dist_flag = 1;
+  else if (measure_dist == Qfalse)
+    measure_dist_flag = 0;
+  else
+    measure_dist_flag = NUM2INT(measure_dist);
+
+  dist = cvPointPolygonTest(CVARR(self), VALUE_TO_CVPOINT2D32F(point), measure_dist_flag);
+
+  /* cvPointPolygonTest returns 100, -100 or 0 when measure_dist = 0 */
+  if ((!measure_dist_flag) && ((int)dist) != 0)
+    dist = (dist > 0) ? 1 : -1;
+
+  return rb_float_new(dist);
 }
 
 VALUE new_object()

@@ -72,6 +72,12 @@ class OpenCVTestCase < Test::Unit::TestCase
     Digest::MD5.hexdigest(img.data)
   end
 
+  unless Test::Unit::TestCase.instance_methods.map {|m| m.to_sym }.include? :assert_false
+    def assert_false(actual, message = nil)
+      assert_equal(false, actual, message)
+    end
+  end
+
   alias original_assert_in_delta assert_in_delta
 
   def assert_cvscalar_equal(expected, actual, message = nil)

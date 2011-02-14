@@ -31,6 +31,7 @@ VALUE rb_bounding_rect(VALUE self);
 VALUE rb_create_tree(int argc, VALUE *argv, VALUE self);
 VALUE rb_in_q(VALUE self, VALUE point);
 VALUE rb_measure_distance(VALUE self, VALUE point);
+VALUE rb_point_polygon_test(VALUE self, VALUE point, VALUE measure_dist);
 
 VALUE new_object();
 __NAMESPACE_END_CVCONTOUR

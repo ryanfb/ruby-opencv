@@ -22,7 +22,7 @@ void define_ruby_class();
 
 VALUE rb_class();
 VALUE rb_allocate(VALUE klass);
-void free(void *ptr);
+void cvmemstorage_free(void *ptr);
 
 VALUE new_object(int blocksize = 0);
 

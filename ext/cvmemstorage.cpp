@@ -36,18 +36,17 @@ define_ruby_class()
    */
   VALUE opencv = rb_module_opencv();
   rb_klass = rb_define_class_under(opencv, "CvMemStorage", rb_cObject);
-  //rb_define_method(rb_klass, "initialize", RUBY_METHOD_FUNC(rb_initialize), -1);     
 }
 
 VALUE
 rb_allocate(VALUE klass)
 {
   CvMemStorage *storage = cvCreateMemStorage();
-  return Data_Wrap_Struct(klass, 0, free, storage);
+  return Data_Wrap_Struct(klass, 0, cvmemstorage_free, storage);
 }
 
 void
-free(void *ptr)
+cvmemstorage_free(void *ptr)
 {
   cvReleaseMemStorage((CvMemStorage**)&ptr);
 }
@@ -56,7 +55,7 @@ VALUE
 new_object(int blocksize)
 {
   CvMemStorage *storage = cvCreateMemStorage(blocksize);
-  return Data_Wrap_Struct(rb_klass, 0, free, storage);
+  return Data_Wrap_Struct(rb_klass, 0, cvmemstorage_free, storage);
 }
 
 

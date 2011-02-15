@@ -8,6 +8,12 @@ include OpenCV
 
 # Tests for OpenCV::CvContour
 class TestCvContour < OpenCVTestCase
+  def test_APPROX_OPTION
+    assert_equal(CvContour::APPROX_OPTION[:method], 0)
+    assert_equal(CvContour::APPROX_OPTION[:accuracy], 1.0)
+    assert_false(CvContour::APPROX_OPTION[:recursive])
+  end
+  
   def test_initialize
     contour = CvContour.new
     assert_not_nil(contour)

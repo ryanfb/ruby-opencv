@@ -4260,9 +4260,10 @@ rb_pyr_segmentation(int argc, VALUE *argv, VALUE self)
   IplImage *src = IPLIMAGE(self);
   int l = FIX2INT(level);
   double t1 = NUM2DBL(threshold1), t2 = NUM2DBL(threshold2);
-  if (!(l >0))
+  CvRect roi = cvGetImageROI(src);
+  if (l <= 0)
     rb_raise(rb_eArgError, "argument 1 (level) should be > 0.");
-  if(((src->width | src->height) & ((1 << l) -1 )) != 0)
+  if(((roi.width | roi.height) & ((1 << l) - 1)) != 0)
     rb_raise(rb_eArgError, "bad image size on level %d.", FIX2INT(level));
   if (t1 < 0)
     rb_raise(rb_eArgError, "argument 2 (threshold for establishing the link) should be >= 0.");

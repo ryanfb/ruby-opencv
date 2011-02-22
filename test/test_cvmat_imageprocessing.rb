@@ -1238,5 +1238,18 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal(4, contours.total)
     assert_equal(4, contours.h_next.total)
   end
+
+  def test_pyr_segmentation
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    mat1, seq1 = mat0.pyr_segmentation(4, 255, 50)
+    assert_equal('ebd9bad0bbc90b1d4a25289b7d59c958', hash_img(mat1))
+    assert_equal(5, seq1.total)
+
+    img0 = IplImage.load(FILENAME_CAT, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    img0.set_roi(CvRect.new(0, 0, 256, 512))
+    img2, seq2 = img0.pyr_segmentation(2, 255, 50)
+    assert_equal('963b26f51b14f175fbbf128e9b9e979f', hash_img(img2))
+    assert_equal(11, seq2.total)
+  end
 end
 

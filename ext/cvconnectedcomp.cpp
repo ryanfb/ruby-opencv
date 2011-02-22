@@ -50,14 +50,29 @@ define_ruby_class()
   rb_define_method(rb_klass, "area", RUBY_METHOD_FUNC(rb_area), 0);
   rb_define_method(rb_klass, "value", RUBY_METHOD_FUNC(rb_value), 0);
   rb_define_method(rb_klass, "rect", RUBY_METHOD_FUNC(rb_rect), 0);
-  rb_define_method(rb_klass, "rect=", RUBY_METHOD_FUNC(rb_set_rect), 0);
+  rb_define_method(rb_klass, "rect=", RUBY_METHOD_FUNC(rb_set_rect), 1);
+  rb_define_method(rb_klass, "contour", RUBY_METHOD_FUNC(rb_contour), 0);
+}
+
+void
+cvconnectedcomp_free(void *ptr)
+{
+  if (ptr) {
+    CvConnectedComp* connected_comp = (CvConnectedComp*)ptr;
+    if (connected_comp->contour) {
+      CvContour *contour = (CvContour*)connected_comp->contour;
+      if (contour->storage)
+	cvReleaseMemStorage(&(contour->storage));
+    }
+    free(ptr);
+  }
 }
 
 VALUE
 rb_allocate(VALUE klass)
 {
   CvConnectedComp *ptr;
-  return Data_Make_Struct(klass, CvConnectedComp, 0, -1, ptr);
+  return Data_Make_Struct(klass, CvConnectedComp, 0, cvconnectedcomp_free, ptr);
 }
 
 /*
@@ -95,6 +110,15 @@ rb_set_rect(VALUE self, VALUE rect)
 {
   CVCONNECTEDCOMP(self)->rect = VALUE_TO_CVRECT(rect);
   return self;
+}
+
+/*
+ * Return optional component boundary
+ */
+VALUE
+rb_contour(VALUE self)
+{
+  return REFER_OBJECT(cCvContour::rb_class(), &CVCONNECTEDCOMP(self)->contour, self);
 }
 
 VALUE

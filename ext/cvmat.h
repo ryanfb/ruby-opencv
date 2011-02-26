@@ -224,7 +224,7 @@ VALUE rb_find_contours(int argc, VALUE *argv, VALUE self);
 VALUE rb_find_contours_bang(int argc, VALUE *argv, VALUE self);
 VALUE rb_pyr_segmentation(int argc, VALUE *argv, VALUE self);
 VALUE rb_pyr_mean_shift_filtering(int argc, VALUE *argv, VALUE self);
-VALUE rb_watershed(VALUE self);
+VALUE rb_watershed(VALUE self, VALUE markers);
 
 VALUE rb_moments(int argc, VALUE *argv, VALUE self);
 

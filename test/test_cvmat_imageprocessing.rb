@@ -1251,5 +1251,28 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal('963b26f51b14f175fbbf128e9b9e979f', hash_img(img2))
     assert_equal(11, seq2.total)
   end
+
+
+  def test_pyr_mean_shift_filtering
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    mat1 = mat0.pyr_mean_shift_filtering(30, 30)
+    mat2 = mat0.pyr_mean_shift_filtering(30, 30, 2)
+    mat3 = mat0.pyr_mean_shift_filtering(30, 30, nil, CvTermCriteria.new(3, 0.01))
+    
+    assert_equal('6887e96bc5dfd552f76ac5411b394775', hash_img(mat1))
+    assert_equal('3cd9c4983fcabeafa04be200d5e08841', hash_img(mat2))
+    assert_equal('e37f0157f93fe2a98312ae6b768e8295', hash_img(mat3))
+  end
+
+  def test_watershed
+    mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    marker = CvMat.new(mat0.cols, mat0.rows, :cv32s, 1).set_zero
+    marker[150, 150] = CvScalar.new(1, 1, 1, 1)
+    marker[210, 210] = CvScalar.new(2, 2, 2, 2)
+    marker[40, 90] = CvScalar.new(3, 3, 3, 3)
+
+    mat1 = mat0.watershed(marker)
+    assert_equal('ee6bec03296039c8df1899d3edc4684e', hash_img(mat1))
+  end
 end
 

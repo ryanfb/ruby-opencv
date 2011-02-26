@@ -363,7 +363,7 @@ void define_ruby_class()
   rb_define_method(rb_klass, "find_contours!", RUBY_METHOD_FUNC(rb_find_contours_bang), -1);
   rb_define_method(rb_klass, "pyr_segmentation", RUBY_METHOD_FUNC(rb_pyr_segmentation), -1);
   rb_define_method(rb_klass, "pyr_mean_shift_filtering", RUBY_METHOD_FUNC(rb_pyr_mean_shift_filtering), -1);
-  rb_define_method(rb_klass, "watershed", RUBY_METHOD_FUNC(rb_watershed), 0);
+  rb_define_method(rb_klass, "watershed", RUBY_METHOD_FUNC(rb_watershed), 1);
 
   rb_define_method(rb_klass, "moments", RUBY_METHOD_FUNC(rb_moments), -1);
 
@@ -4337,10 +4337,8 @@ rb_pyr_mean_shift_filtering(int argc, VALUE *argv, VALUE self)
  * Does watershed segmentation.
  */
 VALUE
-rb_watershed(VALUE self)
+rb_watershed(VALUE self, VALUE markers)
 {
-  VALUE markers = cCvMat::new_object(cvGetSize(CVARR(self)), CV_32SC1);
-  cvZero(CVARR(markers));
   cvWatershed(CVARR(self), CVARR(markers));
   return markers;
 }

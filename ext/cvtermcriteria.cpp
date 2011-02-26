@@ -46,14 +46,13 @@ define_ruby_class()
   rb_define_const(opencv, "CvTerm", rb_klass);
   rb_define_alloc_func(rb_klass, rb_allocate);
   rb_define_method(rb_klass, "initialize", RUBY_METHOD_FUNC(rb_initialize), -1);
+  rb_define_method(rb_klass, "type", RUBY_METHOD_FUNC(rb_type), 0);
   rb_define_method(rb_klass, "max", RUBY_METHOD_FUNC(rb_max), 0);
   rb_define_method(rb_klass, "max=", RUBY_METHOD_FUNC(rb_set_max), 1);
   rb_define_method(rb_klass, "eps", RUBY_METHOD_FUNC(rb_eps), 0);
   rb_define_method(rb_klass, "eps=", RUBY_METHOD_FUNC(rb_set_eps), 1);
   rb_define_alias(rb_klass, "epsilon", "eps");
   rb_define_alias(rb_klass, "epsilon=", "eps=");
-  rb_define_method(rb_klass, "to_ary", RUBY_METHOD_FUNC(rb_to_ary), 0);
-  rb_define_alias(rb_klass, "to_a", "to_ary");
 }
 
 VALUE
@@ -77,10 +76,24 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
   VALUE max, eps;
   rb_scan_args(argc, argv, "02", &max, &eps);
   int type = 0;
-  if (!NIL_P(max)) {type |= CV_TERMCRIT_ITER;}
-  if (!NIL_P(eps)) {type |= CV_TERMCRIT_EPS;}
+  if (!NIL_P(max))
+    type |= CV_TERMCRIT_ITER;
+  if (!NIL_P(eps))
+    type |= CV_TERMCRIT_EPS;
   *CVTERMCRITERIA(self) = cvTermCriteria(type, IF_INT(max, 0), IF_DBL(eps, 0.0));
   return self;
+}
+
+/*
+ * call-seq:
+ *   type -> int
+ *
+ * Return a combination of CV_TERMCRIT_ITER and CV_TERMCRIT_EPS
+ */
+VALUE
+rb_type(VALUE self)
+{
+  return INT2NUM(CVTERMCRITERIA(self)->type);
 }
 
 /*
@@ -158,18 +171,6 @@ rb_set_eps(VALUE self, VALUE eps_value)
     ptr->epsilon = 0;
   }
   return self;
-}
-
-VALUE
-rb_to_ary(VALUE self)
-{
-  CvTermCriteria *ptr = CVTERMCRITERIA(self);
-  VALUE ary = rb_ary_new();
-  if (ptr->type & CV_TERMCRIT_ITER)
-    rb_ary_push(ary, INT2FIX(ptr->max_iter));
-  if (ptr->type & CV_TERMCRIT_EPS)
-    rb_ary_push(ary, rb_float_new(ptr->epsilon));
-  return ary;
 }
 
 VALUE

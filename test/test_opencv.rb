@@ -66,6 +66,10 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(4, CV_CHAIN_APPROX_TC89_KCOS)
     assert_equal(5, CV_LINK_RUNS)
 
+    # Termination criteria for iterative algorithms
+    assert_equal(1, CV_TERMCRIT_ITER)
+    assert_equal(1, CV_TERMCRIT_NUMBER)
+    assert_equal(2, CV_TERMCRIT_EPS)
   end
 
   def test_symbols

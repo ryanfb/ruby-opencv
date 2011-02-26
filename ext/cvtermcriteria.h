@@ -25,11 +25,11 @@ void define_ruby_class();
 VALUE rb_allocate(VALUE klass);
 VALUE rb_initialize(int argc, VALUE *argv, VALUE self);
 
+VALUE rb_type(VALUE self);
 VALUE rb_max(VALUE self);
 VALUE rb_set_max(VALUE self, VALUE max_value);
 VALUE rb_eps(VALUE self);
 VALUE rb_set_eps(VALUE self, VALUE eps_value);
-VALUE rb_to_ary(VALUE self);
 
 VALUE new_object(CvTermCriteria criteria);
 
@@ -63,7 +63,7 @@ VALUE_TO_CVTERMCRITERIA(VALUE object)
                             NUM2DBL(rb_ary_entry(object, 1)));
     }
   }
-  rb_raise(rb_eTypeError, "");
+  rb_raise(rb_eTypeError, "Invalid type");
 }
 
 __NAMESPACE_END_OPENCV

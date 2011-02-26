@@ -229,6 +229,11 @@ define_ruby_module()
   rb_define_const(rb_module, "CV_CHAIN_APPROX_TC89_KCOS", INT2FIX(CV_CHAIN_APPROX_TC89_KCOS));
   rb_define_const(rb_module, "CV_LINK_RUNS", INT2FIX(CV_LINK_RUNS));
 
+  /* Termination criteria for iterative algorithms */
+  rb_define_const(rb_module, "CV_TERMCRIT_ITER", INT2FIX(CV_TERMCRIT_ITER));
+  rb_define_const(rb_module, "CV_TERMCRIT_NUMBER", INT2FIX(CV_TERMCRIT_NUMBER));
+  rb_define_const(rb_module, "CV_TERMCRIT_EPS", INT2FIX(CV_TERMCRIT_EPS));
+
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */
   rb_define_const(rb_module, "INVERSION_METHOD", inversion_method);

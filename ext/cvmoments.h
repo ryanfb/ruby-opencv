@@ -31,6 +31,25 @@ VALUE rb_hu(VALUE self);
 VALUE rb_gravity_center(VALUE self);
 VALUE rb_angle(VALUE self);
 
+VALUE rb_m00(VALUE self);
+VALUE rb_m10(VALUE self);
+VALUE rb_m01(VALUE self);
+VALUE rb_m20(VALUE self);
+VALUE rb_m11(VALUE self);
+VALUE rb_m02(VALUE self);
+VALUE rb_m30(VALUE self);
+VALUE rb_m21(VALUE self);
+VALUE rb_m12(VALUE self);
+VALUE rb_m03(VALUE self);
+VALUE rb_mu20(VALUE self);
+VALUE rb_mu11(VALUE self);
+VALUE rb_mu02(VALUE self);
+VALUE rb_mu30(VALUE self);
+VALUE rb_mu21(VALUE self);
+VALUE rb_mu12(VALUE self);
+VALUE rb_mu03(VALUE self);
+VALUE rb_inv_sqrt_m00(VALUE self);
+
 VALUE new_object(CvArr *arr, int is_binary);
 
 __NAMESPACE_END_CVMOMENTS

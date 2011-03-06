@@ -173,7 +173,7 @@ rb_normalized_central(VALUE self, VALUE x_order, VALUE y_order)
 
 /*
  * call-seq:
- *   hu -> [hu1, hu2, ... ,hu7]
+ *   hu -> cvhumoments
  *
  * Calculates seven Hu invariants.
  *
@@ -190,16 +190,7 @@ rb_normalized_central(VALUE self, VALUE x_order, VALUE y_order)
 VALUE
 rb_hu(VALUE self)
 {
-  CvHuMoments hu_moments;
-  cvGetHuMoments(CVMOMENTS(self), &hu_moments);
-  return rb_ary_new3(7,
-		     rb_float_new(hu_moments.hu1),
-		     rb_float_new(hu_moments.hu2),
-		     rb_float_new(hu_moments.hu3),
-		     rb_float_new(hu_moments.hu4),
-		     rb_float_new(hu_moments.hu5),
-		     rb_float_new(hu_moments.hu6),
-		     rb_float_new(hu_moments.hu7));
+  return cCvHuMoments::new_object(CVMOMENTS(self));
 }
 
 /*

@@ -58,25 +58,29 @@ class TestCvMoments < OpenCVTestCase
 
   def test_hu
     hu_moments = @moment1.hu
-    hu_moments.each { |hu|
+    assert_equal(CvHuMoments, hu_moments.class)
+    hu_moments.to_a.each { |hu|
       assert_in_delta(0.0, hu, 0.000001)
     }
 
     hu_moments = @moment2.hu
-    hu_moments.each { |hu|
+    assert_equal(CvHuMoments, hu_moments.class)
+    hu_moments.to_a.each { |hu|
       assert_in_delta(0.0, hu, 0.000001)
     }
     
     hu_moments = @moment3.hu
-    assert_in_delta(0.001771, hu_moments[0], 0.000001)
-    hu_moments[1..7].each { |hu|
+    assert_equal(CvHuMoments, hu_moments.class)
+    assert_in_delta(0.001771, hu_moments.hu1, 0.000001)
+    hu_moments.to_a[1..7].each { |hu|
       assert_in_delta(0.0, hu, 0.000001)
     }
 
     hu_moments = @moment4.hu
-    assert_in_delta(0.361650, hu_moments[0], 0.000001)
-    assert_in_delta(0.000625, hu_moments[1], 0.000001)
-    hu_moments[2..7].each { |hu|
+    assert_equal(CvHuMoments, hu_moments.class)
+    assert_in_delta(0.361650, hu_moments.hu1, 0.000001)
+    assert_in_delta(0.000625, hu_moments.hu2, 0.000001)
+    hu_moments.to_a[2..7].each { |hu|
       assert_in_delta(0.0, hu, 0.000001)
     }
   end

@@ -94,6 +94,7 @@ extern "C"{
 #include "cvfont.h"
 #include "iplconvkernel.h"
 #include "cvmoments.h"
+#include "cvhumoments.h"
 #include "cvconvexitydefect.h"
 #include "cvpoint3d32f.h"
 

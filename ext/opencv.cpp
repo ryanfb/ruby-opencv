@@ -542,6 +542,7 @@ extern "C"{
     mOpenCV::cCvFont::define_ruby_class();
     mOpenCV::cIplConvKernel::define_ruby_class();
     mOpenCV::cCvMoments::define_ruby_class();
+    mOpenCV::cCvHuMoments::define_ruby_class();
     mOpenCV::cCvConvexityDefect::define_ruby_class();
 
     mOpenCV::cCvMemStorage::define_ruby_class();

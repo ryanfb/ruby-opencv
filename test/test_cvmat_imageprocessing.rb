@@ -1276,6 +1276,30 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_equal('ee6bec03296039c8df1899d3edc4684e', hash_img(mat1))
   end
 
+  def test_hough_lines
+    mat0 = CvMat.load(FILENAME_LINES, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    # make a binary image
+    mat = CvMat.new(mat0.rows, mat0.cols, :cv8u, 1)
+    (mat0.rows * mat0.cols).times { |i|
+      mat[i] = (mat0[i][0] <= 100) ? CvScalar.new(0) : CvScalar.new(255);
+    }
+
+    [CV_HOUGH_STANDARD, :standard].each { |method|
+      seq = mat.hough_lines(method, 1, Math::PI / 180, 65)
+      assert_equal(4, seq.size)
+    }
+
+    [CV_HOUGH_PROBABILISTIC, :probabilistic].each { |method|
+      seq = mat.hough_lines(method, 1, Math::PI / 180, 40, 30, 10)
+      assert_equal(4, seq.size)
+    }
+
+    [CV_HOUGH_MULTI_SCALE, :multi_scale].each { |method|
+      seq = mat.hough_lines(method, 1, Math::PI / 180, 40, 2, 3)
+      assert_equal(9, seq.size)
+    }
+  end
+
   def test_hough_lines_standard
     mat0 = CvMat.load(FILENAME_LINES, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
     # make a binary image

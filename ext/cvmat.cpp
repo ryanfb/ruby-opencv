@@ -367,9 +367,10 @@ void define_ruby_class()
 
   rb_define_method(rb_klass, "moments", RUBY_METHOD_FUNC(rb_moments), -1);
 
-  rb_define_method(rb_klass, "hough_lines_standard", RUBY_METHOD_FUNC(rb_hough_lines_standard), -1);
-  rb_define_method(rb_klass, "hough_lines_probabilistic", RUBY_METHOD_FUNC(rb_hough_lines_probabilistic), -1);
-  rb_define_method(rb_klass, "hough_lines_multi_scale", RUBY_METHOD_FUNC(rb_hough_lines_multi_scale), -1);
+  rb_define_method(rb_klass, "hough_lines", RUBY_METHOD_FUNC(rb_hough_lines), -1);
+  rb_define_method(rb_klass, "hough_lines_standard", RUBY_METHOD_FUNC(rb_hough_lines_standard), 3);
+  rb_define_method(rb_klass, "hough_lines_probabilistic", RUBY_METHOD_FUNC(rb_hough_lines_probabilistic), 5);
+  rb_define_method(rb_klass, "hough_lines_multi_scale", RUBY_METHOD_FUNC(rb_hough_lines_multi_scale), 5);
   rb_define_method(rb_klass, "hough_circles_gradient", RUBY_METHOD_FUNC(rb_hough_circles_gradient), -1);
   //rb_define_method(rb_klass, "dist_transform", RUBY_METHOD_FUNC(rb_dist_transform), -1);
 
@@ -3893,9 +3894,8 @@ rb_threshold_internal(int threshold_type, VALUE threshold, VALUE max_value, VALU
   int type = threshold_type | (otsu ? CV_THRESH_OTSU : 0);
   double otsu_threshold = cvThreshold(self_ptr, CVARR(dest), NUM2DBL(threshold), NUM2DBL(max_value), type);
 
-  if ((use_otsu == Qtrue) || (threshold_type & CV_THRESH_OTSU)) {
+  if ((use_otsu == Qtrue) || (threshold_type & CV_THRESH_OTSU))
     return rb_assoc_new(dest, DBL2NUM(otsu_threshold));
-  }
   else
     return dest;
 }
@@ -4366,6 +4366,59 @@ rb_moments(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
+ *   hough_lines(<i>method, rho, theta, threshold, param1, param2</i>) -> cvseq(include CvLine or CvTwoPoints)
+ *
+ * Finds lines in binary image using a Hough transform.
+ * * method –
+ * *   The Hough transform variant, one of the following:
+ * *   - CV_HOUGH_STANDARD - classical or standard Hough transform.
+ * *   - CV_HOUGH_PROBABILISTIC - probabilistic Hough transform (more efficient in case if picture contains a few long linear segments).
+ * *   - CV_HOUGH_MULTI_SCALE - multi-scale variant of the classical Hough transform. The lines are encoded the same way as CV_HOUGH_STANDARD.
+ * * rho - Distance resolution in pixel-related units.
+ * * theta - Angle resolution measured in radians.
+ * * threshold - Threshold parameter. A line is returned by the function if the corresponding accumulator value is greater than threshold.
+ * * param1 –
+ * *   The first method-dependent parameter:
+ * *     For the classical Hough transform it is not used (0).
+ * *     For the probabilistic Hough transform it is the minimum line length.
+ * *     For the multi-scale Hough transform it is the divisor for the distance resolution . (The coarse distance resolution will be rho and the accurate resolution will be (rho / param1)).
+ * * param2 –
+ * *   The second method-dependent parameter:
+ * *     For the classical Hough transform it is not used (0).
+ * *     For the probabilistic Hough transform it is the maximum gap between line segments lying on the same line to treat them as a single line segment (i.e. to join them).
+ * *     For the multi-scale Hough transform it is the divisor for the angle resolution. (The coarse angle resolution will be theta and the accurate resolution will be (theta / param2).)
+ */
+VALUE
+rb_hough_lines(int argc, VALUE *argv, VALUE self)
+{
+  SUPPORT_8UC1_ONLY(self);
+  const int INVALID_TYPE = -1;
+  VALUE method, rho, theta, threshold, p1, p2;
+  rb_scan_args(argc, argv, "42", &method, &rho, &theta, &threshold, &p1, &p2);
+  int method_flag = CVMETHOD("HOUGH_TRANSFORM_METHOD", method, INVALID_TYPE);
+  VALUE storage = cCvMemStorage::new_object();
+  CvSeq *seq = cvHoughLines2(CVARR(copy(self)), CVMEMSTORAGE(storage),
+			     method_flag, NUM2DBL(rho), NUM2DBL(theta), NUM2INT(threshold),
+			     IF_DBL(p1, 0), IF_DBL(p2, 0));
+  switch (method_flag) {
+  case CV_HOUGH_STANDARD:
+  case CV_HOUGH_MULTI_SCALE:
+    return cCvSeq::new_sequence(cCvSeq::rb_class(), seq, cCvLine::rb_class(), storage);
+    break;
+  case CV_HOUGH_PROBABILISTIC:
+    return cCvSeq::new_sequence(cCvSeq::rb_class(), seq, cCvTwoPoints::rb_class(), storage);
+    break;
+  default:
+    rb_raise(rb_eArgError, "Invalid method: %d", method_flag);
+    break;
+  }
+
+  return Qnil;
+}
+
+
+/*
+ * call-seq:
  *   hough_line_standard(<i>rho, theta, threshold</i>) -> cvseq(include CvLine)
  *
  * Finds lines in binary image using standard(classical) Hough transform.
@@ -4374,12 +4427,10 @@ rb_moments(int argc, VALUE *argv, VALUE self)
  * * threshold - Threshold parameter. A line is returned by the function if the corresponding accumulator value is greater than threshold.
  */
 VALUE
-rb_hough_lines_standard(int argc, VALUE *argv, VALUE self)
+rb_hough_lines_standard(VALUE self, VALUE rho, VALUE theta, VALUE threshold)
 {
   SUPPORT_8UC1_ONLY(self);
-  VALUE rho, theta, threshold, storage;
-  rb_scan_args(argc, argv, "30", &rho, &theta, &threshold);
-  storage = cCvMemStorage::new_object();
+  VALUE storage = cCvMemStorage::new_object();
   CvSeq *seq = cvHoughLines2(CVARR(copy(self)), CVMEMSTORAGE(storage),
 			     CV_HOUGH_STANDARD, NUM2DBL(rho), NUM2DBL(theta), NUM2INT(threshold));
   return cCvSeq::new_sequence(cCvSeq::rb_class(), seq, cCvLine::rb_class(), storage);
@@ -4397,12 +4448,10 @@ rb_hough_lines_standard(int argc, VALUE *argv, VALUE self)
  * * max_gap - The maximum gap between line segments lieing on the same line to treat them as the single line segment (i.e. to join them).
  */
 VALUE
-rb_hough_lines_probabilistic(int argc, VALUE *argv, VALUE self)
+rb_hough_lines_probabilistic(VALUE self, VALUE rho, VALUE theta, VALUE threshold, VALUE p1, VALUE p2)
 {
   SUPPORT_8UC1_ONLY(self);
-  VALUE rho, theta, threshold, p1, p2, storage;
-  rb_scan_args(argc, argv, "50", &rho, &theta, &threshold, &p1, &p2);
-  storage = cCvMemStorage::new_object();
+  VALUE storage = cCvMemStorage::new_object();
   CvSeq *seq = cvHoughLines2(CVARR(copy(self)), CVMEMSTORAGE(storage),
 			     CV_HOUGH_PROBABILISTIC, NUM2DBL(rho), NUM2DBL(theta), NUM2INT(threshold),
 			     NUM2DBL(p1), NUM2DBL(p2));
@@ -4421,12 +4470,10 @@ rb_hough_lines_probabilistic(int argc, VALUE *argv, VALUE self)
  * * div_theta = divisor for angle resolution theta.
  */
 VALUE
-rb_hough_lines_multi_scale(int argc, VALUE *argv, VALUE self)
+rb_hough_lines_multi_scale(VALUE self, VALUE rho, VALUE theta, VALUE threshold, VALUE p1, VALUE p2)
 {
   SUPPORT_8UC1_ONLY(self);
-  VALUE rho, theta, threshold, p1, p2, storage;
-  rb_scan_args(argc, argv, "50", &rho, &theta, &threshold, &p1, &p2);
-  storage = cCvMemStorage::new_object();
+  VALUE storage = cCvMemStorage::new_object();
   CvSeq *seq = cvHoughLines2(CVARR(copy(self)), CVMEMSTORAGE(storage),
 			     CV_HOUGH_MULTI_SCALE, NUM2DBL(rho), NUM2DBL(theta), NUM2INT(threshold),
 			     NUM2DBL(p1), NUM2DBL(p2));

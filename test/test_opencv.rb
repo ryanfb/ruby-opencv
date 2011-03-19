@@ -70,6 +70,11 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(1, CV_TERMCRIT_ITER)
     assert_equal(1, CV_TERMCRIT_NUMBER)
     assert_equal(2, CV_TERMCRIT_EPS)
+
+    # Hough transform methods
+    assert_equal(0, CV_HOUGH_STANDARD)
+    assert_equal(1, CV_HOUGH_PROBABILISTIC)
+    assert_equal(2, CV_HOUGH_MULTI_SCALE)
   end
 
   def test_symbols
@@ -164,6 +169,11 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(3, THRESHOLD_TYPE[:tozero])
     assert_equal(4, THRESHOLD_TYPE[:tozero_inv])
     assert_equal(8, THRESHOLD_TYPE[:otsu])
+
+    # Hough transform methods
+    assert_equal(0, HOUGH_TRANSFORM_METHOD[:standard])
+    assert_equal(1, HOUGH_TRANSFORM_METHOD[:probabilistic])
+    assert_equal(2, HOUGH_TRANSFORM_METHOD[:multi_scale])
   end
 
   def test_cvt_color_funcs

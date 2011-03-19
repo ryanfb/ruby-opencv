@@ -4419,7 +4419,7 @@ rb_hough_lines(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
- *   hough_line_standard(<i>rho, theta, threshold</i>) -> cvseq(include CvLine)
+ *   hough_lines_standard(<i>rho, theta, threshold</i>) -> cvseq(include CvLine)
  *
  * Finds lines in binary image using standard(classical) Hough transform.
  * * rho - Distance resolution in pixel-related units.
@@ -4438,7 +4438,7 @@ rb_hough_lines_standard(VALUE self, VALUE rho, VALUE theta, VALUE threshold)
 
 /*
  * call-seq:
- *   hough_line_probabilistic(<i>rho, theta, threshold, min_length, max_gap</i>) -> cvseq(include CvTwoPoints)
+ *   hough_lines_probabilistic(<i>rho, theta, threshold, min_length, max_gap</i>) -> cvseq(include CvTwoPoints)
  *
  * Finds lines in binary image using probabilistic Hough transform.
  * * rho - Distance resolution in pixel-related units.
@@ -4460,7 +4460,7 @@ rb_hough_lines_probabilistic(VALUE self, VALUE rho, VALUE theta, VALUE threshold
 
 /*
  * call-seq:
- *   hough_line_multi_scale(<i>rho, theta, threshold, div_rho, div_theta</i>) -> cvseq(include CvLine)
+ *   hough_lines_multi_scale(<i>rho, theta, threshold, div_rho, div_theta</i>) -> cvseq(include CvLine)
  *
  * Finds lines in binary image using multi-scale variant of classical Hough transform.
  * * rho - Distance resolution in pixel-related units.

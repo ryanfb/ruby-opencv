@@ -34,6 +34,8 @@ VALUE rb_rho(VALUE self);
 VALUE rb_set_rho(VALUE self, VALUE rho);
 VALUE rb_theta(VALUE self);
 VALUE rb_set_theta(VALUE self, VALUE theta);
+VALUE rb_aref(VALUE self, VALUE index);
+VALUE rb_aset(VALUE self, VALUE index, VALUE value);
 
 VALUE new_object(CvLine line);
 

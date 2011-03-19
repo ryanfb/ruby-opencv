@@ -41,6 +41,8 @@ define_ruby_class()
   rb_define_method(rb_klass, "rho=", RUBY_METHOD_FUNC(rb_set_rho), 1);
   rb_define_method(rb_klass, "theta", RUBY_METHOD_FUNC(rb_theta), 0);
   rb_define_method(rb_klass, "theta=", RUBY_METHOD_FUNC(rb_set_theta), 1);
+  rb_define_method(rb_klass, "[]", RUBY_METHOD_FUNC(rb_aref), 1);
+  rb_define_method(rb_klass, "[]=", RUBY_METHOD_FUNC(rb_aset), 2);
 }
 
 VALUE
@@ -92,6 +94,52 @@ rb_set_theta(VALUE self, VALUE theta)
 {
   CVLINE(self)->theta = NUM2DBL(theta);
   return self;
+}
+
+/*
+ * call-seq:
+ *   [<i>index</i>]
+ *
+ * Return value of <i>index</i> dimension.
+ */
+VALUE
+rb_aref(VALUE self, VALUE index)
+{
+  switch (NUM2INT(index)) {
+  case 0:
+    return DBL2NUM(CVLINE(self)->rho);
+    break;
+  case 1:
+    return DBL2NUM(CVLINE(self)->theta);
+    break;
+  default:
+    rb_raise(rb_eIndexError, "index should be 0...2");
+    break;
+  }
+  return Qnil;
+}
+
+/*
+ * call-seq:
+ *   [<i>index</i>] = <i>value</i>
+ *
+ * Set value of <i>index</i> dimension to <i>value</i>
+ */
+VALUE
+rb_aset(VALUE self, VALUE index, VALUE value)
+{
+  switch (NUM2INT(index)) {
+  case 0:
+    CVLINE(self)->rho = NUM2DBL(value);
+    break;
+  case 1:
+    CVLINE(self)->theta = NUM2DBL(value);
+    break;
+  default:
+    rb_raise(rb_eIndexError, "index should be 0...2");
+    break;
+  }
+  return value;
 }
 
 VALUE

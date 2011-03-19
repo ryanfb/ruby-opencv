@@ -11,6 +11,7 @@ class TestCvMat_imageprocessing < OpenCVTestCase
   FILENAME_LENA256x256 = File.expand_path(File.dirname(__FILE__)) + '/samples/lena-256x256.jpg'
   FILENAME_LENA32x32 = File.expand_path(File.dirname(__FILE__)) + '/samples/lena-32x32.jpg'
   FILENAME_CONTOURS = File.expand_path(File.dirname(__FILE__)) + '/samples/contours.jpg'
+  FILENAME_LINES = File.expand_path(File.dirname(__FILE__)) + '/samples/lines.jpg'
 
   def test_sobel
     mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_GRAYSCALE)
@@ -1273,6 +1274,33 @@ class TestCvMat_imageprocessing < OpenCVTestCase
 
     mat1 = mat0.watershed(marker)
     assert_equal('ee6bec03296039c8df1899d3edc4684e', hash_img(mat1))
+  end
+
+  def test_hough_lines_standard
+    mat0 = CvMat.load(FILENAME_LINES, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    # make a binary image
+    mat = CvMat.new(mat0.rows, mat0.cols, :cv8u, 1)
+    (mat0.rows * mat0.cols).times { |i|
+      mat[i] = (mat0[i][0] <= 100) ? CvScalar.new(0) : CvScalar.new(255);
+    }
+    seq = mat.hough_lines_standard(1, Math::PI / 180, 65)
+    assert_equal(4, seq.size)
+
+    # Uncomment the following lines to show the result
+    # seq.each { |line|
+    #   cos = Math::cos(line.theta)
+    #   sin = Math::sin(line.theta)
+    #   x0 = line.rho * cos
+    #   y0 = line.rho * sin
+    #   pt1 = CvPoint.new
+    #   pt2 = CvPoint.new
+    #   pt1.x = x0 + mat.width * 10 * (-sin)
+    #   pt1.y = y0 + mat.height * 10 * (cos)
+    #   pt2.x = x0 - mat.width * 10 * (-sin)
+    #   pt2.y = y0 - mat.height * 10 * (cos)
+    #   mat0.line!(pt1, pt2, :color => CvColor::Red, :thickness => 1, :line_type => :aa)
+    # }
+    # snap mat0
   end
 end
 

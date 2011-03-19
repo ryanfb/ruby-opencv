@@ -32,6 +32,7 @@ VALUE rb_allocate(VALUE klass);
 
 VALUE rb_point1(VALUE self);
 VALUE rb_point2(VALUE self);
+VALUE rb_aref(VALUE self, VALUE index);
 VALUE rb_to_ary(VALUE self);
 
 VALUE new_object(CvTwoPoints twopoints);

@@ -1302,5 +1302,49 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     # }
     # snap mat0
   end
+
+  def test_hough_lines_probabilistic
+    mat0 = CvMat.load(FILENAME_LINES, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    # make a binary image
+    mat = CvMat.new(mat0.rows, mat0.cols, :cv8u, 1)
+    (mat0.rows * mat0.cols).times { |i|
+      mat[i] = (mat0[i][0] <= 100) ? CvScalar.new(0) : CvScalar.new(255);
+    }
+    seq = mat.hough_lines_probabilistic(1, Math::PI / 180, 40, 30, 10)
+    assert_equal(4, seq.size)
+
+    # Uncomment the following lines to show the result
+    # seq.each { |points|
+    #   mat0.line!(*points, :color => CvColor::Red, :thickness => 1, :line_type => :aa)
+    # }
+    # snap mat0
+  end
+
+  def test_hough_lines_multi_scale
+    mat0 = CvMat.load(FILENAME_LINES, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    # make a binary image
+    mat = CvMat.new(mat0.rows, mat0.cols, :cv8u, 1)
+    (mat0.rows * mat0.cols).times { |i|
+      mat[i] = (mat0[i][0] <= 100) ? CvScalar.new(0) : CvScalar.new(255);
+    }
+    seq = mat.hough_lines_multi_scale(1, Math::PI / 180, 40, 2, 3)
+    assert_equal(9, seq.size)
+
+    # Uncomment the following lines to show the result
+    # seq.each { |line|
+    #   cos = Math::cos(line.theta)
+    #   sin = Math::sin(line.theta)
+    #   x0 = line.rho * cos
+    #   y0 = line.rho * sin
+    #   pt1 = CvPoint.new
+    #   pt2 = CvPoint.new
+    #   pt1.x = x0 + mat.width * 10 * (-sin)
+    #   pt1.y = y0 + mat.height * 10 * (cos)
+    #   pt2.x = x0 - mat.width * 10 * (-sin)
+    #   pt2.y = y0 - mat.height * 10 * (cos)
+    #   mat0.line!(pt1, pt2, :color => CvColor::Red, :thickness => 1, :line_type => :aa)
+    # }
+    # snap mat0
+  end
 end
 

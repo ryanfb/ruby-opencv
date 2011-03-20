@@ -32,8 +32,7 @@ VALUE rb_allocate(VALUE klass);
 VALUE rb_initialize(int argc, VALUE *argv, VALUE self);
 VALUE rb_center(VALUE self);
 VALUE rb_radius(VALUE self);
-
-VALUE rb_to_s(VALUE self);
+VALUE rb_aref(VALUE self, VALUE index);
 VALUE rb_to_ary(VALUE self);
 
 VALUE new_object(CvCircle32f circle32f);

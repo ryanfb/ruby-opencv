@@ -4491,7 +4491,7 @@ rb_hough_circles_gradient(int argc, VALUE *argv, VALUE self)
 {
   SUPPORT_8UC1_ONLY(self);
   VALUE dp, min_dist, threshold_canny, threshold_accumulate, min_radius, max_radius, storage;
-  rb_scan_args(argc, argv, "24", &dp, &min_dist, &threshold_canny, &threshold_accumulate, &min_radius, &max_radius);
+  rb_scan_args(argc, argv, "42", &dp, &min_dist, &threshold_canny, &threshold_accumulate, &min_radius, &max_radius);
   storage = cCvMemStorage::new_object();
   CvSeq *seq = cvHoughCircles(CVARR(self), CVMEMSTORAGE(storage),
 			      CV_HOUGH_GRADIENT, NUM2DBL(dp), NUM2DBL(min_dist),

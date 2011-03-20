@@ -238,7 +238,8 @@ define_ruby_module()
   rb_define_const(rb_module, "CV_HOUGH_STANDARD", INT2FIX(CV_HOUGH_STANDARD));
   rb_define_const(rb_module, "CV_HOUGH_PROBABILISTIC", INT2FIX(CV_HOUGH_PROBABILISTIC));
   rb_define_const(rb_module, "CV_HOUGH_MULTI_SCALE", INT2FIX(CV_HOUGH_MULTI_SCALE));
-
+  rb_define_const(rb_module, "CV_HOUGH_GRADIENT", INT2FIX(CV_HOUGH_GRADIENT));
+  
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */
   rb_define_const(rb_module, "INVERSION_METHOD", inversion_method);
@@ -367,6 +368,7 @@ define_ruby_module()
   RESIST_CVMETHOD(hough_transform_method, "standard", CV_HOUGH_STANDARD);
   RESIST_CVMETHOD(hough_transform_method, "probabilistic", CV_HOUGH_PROBABILISTIC);
   RESIST_CVMETHOD(hough_transform_method, "multi_scale", CV_HOUGH_MULTI_SCALE);
+  RESIST_CVMETHOD(hough_transform_method, "gradient", CV_HOUGH_GRADIENT);
 
   /* color convert methods */
   rb_define_module_function(rb_module, "BGR2BGRA", RUBY_METHOD_FUNC(rb_BGR2BGRA), 1);

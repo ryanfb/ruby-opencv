@@ -232,6 +232,7 @@ VALUE rb_hough_lines(int argc, VALUE *argv, VALUE self);
 VALUE rb_hough_lines_standard(VALUE self, VALUE rho, VALUE theta, VALUE threshold);
 VALUE rb_hough_lines_probabilistic(VALUE self, VALUE rho, VALUE theta, VALUE threshold, VALUE p1, VALUE p2);
 VALUE rb_hough_lines_multi_scale(VALUE self, VALUE rho, VALUE theta, VALUE threshold, VALUE p1, VALUE p2);
+VALUE rb_hough_circles(int argc, VALUE *argv, VALUE self);
 VALUE rb_hough_circles_gradient(int argc, VALUE *argv, VALUE self);
 VALUE rb_dist_transform(int argc, VALUE *argv, VALUE self);
 VALUE rb_inpaint_ns(VALUE self, VALUE mask, VALUE radius);

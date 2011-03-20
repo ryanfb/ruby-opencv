@@ -371,6 +371,7 @@ void define_ruby_class()
   rb_define_method(rb_klass, "hough_lines_standard", RUBY_METHOD_FUNC(rb_hough_lines_standard), 3);
   rb_define_method(rb_klass, "hough_lines_probabilistic", RUBY_METHOD_FUNC(rb_hough_lines_probabilistic), 5);
   rb_define_method(rb_klass, "hough_lines_multi_scale", RUBY_METHOD_FUNC(rb_hough_lines_multi_scale), 5);
+  rb_define_method(rb_klass, "hough_circles", RUBY_METHOD_FUNC(rb_hough_circles), -1);
   rb_define_method(rb_klass, "hough_circles_gradient", RUBY_METHOD_FUNC(rb_hough_circles_gradient), -1);
   //rb_define_method(rb_klass, "dist_transform", RUBY_METHOD_FUNC(rb_dist_transform), -1);
 
@@ -4478,6 +4479,29 @@ rb_hough_lines_multi_scale(VALUE self, VALUE rho, VALUE theta, VALUE threshold, 
 			     CV_HOUGH_MULTI_SCALE, NUM2DBL(rho), NUM2DBL(theta), NUM2INT(threshold),
 			     NUM2DBL(p1), NUM2DBL(p2));
   return cCvSeq::new_sequence(cCvSeq::rb_class(), seq, cCvLine::rb_class(), storage);
+}
+
+/*
+ * call-seq:
+ *   hough_circles(<i>method, dp, min_dist, param1, param2, min_radius = 0, max_radius = max(width,height)</i>) -> cvseq(include CvCircle32f)
+ *
+ * Finds circles in grayscale image using Hough transform.
+ */
+VALUE
+rb_hough_circles(int argc, VALUE *argv, VALUE self)
+{
+  SUPPORT_8UC1_ONLY(self);
+  const int INVALID_TYPE = -1;
+  VALUE method, dp, min_dist, param1, param2, min_radius, max_radius, storage;
+  rb_scan_args(argc, argv, "52", &method, &dp, &min_dist, &param1, &param2, 
+	       &min_radius, &max_radius);
+  storage = cCvMemStorage::new_object();
+  int method_flag = CVMETHOD("HOUGH_TRANSFORM_METHOD", method, INVALID_TYPE);
+  CvSeq *seq = cvHoughCircles(CVARR(self), CVMEMSTORAGE(storage),
+			      method_flag, NUM2DBL(dp), NUM2DBL(min_dist),
+			      NUM2DBL(param1), NUM2DBL(param2),
+			      IF_INT(min_radius, 0), IF_INT(max_radius, 0));
+  return cCvSeq::new_sequence(cCvSeq::rb_class(), seq, cCvCircle32f::rb_class(), storage);
 }
 
 /*

@@ -21,7 +21,7 @@ class TestCvConnectedComp < OpenCVTestCase
 
     point = CvPoint.new(20, 20)
     @mat, @connected_comp, @mask = mat0.flood_fill(point, 0, CvScalar.new(0), CvScalar.new(64),
-                                                   {:connectivity => 8, :fixed_range => true, :mask_only => true})
+                                                   :connectivity => 8, :fixed_range => true, :mask_only => true)
   end
   
   def test_initialize
@@ -50,7 +50,7 @@ class TestCvConnectedComp < OpenCVTestCase
     assert_equal(96, @connected_comp.rect.width)
     assert_equal(96, @connected_comp.rect.height)
 
-    connected_comp.rect = CvRect.new(1, 2, 3, 4);
+    @connected_comp.rect = CvRect.new(1, 2, 3, 4);
     assert_equal(1, @connected_comp.rect.x)
     assert_equal(2, @connected_comp.rect.y)
     assert_equal(3, @connected_comp.rect.width)

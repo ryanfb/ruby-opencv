@@ -53,7 +53,7 @@ __NAMESPACE_BEGIN_CVMAT
 #define DRAWING_OPTION(op) NIL_P(op) ? rb_const_get(rb_class(), rb_intern("DRAWING_OPTION")) : rb_funcall(rb_const_get(rb_class(), rb_intern("DRAWING_OPTION")), rb_intern("merge"), 1, op)
 #define DO_COLOR(op) VALUE_TO_CVSCALAR(rb_hash_aref(op, ID2SYM(rb_intern("color"))))
 #define DO_THICKNESS(op) FIX2INT(rb_hash_aref(op, ID2SYM(rb_intern("thickness"))))
-#define DO_LINE_TYPE(op) FIX2INT(rb_hash_aref(op, ID2SYM(rb_intern("line_type"))) == ID2SYM("aa") ? INT2FIX(CV_AA) : rb_hash_aref(op, ID2SYM(rb_intern("line_type"))))
+#define DO_LINE_TYPE(op) FIX2INT(rb_hash_aref(op, ID2SYM(rb_intern("line_type"))))
 #define DO_SHIFT(op) FIX2INT(rb_hash_aref(op, ID2SYM(rb_intern("shift"))))
 #define DO_IS_CLOSED(op) ({VALUE _is_closed = rb_hash_aref(op, ID2SYM(rb_intern("is_closed"))); NIL_P(_is_closed) ? 0 : _is_closed == Qfalse ? 0 : 1;})
 

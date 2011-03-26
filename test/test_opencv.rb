@@ -76,6 +76,10 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(1, CV_HOUGH_PROBABILISTIC)
     assert_equal(2, CV_HOUGH_MULTI_SCALE)
     assert_equal(3, CV_HOUGH_GRADIENT)
+
+    # Inpaint method
+    assert_equal(0, CV_INPAINT_NS)
+    assert_equal(1, CV_INPAINT_TELEA)
   end
 
   def test_symbols
@@ -176,6 +180,10 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(1, HOUGH_TRANSFORM_METHOD[:probabilistic])
     assert_equal(2, HOUGH_TRANSFORM_METHOD[:multi_scale])
     assert_equal(3, HOUGH_TRANSFORM_METHOD[:gradient])
+
+    # Inpaint method
+    assert_equal(0, INPAINT_METHOD[:ns])
+    assert_equal(1, INPAINT_METHOD[:telea])
   end
 
   def test_cvt_color_funcs

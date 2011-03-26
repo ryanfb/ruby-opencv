@@ -375,6 +375,7 @@ void define_ruby_class()
   rb_define_method(rb_klass, "hough_circles_gradient", RUBY_METHOD_FUNC(rb_hough_circles_gradient), -1);
   //rb_define_method(rb_klass, "dist_transform", RUBY_METHOD_FUNC(rb_dist_transform), -1);
 
+  rb_define_method(rb_klass, "inpaint", RUBY_METHOD_FUNC(rb_inpaint), 3);
   rb_define_method(rb_klass, "inpaint_ns", RUBY_METHOD_FUNC(rb_inpaint_ns), 2);
   rb_define_method(rb_klass, "inpaint_telea", RUBY_METHOD_FUNC(rb_inpaint_telea), 2);
 
@@ -4523,6 +4524,29 @@ rb_hough_circles_gradient(int argc, VALUE *argv, VALUE self)
 			      IF_INT(min_radius, 0), IF_INT(max_radius, 0));
   return cCvSeq::new_sequence(cCvSeq::rb_class(), seq, cCvCircle32f::rb_class(), storage);
 }
+
+/*
+ * call-seq:
+ *   inpaint(<i>inpaint_method, mask, radius</i>) -> cvmat
+ *
+ * Inpaints the selected region in the image
+ * The radius of circlular neighborhood of each point inpainted that is considered by the algorithm.
+ */
+VALUE
+rb_inpaint(VALUE self, VALUE inpaint_method, VALUE mask, VALUE radius)
+{
+  SUPPORT_8U_ONLY(self);
+  SUPPORT_C1C3_ONLY(self);
+  const int INVALID_TYPE = -1;
+  VALUE dest;
+  int method = CVMETHOD("INPAINT_METHOD", inpaint_method, INVALID_TYPE);
+  if (!(rb_obj_is_kind_of(mask, cCvMat::rb_class())) || cvGetElemType(CVARR(mask)) != CV_8UC1)
+    rb_raise(rb_eTypeError, "argument 1 (mask) should be mask image.");
+  dest = cCvMat::new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
+  cvInpaint(CVARR(self), CVARR(mask), CVARR(dest), NUM2DBL(radius), method);
+  return dest;
+}
+
 
 /*
  * call-seq:

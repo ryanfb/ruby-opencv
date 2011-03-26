@@ -235,6 +235,7 @@ VALUE rb_hough_lines_multi_scale(VALUE self, VALUE rho, VALUE theta, VALUE thres
 VALUE rb_hough_circles(int argc, VALUE *argv, VALUE self);
 VALUE rb_hough_circles_gradient(int argc, VALUE *argv, VALUE self);
 VALUE rb_dist_transform(int argc, VALUE *argv, VALUE self);
+VALUE rb_inpaint(VALUE self, VALUE inpaint_method, VALUE mask, VALUE radius);
 VALUE rb_inpaint_ns(VALUE self, VALUE mask, VALUE radius);
 VALUE rb_inpaint_telea(VALUE self, VALUE mask, VALUE radius);
 

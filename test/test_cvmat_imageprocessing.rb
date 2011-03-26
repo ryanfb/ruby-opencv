@@ -9,6 +9,8 @@ include OpenCV
 # Tests for image processing functions of OpenCV::CvMat
 class TestCvMat_imageprocessing < OpenCVTestCase
   FILENAME_LENA256x256 = File.expand_path(File.dirname(__FILE__)) + '/samples/lena-256x256.jpg'
+  FILENAME_LENA_INPAINT = File.expand_path(File.dirname(__FILE__)) + '/samples/lena-inpaint.jpg'
+  FILENAME_INPAINT_MASK = File.expand_path(File.dirname(__FILE__)) + '/samples/inpaint-mask.bmp'
   FILENAME_LENA32x32 = File.expand_path(File.dirname(__FILE__)) + '/samples/lena-32x32.jpg'
   FILENAME_CONTOURS = File.expand_path(File.dirname(__FILE__)) + '/samples/contours.jpg'
   FILENAME_LINES = File.expand_path(File.dirname(__FILE__)) + '/samples/lines.jpg'
@@ -1413,6 +1415,43 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     #   mat0.circle!(circle.center, circle.radius, :color => CvColor::Red, :thickness => 2)
     # }
     # snap mat0
+  end
+
+  def test_inpaint
+    mat = CvMat.load(FILENAME_LENA_INPAINT, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    mask = CvMat.load(FILENAME_INPAINT_MASK, CV_LOAD_IMAGE_GRAYSCALE)
+
+    [CV_INPAINT_NS, :ns].each { |method|
+      result_ns = mat.inpaint(method, mask, 10)
+      assert_equal('d3df4dda8642c83512fb417ffa5e1457', hash_img(result_ns))
+    }
+    [CV_INPAINT_TELEA, :telea].each { |method|
+      result_telea = mat.inpaint(method, mask, 10)
+      assert_equal('d45bec22d03067578703f2ec68567167', hash_img(result_telea))
+    }
+
+    # Uncomment the following lines to show the results
+    # result_ns = mat.inpaint(:ns, mask, 10)
+    # result_telea = mat.inpaint(:telea, mask, 10)
+    # snap mat, result_ns, result_telea
+  end
+
+  def test_inpaint_ns
+    mat = CvMat.load(FILENAME_LENA_INPAINT, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    mask = CvMat.load(FILENAME_INPAINT_MASK, CV_LOAD_IMAGE_GRAYSCALE)
+    result = mat.inpaint_ns(mask, 10)
+    assert_equal('d3df4dda8642c83512fb417ffa5e1457', hash_img(result))
+    # Uncomment the following lines to show the result
+    # snap mat, result
+  end
+
+  def test_inpaint_telea
+    mat = CvMat.load(FILENAME_LENA_INPAINT, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    mask = CvMat.load(FILENAME_INPAINT_MASK, CV_LOAD_IMAGE_GRAYSCALE)
+    result = mat.inpaint_telea(mask, 10)
+    assert_equal('d45bec22d03067578703f2ec68567167', hash_img(result))
+    # Uncomment the following lines to show the result
+    # snap mat, result
   end
 end
 

@@ -1453,5 +1453,14 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     # Uncomment the following lines to show the result
     # snap mat, result
   end
+
+  def test_equalize_hist
+    mat = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_GRAYSCALE)
+    result = mat.equalize_hist
+    assert_equal('de235065c746193d7f3de9359f63a7af', hash_img(result))
+
+    # Uncomment the following lines to show the result
+    # snap mat, result
+  end
 end
 

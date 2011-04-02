@@ -381,6 +381,7 @@ void define_ruby_class()
 
   rb_define_method(rb_klass, "equalize_hist", RUBY_METHOD_FUNC(rb_equalize_hist), 0);
   rb_define_method(rb_klass, "match_template", RUBY_METHOD_FUNC(rb_match_template), -1);
+  rb_define_method(rb_klass, "match_shapes", RUBY_METHOD_FUNC(rb_match_shapes), -1);
   rb_define_method(rb_klass, "match_shapes_i1", RUBY_METHOD_FUNC(rb_match_shapes_i1), -1);
   rb_define_method(rb_klass, "match_shapes_i2", RUBY_METHOD_FUNC(rb_match_shapes_i2), -1);
   rb_define_method(rb_klass, "match_shapes_i3", RUBY_METHOD_FUNC(rb_match_shapes_i3), -1);
@@ -4667,21 +4668,54 @@ rb_match_template(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
+ *   match_shapes(<i>object, method</i>) -> float
+ *
+ * Compares two shapes(self and object). <i>object</i> should be CvMat or CvContour.
+ *
+ * A - object1, B - object2:
+ * * method=CV_CONTOUR_MATCH_I1
+ *     I1(A,B)=sumi=1..7abs(1/mAi - 1/mBi)
+ * * method=CV_CONTOUR_MATCH_I2
+ *     I2(A,B)=sumi=1..7abs(mAi - mBi)
+ * * method=CV_CONTOUR_MATCH_I3
+ *     I3(A,B)=sumi=1..7abs(mAi - mBi)/abs(mAi)
+ */
+VALUE
+rb_match_shapes(int argc, VALUE *argv, VALUE self)
+{
+  VALUE object, method, param;
+  rb_scan_args(argc, argv, "21", &object, &method, &param);
+  int method_flag = CVMETHOD("COMPARISON_METHOD", method);
+  if (!(rb_obj_is_kind_of(object, cCvMat::rb_class()) || rb_obj_is_kind_of(object, cCvContour::rb_class())))
+    rb_raise(rb_eTypeError, "argument 1 (shape) should be %s or %s",
+	     rb_class2name(cCvMat::rb_class()), rb_class2name(cCvContour::rb_class()));
+  return rb_float_new(cvMatchShapes(CVARR(self), CVARR(object), method_flag));
+}
+
+inline VALUE
+rb_match_shapes_internal(int argc, VALUE *argv, VALUE self, int method)
+{
+  VALUE object;
+  rb_scan_args(argc, argv, "10", &object);
+  if (!(rb_obj_is_kind_of(object, cCvMat::rb_class()) || rb_obj_is_kind_of(object, cCvContour::rb_class())))
+    rb_raise(rb_eTypeError, "argument 1 (shape) should be %s or %s",
+	     rb_class2name(cCvMat::rb_class()), rb_class2name(cCvContour::rb_class()));
+  return rb_float_new(cvMatchShapes(CVARR(self), CVARR(object), method));
+}
+
+/*
+ * call-seq:
  *   match_shapes_i1(<i>object</i>) -> float
  *
  * Compares two shapes(self and object). <i>object</i> should be CvMat or CvContour.
  *
- * A ~ object1, B - object2):
+ * A - object1, B - object2:
  *   I1(A,B)=sumi=1..7abs(1/mAi - 1/mBi)
  */
 VALUE
 rb_match_shapes_i1(int argc, VALUE *argv, VALUE self)
 {
-  VALUE object;
-  rb_scan_args(argc, argv, "10", &object);
-  if ((!(rb_obj_is_kind_of(object, cCvMat::rb_class()))) && (!(rb_obj_is_kind_of(object, cCvContour::rb_class()))))
-    rb_raise(rb_eTypeError, "argument 1 (shape) should be %s or %s", rb_class2name(cCvMat::rb_class()), rb_class2name(cCvContour::rb_class()));
-  return rb_float_new(cvMatchShapes(CVARR(self), CVARR(object), CV_CONTOURS_MATCH_I1));
+  return rb_match_shapes_internal(argc, argv, self, CV_CONTOURS_MATCH_I1);
 }
 
 /*
@@ -4690,17 +4724,13 @@ rb_match_shapes_i1(int argc, VALUE *argv, VALUE self)
  *
  * Compares two shapes(self and object). <i>object</i> should be CvMat or CvContour.
  *
- * A ~ object1, B - object2):
+ * A - object1, B - object2:
  *   I2(A,B)=sumi=1..7abs(mAi - mBi)
  */
 VALUE
 rb_match_shapes_i2(int argc, VALUE *argv, VALUE self)
 {
-  VALUE object;
-  rb_scan_args(argc, argv, "10", &object);
-  if ((!(rb_obj_is_kind_of(object, cCvMat::rb_class()))) && (!(rb_obj_is_kind_of(object, cCvContour::rb_class()))))
-    rb_raise(rb_eTypeError, "argument 1 (shape) should be %s or %s", rb_class2name(cCvMat::rb_class()), rb_class2name(cCvContour::rb_class()));
-  return rb_float_new(cvMatchShapes(CVARR(self), CVARR(object), CV_CONTOURS_MATCH_I2));
+  return rb_match_shapes_internal(argc, argv, self, CV_CONTOURS_MATCH_I2);
 }
 
 /*
@@ -4709,17 +4739,13 @@ rb_match_shapes_i2(int argc, VALUE *argv, VALUE self)
  *
  * Compares two shapes(self and object). <i>object</i> should be CvMat or CvContour.
  *
- * A ~ object1, B - object2):
+ * A - object1, B - object2:
  *   I3(A,B)=sumi=1..7abs(mAi - mBi)/abs(mAi)
  */
 VALUE
 rb_match_shapes_i3(int argc, VALUE *argv, VALUE self)
 {
-  VALUE object;
-  rb_scan_args(argc, argv, "10", &object);
-  if ((!(rb_obj_is_kind_of(object, cCvMat::rb_class()))) && (!(rb_obj_is_kind_of(object, cCvContour::rb_class()))))
-    rb_raise(rb_eTypeError, "argument 1 (shape) should be %s or %s", rb_class2name(cCvMat::rb_class()), rb_class2name(cCvContour::rb_class()));
-  return rb_float_new(cvMatchShapes(CVARR(self), CVARR(object), CV_CONTOURS_MATCH_I3));
+  return rb_match_shapes_internal(argc, argv, self, CV_CONTOURS_MATCH_I3);
 }
 
 

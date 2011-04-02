@@ -88,6 +88,11 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(3, CV_TM_CCORR_NORMED)
     assert_equal(4, CV_TM_CCOEFF)
     assert_equal(5, CV_TM_CCOEFF_NORMED)
+    
+    # Comparison method
+    assert_equal(1, CV_CONTOURS_MATCH_I1)
+    assert_equal(2, CV_CONTOURS_MATCH_I2)
+    assert_equal(3, CV_CONTOURS_MATCH_I3)
   end
 
   def test_symbols
@@ -192,6 +197,11 @@ class TestOpenCV < OpenCVTestCase
     # Inpaint method
     assert_equal(0, INPAINT_METHOD[:ns])
     assert_equal(1, INPAINT_METHOD[:telea])
+
+    # Comparison method
+    assert_equal(1, COMPARISON_METHOD[:i1])
+    assert_equal(2, COMPARISON_METHOD[:i2])
+    assert_equal(3, COMPARISON_METHOD[:i3])
   end
 
   def test_cvt_color_funcs

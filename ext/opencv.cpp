@@ -251,6 +251,11 @@ define_ruby_module()
   rb_define_const(rb_module, "CV_TM_CCORR_NORMED", INT2FIX(CV_TM_CCORR_NORMED));
   rb_define_const(rb_module, "CV_TM_CCOEFF", INT2FIX(CV_TM_CCOEFF));
   rb_define_const(rb_module, "CV_TM_CCOEFF_NORMED", INT2FIX(CV_TM_CCOEFF_NORMED));
+
+  /* Comparison method */
+  rb_define_const(rb_module, "CV_CONTOURS_MATCH_I1", INT2FIX(CV_CONTOURS_MATCH_I1));
+  rb_define_const(rb_module, "CV_CONTOURS_MATCH_I2", INT2FIX(CV_CONTOURS_MATCH_I2));
+  rb_define_const(rb_module, "CV_CONTOURS_MATCH_I3", INT2FIX(CV_CONTOURS_MATCH_I3));
   
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */
@@ -387,6 +392,13 @@ define_ruby_module()
   rb_define_const(rb_module, "INPAINT_METHOD", inpaint_method);
   RESIST_CVMETHOD(inpaint_method, "ns", CV_INPAINT_NS);
   RESIST_CVMETHOD(inpaint_method, "telea", CV_INPAINT_TELEA);
+
+  VALUE comparison_method = rb_hash_new();
+  /* Comparison method */
+  rb_define_const(rb_module, "COMPARISON_METHOD", comparison_method);
+  RESIST_CVMETHOD(comparison_method, "i1", CV_CONTOURS_MATCH_I1);
+  RESIST_CVMETHOD(comparison_method, "i2", CV_CONTOURS_MATCH_I2);
+  RESIST_CVMETHOD(comparison_method, "i3", CV_CONTOURS_MATCH_I3);
 
   /* color convert methods */
   rb_define_module_function(rb_module, "BGR2BGRA", RUBY_METHOD_FUNC(rb_BGR2BGRA), 1);

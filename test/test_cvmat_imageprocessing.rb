@@ -15,6 +15,9 @@ class TestCvMat_imageprocessing < OpenCVTestCase
   FILENAME_CONTOURS = File.expand_path(File.dirname(__FILE__)) + '/samples/contours.jpg'
   FILENAME_LINES = File.expand_path(File.dirname(__FILE__)) + '/samples/lines.jpg'
   FILENAME_LENA_EYES = File.expand_path(File.dirname(__FILE__)) + '/samples/lena-eyes.jpg'
+  FILENAME_STR_CV = File.expand_path(File.dirname(__FILE__)) + '/samples/str-cv.jpg'
+  FILENAME_STR_OV = File.expand_path(File.dirname(__FILE__)) + '/samples/str-ov.jpg'
+  FILENAME_STR_CV_ROTATED = File.expand_path(File.dirname(__FILE__)) + '/samples/str-cv-rotated.jpg'
 
   def test_sobel
     mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_GRAYSCALE)
@@ -1512,6 +1515,54 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     # pt2 = CvPoint.new(pt1.x + templ.width, pt1.y + templ.height)
     # mat.rectangle!(pt1, pt2, :color => CvColor::Black, :thickness => 3)
     # snap mat, templ, result
+  end
+
+  def test_match_shapes
+    mat_cv = CvMat.load(FILENAME_STR_CV, CV_LOAD_IMAGE_GRAYSCALE)
+    mat_ov = CvMat.load(FILENAME_STR_OV, CV_LOAD_IMAGE_GRAYSCALE)
+    mat_cv_rotated = CvMat.load(FILENAME_STR_CV_ROTATED, CV_LOAD_IMAGE_GRAYSCALE)
+
+    [CV_CONTOURS_MATCH_I1, :i1].each { |method|
+      assert_in_delta(0, mat_cv.match_shapes(mat_cv_rotated, method), 0.00001)
+      assert_in_delta(0.0010649, mat_cv.match_shapes(mat_ov, method), 0.00001)
+    }
+
+    [CV_CONTOURS_MATCH_I2, :i2].each { |method|
+      assert_in_delta(0, mat_cv.match_shapes(mat_cv_rotated, method), 0.00001)
+      assert_in_delta(0.0104650, mat_cv.match_shapes(mat_ov, method), 0.00001)
+    }
+
+    [CV_CONTOURS_MATCH_I3, :i3].each { |method|
+      assert_in_delta(0, mat_cv.match_shapes(mat_cv_rotated, method), 0.00001)
+      assert_in_delta(0.0033327, mat_cv.match_shapes(mat_ov, method), 0.00001)
+    }
+  end
+  
+  def test_match_shapes_i1
+    mat_cv = CvMat.load(FILENAME_STR_CV, CV_LOAD_IMAGE_GRAYSCALE)
+    mat_ov = CvMat.load(FILENAME_STR_OV, CV_LOAD_IMAGE_GRAYSCALE)
+    mat_cv_rotated = CvMat.load(FILENAME_STR_CV_ROTATED, CV_LOAD_IMAGE_GRAYSCALE)
+
+    assert_in_delta(0, mat_cv.match_shapes_i1(mat_cv_rotated), 0.00001)
+    assert_in_delta(0.0010649, mat_cv.match_shapes_i1(mat_ov), 0.00001)
+  end
+
+  def test_match_shapes_i2
+    mat_cv = CvMat.load(FILENAME_STR_CV, CV_LOAD_IMAGE_GRAYSCALE)
+    mat_ov = CvMat.load(FILENAME_STR_OV, CV_LOAD_IMAGE_GRAYSCALE)
+    mat_cv_rotated = CvMat.load(FILENAME_STR_CV_ROTATED, CV_LOAD_IMAGE_GRAYSCALE)
+
+    assert_in_delta(0, mat_cv.match_shapes_i2(mat_cv_rotated), 0.00001)
+    assert_in_delta(0.0104650, mat_cv.match_shapes_i2(mat_ov), 0.00001)
+  end
+
+  def test_match_shapes_i3
+    mat_cv = CvMat.load(FILENAME_STR_CV, CV_LOAD_IMAGE_GRAYSCALE)
+    mat_ov = CvMat.load(FILENAME_STR_OV, CV_LOAD_IMAGE_GRAYSCALE)
+    mat_cv_rotated = CvMat.load(FILENAME_STR_CV_ROTATED, CV_LOAD_IMAGE_GRAYSCALE)
+
+    assert_in_delta(0, mat_cv.match_shapes_i3(mat_cv_rotated), 0.00001)
+    assert_in_delta(0.0033327, mat_cv.match_shapes_i3(mat_ov), 0.00001)
   end
 end
 

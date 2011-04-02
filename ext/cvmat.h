@@ -242,6 +242,7 @@ VALUE rb_inpaint_telea(VALUE self, VALUE mask, VALUE radius);
 VALUE rb_equalize_hist(VALUE self);
 /* Matching*/
 VALUE rb_match_template(int argc, VALUE *argv, VALUE self);
+VALUE rb_match_shapes(int argc, VALUE *argv, VALUE self);
 VALUE rb_match_shapes_i1(int argc, VALUE *argv, VALUE self);
 VALUE rb_match_shapes_i2(int argc, VALUE *argv, VALUE self);
 VALUE rb_match_shapes_i3(int argc, VALUE *argv, VALUE self);

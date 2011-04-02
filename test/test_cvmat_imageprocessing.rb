@@ -14,6 +14,7 @@ class TestCvMat_imageprocessing < OpenCVTestCase
   FILENAME_LENA32x32 = File.expand_path(File.dirname(__FILE__)) + '/samples/lena-32x32.jpg'
   FILENAME_CONTOURS = File.expand_path(File.dirname(__FILE__)) + '/samples/contours.jpg'
   FILENAME_LINES = File.expand_path(File.dirname(__FILE__)) + '/samples/lines.jpg'
+  FILENAME_LENA_EYES = File.expand_path(File.dirname(__FILE__)) + '/samples/lena-eyes.jpg'
 
   def test_sobel
     mat0 = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_GRAYSCALE)
@@ -1461,6 +1462,56 @@ class TestCvMat_imageprocessing < OpenCVTestCase
 
     # Uncomment the following lines to show the result
     # snap mat, result
+  end
+
+  def test_match_template
+    mat = CvMat.load(FILENAME_LENA256x256, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    templ = CvMat.load(FILENAME_LENA_EYES, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH)
+    
+    # sqdiff
+    result = mat.match_template(templ)
+    assert_equal('88663ec44be797ca883fc87bb6d7c09b', hash_img(result))
+    [CV_TM_SQDIFF, :sqdiff].each { |method|
+      result = mat.match_template(templ, method)
+      assert_equal('88663ec44be797ca883fc87bb6d7c09b', hash_img(result))
+    }
+
+    # sqdiff_normed
+    [CV_TM_SQDIFF_NORMED, :sqdiff_normed].each { |method|
+      result = mat.match_template(templ, method)
+      assert_equal('75c812f87184b2ccd8f83b70a8436356', hash_img(result))
+    }
+
+    # ccorr
+    [CV_TM_CCORR, :ccorr].each { |method|
+      result = mat.match_template(templ, method)
+      assert_equal('6ebe7e48edf8fc64bcc0fd7f1e96555c', hash_img(result))
+    }
+
+    # ccorr_normed
+    [CV_TM_CCORR_NORMED, :ccorr_normed].each { |method|
+      result = mat.match_template(templ, method)
+      assert_equal('4cf8ebcec870f8295d615a9aa345ae4d', hash_img(result))
+    }
+
+    # ccoeff
+    [CV_TM_CCOEFF, :ccoeff].each { |method|
+      result = mat.match_template(templ, method)
+      assert_equal('248a391c5a1e1dbcf7a19f3310b5cd7a', hash_img(result))
+    }
+    
+    # ccoeff_normed
+    [CV_TM_CCOEFF_NORMED, :ccoeff_normed].each { |method|
+      result = mat.match_template(templ, method)
+      assert_equal('27a4e9b45ed648848f0498356bd2c5b5', hash_img(result))
+    }
+
+    # Uncomment the following lines to show the result
+    # result = mat.match_template(templ)
+    # pt1 = result.min_max_loc[2] # minimum location
+    # pt2 = CvPoint.new(pt1.x + templ.width, pt1.y + templ.height)
+    # mat.rectangle!(pt1, pt2, :color => CvColor::Black, :thickness => 3)
+    # snap mat, templ, result
   end
 end
 

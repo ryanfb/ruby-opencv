@@ -80,6 +80,14 @@ class TestOpenCV < OpenCVTestCase
     # Inpaint method
     assert_equal(0, CV_INPAINT_NS)
     assert_equal(1, CV_INPAINT_TELEA)
+
+    # Match tempalte method
+    assert_equal(0, CV_TM_SQDIFF)
+    assert_equal(1, CV_TM_SQDIFF_NORMED)
+    assert_equal(2, CV_TM_CCORR)
+    assert_equal(3, CV_TM_CCORR_NORMED)
+    assert_equal(4, CV_TM_CCOEFF)
+    assert_equal(5, CV_TM_CCOEFF_NORMED)
   end
 
   def test_symbols

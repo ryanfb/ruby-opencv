@@ -243,6 +243,14 @@ define_ruby_module()
   /* Inpaint method */
   rb_define_const(rb_module, "CV_INPAINT_NS", INT2FIX(CV_INPAINT_NS));
   rb_define_const(rb_module, "CV_INPAINT_TELEA", INT2FIX(CV_INPAINT_TELEA));
+
+  /* Match template method */
+  rb_define_const(rb_module, "CV_TM_SQDIFF", INT2FIX(CV_TM_SQDIFF));
+  rb_define_const(rb_module, "CV_TM_SQDIFF_NORMED", INT2FIX(CV_TM_SQDIFF_NORMED));
+  rb_define_const(rb_module, "CV_TM_CCORR", INT2FIX(CV_TM_CCORR));
+  rb_define_const(rb_module, "CV_TM_CCORR_NORMED", INT2FIX(CV_TM_CCORR_NORMED));
+  rb_define_const(rb_module, "CV_TM_CCOEFF", INT2FIX(CV_TM_CCOEFF));
+  rb_define_const(rb_module, "CV_TM_CCOEFF_NORMED", INT2FIX(CV_TM_CCOEFF_NORMED));
   
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */

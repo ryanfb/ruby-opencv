@@ -4620,7 +4620,7 @@ rb_equalize_hist(VALUE self)
  * Compares template against overlapped image regions.
 
  * <i>method</i> is specifies the way the template must be compared with image regions.
- * <i>method</i> should be following symbol. (see CvMat::MATCH_TEMPLATE_METHOD 's key and value.)
+ * <i>method</i> should be following symbol. (see OpenCV::MATCH_TEMPLATE_METHOD 's key and value.)
  *
  * * :sqdiff
  *   R(x,y)=sumx',y'[T(x',y')-I(x+x',y+y')]2
@@ -4646,16 +4646,22 @@ VALUE
 rb_match_template(int argc, VALUE *argv, VALUE self)
 {
   VALUE templ, method, result;
-  rb_scan_args(argc, argv, "11", &templ, &method);
+  int method_flag;
+  if (rb_scan_args(argc, argv, "11", &templ, &method) == 1)
+    method_flag = CV_TM_SQDIFF;
+  else
+    method_flag = CVMETHOD("MATCH_TEMPLATE_METHOD", method);
+
   if (!(rb_obj_is_kind_of(templ, cCvMat::rb_class())))
     rb_raise(rb_eTypeError, "argument 1 (template) should be %s.", rb_class2name(cCvMat::rb_class()));
   if (cvGetElemType(CVARR(self)) != cvGetElemType(CVARR(templ)))
     rb_raise(rb_eTypeError, "template should be same type of self.");
-  CvSize src_size = cvGetSize(CVARR(self)), template_size = cvGetSize(CVARR(self));
-  result = cCvMat::new_object(cvSize(src_size.width - template_size.width + 1,
-				     src_size.height - template_size.height + 1),
+  CvSize src_size = cvGetSize(CVARR(self));
+  CvSize template_size = cvGetSize(CVARR(templ));
+  result = cCvMat::new_object(src_size.height - template_size.height + 1,
+			      src_size.width - template_size.width + 1,
 			      CV_32FC1);
-  cvMatchTemplate(CVARR(self), CVARR(templ), CVARR(result), CVMETHOD("MATCH_TEMPLATE_METHOD", CV_TM_SQDIFF));
+  cvMatchTemplate(CVARR(self), CVARR(templ), CVARR(result), method_flag);
   return result;
 }
 

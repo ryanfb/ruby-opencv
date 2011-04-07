@@ -36,9 +36,12 @@ You can install by cloning this repository:
   
 Then inside the ruby-opencv folder run:
 
-  ruby ext/extconf.rb
-  make
-  sudo make install
+  rake install_gem
+
+You can also add ruby-opencv in your Gemfile:
+
+  echo -E 'gem "opencv", :git => "https://github.com/pcting/ruby-opencv"' >> Gemfile
+  bundle install # or bundle update
 
 == SYNOPSIS:
 

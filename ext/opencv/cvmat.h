@@ -12,6 +12,7 @@
 
 #include "opencv.h"
 
+
 #define __NAMESPACE_BEGIN_CVMAT namespace cCvMat{
 #define __NAMESPACE_END_CVMAT }
 
@@ -270,7 +271,9 @@ VALUE rb_save_image(VALUE self, VALUE filename);
 VALUE new_object(int rows, int cols, int type);
 VALUE new_object(CvSize size, int type);
 
+
 __NAMESPACE_END_CVMAT
+
 
 inline CvMat*
 CVMAT(VALUE object)

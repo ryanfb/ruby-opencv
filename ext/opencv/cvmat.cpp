@@ -403,6 +403,7 @@ void define_ruby_class()
   rb_define_method(rb_klass, "save_image", RUBY_METHOD_FUNC(rb_save_image), 1);
 }
 
+
 VALUE
 rb_allocate(VALUE klass)
 {
@@ -2458,13 +2459,19 @@ VALUE
 rb_dft(int argc, VALUE *argv, VALUE self)
 {
   int type = CV_DXT_FORWARD;
+  int num_rows = 0;
   if (argc > 0) {
-    for (int i = 0; i < argc; i++) {
+    int num_flags = argc;
+    if (TYPE(argv[argc -1]) == T_FIXNUM) {
+      num_flags = argc - 1;
+      num_rows = FIX2INT(argv[argc - 1]);
+    }
+    for (int i = 0; i < num_flags; i++) {
       type |= CVMETHOD("DXT_FLAG", argv[i]);
     }
   }
   VALUE dest = new_object(cvGetSize(CVARR(self)), cvGetElemType(CVARR(self)));
-  cvDFT(CVARR(self), CVARR(dest), type);
+  cvDFT(CVARR(self), CVARR(dest), type, num_rows);
   return dest;
 }
 
@@ -5155,6 +5162,7 @@ rb_compute_correspond_epilines(VALUE klass, VALUE points, VALUE which_image, VAL
   return correspondent_lines;
 }
 
+
 VALUE
 new_object(int rows, int cols, int type)
 {
@@ -5166,6 +5174,7 @@ new_object(CvSize size, int type)
 {
   return OPENCV_OBJECT(rb_klass, cvCreateMat(size.height, size.width, type));
 }
+
 
 __NAMESPACE_END_OPENCV
 __NAMESPACE_END_CVMAT

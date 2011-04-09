@@ -1630,6 +1630,10 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_raise(TypeError) {
       mat.snake_image(points, alpha, arr_beta, gamma, size, term_criteria)
     }
+
+    assert_raise(ArgumentError) {
+      mat.snake_image(points, arr_alpha[0 .. num_points / 2], arr_beta, arr_gamma, size, term_criteria)
+    }
   end
 end
 

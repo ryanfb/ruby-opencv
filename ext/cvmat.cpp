@@ -4826,14 +4826,19 @@ rb_snake_image(int argc, VALUE *argv, VALUE self)
   IplImage stub;
   int i;
   if (coeff == CV_VALUE) {
-    a = ALLOCA_N(float, 1);
-    a[0] = (float)NUM2DBL(alpha);
-    b = ALLOCA_N(float, 1);
-    b[0] = (float)NUM2DBL(beta);
-    c = ALLOCA_N(float, 1);
-    c[0] = (float)NUM2DBL(gamma);
+    float buff_a, buff_b, buff_c;
+    buff_a = (float)NUM2DBL(alpha);
+    buff_b = (float)NUM2DBL(beta);
+    buff_c = (float)NUM2DBL(gamma);
+    a = &buff_a;
+    b = &buff_b;
+    c = &buff_c;
   }
   else { // CV_ARRAY
+    if ((RARRAY_LEN(alpha) != length) ||
+	(RARRAY_LEN(beta) != length) ||
+	(RARRAY_LEN(gamma) != length))
+      rb_raise(rb_eArgError, "alpha, beta, gamma should be same size of points");
     a = ALLOCA_N(float, length);
     b = ALLOCA_N(float, length);
     c = ALLOCA_N(float, length);

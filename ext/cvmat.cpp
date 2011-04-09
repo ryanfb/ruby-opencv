@@ -4904,7 +4904,8 @@ rb_optical_flow_hs(int argc, VALUE *argv, VALUE self)
     else
       rb_raise(rb_eArgError, "Necessary to give both argument 2(previous velocity field x) and argument 3(previous velocity field y)");
   }
-  cvCalcOpticalFlowHS(CVARR(prev), CVARR(self), use_previous, CVARR(velx), CVARR(vely), HS_LAMBDA(options), HS_CRITERIA(options));
+  cvCalcOpticalFlowHS(CVARR(prev), CVARR(self), use_previous, CVARR(velx), CVARR(vely),
+		      HS_LAMBDA(options), HS_CRITERIA(options));
   return rb_ary_new3(2, velx, vely);
 }
 

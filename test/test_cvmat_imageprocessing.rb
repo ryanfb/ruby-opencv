@@ -1635,5 +1635,34 @@ class TestCvMat_imageprocessing < OpenCVTestCase
       mat.snake_image(points, arr_alpha[0 .. num_points / 2], arr_beta, arr_gamma, size, term_criteria)
     }
   end
+
+  def test_optical_flow_hs
+    size = 128
+    prev = create_cvmat(size, size, :cv8u, 1) { |j, i|
+      if ((i - (size / 2)) ** 2 ) + ((j - (size / 2)) ** 2 ) < size
+        CvColor::Black
+      else
+        CvColor::White
+      end
+    }
+    curr = create_cvmat(size, size, :cv8u, 1) { |j, i|
+      if ((i - (size / 2) - 10) ** 2) + ((j - (size / 2) - 7) ** 2 ) < size
+        CvColor::Black
+      else
+        CvColor::White
+      end
+    }
+    
+    [curr.optical_flow_hs(prev, nil, nil, :lambda => 0.0005, :criteria => CvTermCriteria.new(1, 0.001)),
+     curr.optical_flow_hs(prev)].each { |velx, vely|
+      assert_equal('d437cd896365c509b5d16fd5f2d7e498', hash_img(velx))
+      assert_equal('36ccbcafcd58b4d07dab058fb60eede6', hash_img(vely))
+    }
+
+    velx, vely = curr.optical_flow_hs(prev)
+    velx, vely = curr.optical_flow_hs(prev, velx, vely)
+    assert_equal('08b50f3d4cb4cbbe443fada293e6af02', hash_img(velx))
+    assert_equal('4d302c8267388995ec85a4a26da5ffcc', hash_img(vely))
+  end
 end
 

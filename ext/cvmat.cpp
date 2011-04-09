@@ -4817,10 +4817,9 @@ rb_cam_shift(VALUE self, VALUE window, VALUE criteria)
 VALUE
 rb_snake_image(int argc, VALUE *argv, VALUE self)
 {
-  VALUE points, alpha, beta, gamma, window, criteria, calc_gradient, storage;
+  VALUE points, alpha, beta, gamma, window, criteria, calc_gradient;
   rb_scan_args(argc, argv, "61", &points, &alpha, &beta, &gamma, &window, &criteria, &calc_gradient);
   CvPoint *pointset = 0;
-  CvSeq *seq = 0;
   int length = CVPOINTS_FROM_POINT_SET(points, &pointset);
   int coeff = (TYPE(alpha) == T_ARRAY && TYPE(beta) == T_ARRAY && TYPE(gamma) == T_ARRAY) ? CV_ARRAY : CV_VALUE;
   float *a = 0, *b = 0, *c = 0;
@@ -4852,7 +4851,8 @@ rb_snake_image(int argc, VALUE *argv, VALUE self)
   VALUE result = rb_ary_new2(length);
   for (i = 0; i < length; ++i)
     rb_ary_push(result, cCvPoint::new_object(pointset[i]));
-
+  cvFree(&pointset);
+  
   return result;
 }
 

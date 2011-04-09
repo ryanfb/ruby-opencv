@@ -253,7 +253,7 @@ VALUE rb_cam_shift(VALUE self, VALUE window, VALUE criteria);
 VALUE rb_snake_image(int argc, VALUE *argv, VALUE self);
 /* Optical Flow */
 VALUE rb_optical_flow_hs(int argc, VALUE *argv, VALUE self);
-VALUE rb_optical_flow_lk(int argc, VALUE *argv, VALUE self);
+VALUE rb_optical_flow_lk(VALUE self, VALUE prev, VALUE win_size);
 VALUE rb_optical_flow_bm(int argc, VALUE *argv, VALUE self);
 VALUE rb_optical_flow_pyr_lk(int argc, VALUE *argv, VALUE self);
 

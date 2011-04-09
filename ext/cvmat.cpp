@@ -391,7 +391,7 @@ void define_ruby_class()
   rb_define_method(rb_klass, "snake_image", RUBY_METHOD_FUNC(rb_snake_image), -1);
 
   rb_define_method(rb_klass, "optical_flow_hs", RUBY_METHOD_FUNC(rb_optical_flow_hs), -1);
-  rb_define_method(rb_klass, "optical_flow_lk", RUBY_METHOD_FUNC(rb_optical_flow_lk), -1);
+  rb_define_method(rb_klass, "optical_flow_lk", RUBY_METHOD_FUNC(rb_optical_flow_lk), 2);
   rb_define_method(rb_klass, "optical_flow_bm", RUBY_METHOD_FUNC(rb_optical_flow_bm), -1);
 
   rb_define_singleton_method(rb_klass, "find_fundamental_mat_7point", RUBY_METHOD_FUNC(rb_find_fundamental_mat_7point), -1);
@@ -4919,11 +4919,10 @@ rb_optical_flow_hs(int argc, VALUE *argv, VALUE self)
  * <i>win_size</i> is size of the averaging window used for grouping pixels.
  */
 VALUE
-rb_optical_flow_lk(int argc, VALUE *argv, VALUE self)
+rb_optical_flow_lk(VALUE self, VALUE prev, VALUE win_size)
 {
   SUPPORT_8UC1_ONLY(self);
-  VALUE prev, win_size, velx, vely;
-  rb_scan_args(argc, argv, "20", &prev, &win_size);
+  VALUE velx, vely;
   if (!rb_obj_is_kind_of(prev, cCvMat::rb_class()))
     rb_raise(rb_eTypeError, "argument 1 (previous image) should be %s", rb_class2name(cCvMat::rb_class()));
   velx = cCvMat::new_object(cvGetSize(CVARR(self)), CV_MAKETYPE(CV_32F, 1));

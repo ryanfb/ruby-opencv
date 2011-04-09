@@ -1564,5 +1564,72 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     assert_in_delta(0, mat_cv.match_shapes_i3(mat_cv_rotated), 0.00001)
     assert_in_delta(0.0033327, mat_cv.match_shapes_i3(mat_ov), 0.00001)
   end
+
+  def test_mean_shift
+    flunk('FIXME: CvMat#mean_shift is not tested yet.')
+  end
+
+  def test_cam_shift
+    flunk('FIXME: CvMat#cam_shift is not tested yet.')
+  end
+
+  def test_snake_image
+    mat = CvMat.load(FILENAME_LINES, CV_LOAD_IMAGE_GRAYSCALE)
+    num_points = 10
+    alpha = 0.45
+    beta = 0.35
+    gamma = 0.2
+    arr_alpha = [alpha] * num_points
+    arr_beta = [beta] * num_points
+    arr_gamma = [gamma] * num_points
+
+    size = CvSize.new(15, 15)
+    term_criteria = CvTermCriteria.new(100, 0.0)
+    
+    # initialize contours
+    points = []
+    center = CvPoint.new(mat.cols / 2, mat.rows / 2)
+    num_points.times { |i|
+      x = center.x * Math.cos(2 * Math::PI * i / num_points) + center.x
+      y = center.y * Math.sin(2 * Math::PI * i / num_points) + center.y
+      points << CvPoint.new(x, y)
+    }
+
+    # test snake_image
+    # calc_gradient = true
+    [mat.snake_image(points, alpha, beta, gamma, size, term_criteria),
+     mat.snake_image(points, alpha, beta, gamma, size, term_criteria, true),
+     mat.snake_image(points, arr_alpha, arr_beta, arr_gamma, size, term_criteria),
+     mat.snake_image(points, arr_alpha, arr_beta, arr_gamma, size, term_criteria, true)].each { |result|
+      expected_points = [[147, 101], [138, 144], [95, 142], [56, 123], [17, 104],
+                         [25, 62], [62, 40], [99, 18], [142, 18], [157, 59]]
+      assert_equal(num_points, result.size)
+      result.zip(expected_points) { |pair|
+        actual = pair[0]
+        expected = pair[1]
+        assert_equal(expected[0], actual.x)
+        assert_equal(expected[1], actual.y)
+      }
+    }
+
+    # calc_gradient = false
+    [mat.snake_image(points, alpha, beta, gamma, size, term_criteria, false),
+     mat.snake_image(points, arr_alpha, arr_beta, arr_gamma, size, term_criteria, false)].each { |result|
+      expected_points = [[149, 102], [139, 144], [95, 144], [56, 124], [17, 105],
+                         [25, 61], [63, 39], [101, 17], [145, 17], [158, 59]]
+      assert_equal(num_points, result.size)
+      result.zip(expected_points) { |pair|
+        actual = pair[0]
+        expected = pair[1]
+        assert_equal(expected[0], actual.x)
+        assert_equal(expected[1], actual.y)
+      }
+    }
+
+    # raise error
+    assert_raise(TypeError) {
+      mat.snake_image(points, alpha, arr_beta, gamma, size, term_criteria)
+    }
+  end
 end
 

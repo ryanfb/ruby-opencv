@@ -4785,7 +4785,7 @@ rb_cam_shift(VALUE self, VALUE window, VALUE criteria)
 
 /*
  * call-seq:
- *   snake_image(<i>points, alpha, beta, gamma, window, criteria[, calc_gradient = true]</i>) -> cvseq(pointset)
+ *   snake_image(<i>points, alpha, beta, gamma, window, criteria[, calc_gradient = true]</i>) -> array(pointset)
  *
  * Updates snake in order to minimize its total energy that is a sum of internal energy
  * that depends on contour shape (the smoother contour is, the smaller internal energy is)
@@ -4818,32 +4818,42 @@ VALUE
 rb_snake_image(int argc, VALUE *argv, VALUE self)
 {
   VALUE points, alpha, beta, gamma, window, criteria, calc_gradient, storage;
-  rb_scan_args(argc, argv, "43", &points, &alpha, &beta, &gamma, &window, &criteria, &calc_gradient);
+  rb_scan_args(argc, argv, "61", &points, &alpha, &beta, &gamma, &window, &criteria, &calc_gradient);
   CvPoint *pointset = 0;
   CvSeq *seq = 0;
   int length = CVPOINTS_FROM_POINT_SET(points, &pointset);
-  int coeff = (TYPE(alpha) == T_ARRAY || TYPE(beta) == T_ARRAY || TYPE(gamma) == T_ARRAY) ? CV_ARRAY : CV_VALUE;
+  int coeff = (TYPE(alpha) == T_ARRAY && TYPE(beta) == T_ARRAY && TYPE(gamma) == T_ARRAY) ? CV_ARRAY : CV_VALUE;
   float *a = 0, *b = 0, *c = 0;
   IplImage stub;
-  if(coeff == CV_VALUE){
-    a = ALLOC(float);
+  int i;
+  if (coeff == CV_VALUE) {
+    a = ALLOCA_N(float, 1);
     a[0] = (float)NUM2DBL(alpha);
-    b = ALLOC(float);
+    b = ALLOCA_N(float, 1);
     b[0] = (float)NUM2DBL(beta);
-    c = ALLOC(float);
+    c = ALLOCA_N(float, 1);
     c[0] = (float)NUM2DBL(gamma);
-  }else{ // CV_ARRAY
-    rb_raise(rb_eNotImpError, "");
-    // todo
   }
-  CvSize w = VALUE_TO_CVSIZE(window);
+  else { // CV_ARRAY
+    a = ALLOCA_N(float, length);
+    b = ALLOCA_N(float, length);
+    c = ALLOCA_N(float, length);
+    for (i = 0; i < length; ++i) {
+      a[i] = (float)NUM2DBL(RARRAY_PTR(alpha)[i]);
+      b[i] = (float)NUM2DBL(RARRAY_PTR(beta)[i]);
+      c[i] = (float)NUM2DBL(RARRAY_PTR(gamma)[i]);
+    }
+  }
+  CvSize win = VALUE_TO_CVSIZE(window);
   CvTermCriteria tc = VALUE_TO_CVTERMCRITERIA(criteria);
   cvSnakeImage(cvGetImage(CVARR(self), &stub), pointset, length,
-	       a, b, c, coeff, w, tc, IF_BOOL(calc_gradient, 1, 0, 1));
-  storage = cCvMemStorage::new_object();
-  seq = cvCreateSeq(CV_SEQ_POINT_SET, sizeof(CvSeq), sizeof(CvPoint), CVMEMSTORAGE(storage));
-  cvSeqPushMulti(seq, pointset, length);
-  return cCvSeq::new_sequence(cCvSeq::rb_class(), seq, cCvPoint::rb_class(), storage);
+	       a, b, c, coeff, win, tc, IF_BOOL(calc_gradient, 1, 0, 1));
+
+  VALUE result = rb_ary_new2(length);
+  for (i = 0; i < length; ++i)
+    rb_ary_push(result, cCvPoint::new_object(pointset[i]));
+
+  return result;
 }
 
 /*

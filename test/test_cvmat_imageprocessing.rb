@@ -1659,13 +1659,37 @@ class TestCvMat_imageprocessing < OpenCVTestCase
       assert_equal('36ccbcafcd58b4d07dab058fb60eede6', hash_img(vely))
     }
 
-    velx, vely = curr.optical_flow_hs(prev)
-    velx, vely = curr.optical_flow_hs(prev, velx, vely)
+    velx, vely = curr.optical_flow_hs(prev, nil, nil, :lambda => 0.001)
+    assert_equal('6a0133bcfa5057ef3d607429753d1f27', hash_img(velx))
+    assert_equal('dffbc0e267b08f3ca0098f27ecf61f6e', hash_img(vely))
+
+    velx, vely = curr.optical_flow_hs(prev, nil, nil, :criteria => CvTermCriteria.new(10, 0.01))
+    assert_equal('5dc2bb2aaee70383da8b12c99cbf388b', hash_img(velx))
+    assert_equal('b53cec7a363ba7491cde61540813b827', hash_img(vely))
+
+    prev_velx, prev_vely = curr.optical_flow_hs(prev)
+    velx, vely = curr.optical_flow_hs(prev, prev_velx, prev_vely)
     assert_equal('08b50f3d4cb4cbbe443fada293e6af02', hash_img(velx))
     assert_equal('4d302c8267388995ec85a4a26da5ffcc', hash_img(vely))
 
+    velx, vely = curr.optical_flow_hs(prev, prev_velx, prev_vely, :lambda => 0.001)
+    assert_equal('8bb08ee394719a70e24bfb8b428662cd', hash_img(velx))
+    assert_equal('f6c09e73160f0792e4527cdeea0e5573', hash_img(vely))
+
+    velx, vely = curr.optical_flow_hs(prev, prev_velx, prev_vely, :criteria => CvTermCriteria.new(10, 0.01))
+    assert_equal('c32a8483e3aec3cd6c33bceeefb8d2f2', hash_img(velx))
+    assert_equal('da33e266aece70ed69dcf074acd8fd4e', hash_img(vely))
+
     assert_raise(TypeError) {
       curr.optical_flow_hs('foobar')
+    }
+
+    assert_raise(ArgumentError) {
+      curr.optical_flow_hs(prev, 'foo', prev_vely)
+    }
+
+    assert_raise(ArgumentError) {
+      curr.optical_flow_hs(prev, prev_velx, 'bar')
     }
 
     assert_raise(ArgumentError) {
@@ -1693,6 +1717,10 @@ class TestCvMat_imageprocessing < OpenCVTestCase
     velx, vely = curr.optical_flow_lk(prev, CvSize.new(3, 3))
     assert_equal('bea0c4c2b4b89ed1bb5e9ef5b68b8759', hash_img(velx))
     assert_equal('aa643584d4eb175ab48896ff44646e06', hash_img(vely))
+
+    velx, vely = curr.optical_flow_lk(prev, CvSize.new(5, 5))
+    assert_equal('00d5889a8e62f7c5fc695ba3556cc374', hash_img(velx))
+    assert_equal('e7524c292e95e374fdb588f0b516938e', hash_img(vely))
 
     assert_raise(TypeError) {
       curr.optical_flow_lk('foobar', CvSize.new(3, 3))
@@ -1722,21 +1750,35 @@ class TestCvMat_imageprocessing < OpenCVTestCase
       assert_equal('08e73a6fa9af7684a5eddc4f30fd46e7', hash_img(velx))
       assert_equal('aabaf1b7393b950c2297f567b6f57d5d', hash_img(vely))
     }
+    
+    velx, vely = curr.optical_flow_bm(prev, nil, nil, :block_size => CvSize.new(3, 3))
+    assert_equal('fe540dc1f0aec2d70b774286eafa3602', hash_img(velx))
+    assert_equal('c7cc0f055fe4708396ba6046c0f1c6b5', hash_img(vely))
 
-    velx, vely = curr.optical_flow_bm(prev, nil, nil, :block_size => CvSize.new(3, 3),
-                                      :shift_size => CvSize.new(2, 2), :max_range => CvSize.new(3, 3));
-    assert_equal('ec6441e73edf2b2933165034362fc129', hash_img(velx))
-    assert_equal('88b965b0003514f4239b9e97179f9c1e', hash_img(vely))
+    velx, vely = curr.optical_flow_bm(prev, nil, nil, :shift_size => CvSize.new(2, 2))
+    assert_equal('00ad7854afb6eb4e46f0fb31c312c5eb', hash_img(velx))
+    assert_equal('33215ec0bfa7f6b1424d6fadb2a48e0f', hash_img(vely))
 
-    velx, vely = curr.optical_flow_bm(prev)
-    velx, vely = curr.optical_flow_bm(prev, velx, vely)
+    velx, vely = curr.optical_flow_bm(prev, nil, nil, :max_range => CvSize.new(5, 5))
+    assert_equal('ac10837eeee45fd80a24695cfaf9cfc7', hash_img(velx))
+    assert_equal('8c7011c26ac53eaf1fae1aa9324e5979', hash_img(vely))
+    
+    prev_velx, prev_vely = curr.optical_flow_bm(prev)
+    velx, vely = curr.optical_flow_bm(prev, prev_velx, prev_vely)
     assert_equal('6ad6b7a5c935379c0df4b9ec5666f3de', hash_img(velx))
     assert_equal('b317b0b9d4fdb0e5cd40beb0dd4143b4', hash_img(vely))
 
     assert_raise(ArgumentError) {
-      curr.optical_flow_bm(prev, 'foo', 'bar')
+      curr.optical_flow_bm(prev, 'foo', prev_vely)
     }
 
+    assert_raise(ArgumentError) {
+      curr.optical_flow_bm(prev, prev_velx, 'bar')
+    }
+
+    assert_raise(ArgumentError) {
+      curr.optical_flow_bm(prev, 'foo', 'bar')
+    }
   end
 end
 

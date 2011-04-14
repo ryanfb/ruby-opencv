@@ -4975,11 +4975,13 @@ rb_optical_flow_bm(int argc, VALUE *argv, VALUE self)
     block_size = BM_BLOCK_SIZE(options),
     shift_size = BM_SHIFT_SIZE(options),
     max_range  = BM_MAX_RANGE(options),
-    velocity_size = cvSize(image_size.width / block_size.width, image_size.height / block_size.height);
+    velocity_size = cvSize((image_size.width - block_size.width) / shift_size.width,
+			   (image_size.height - block_size.height) / shift_size.height);
   if (NIL_P(velx) && NIL_P(vely)) {
     velx = cCvMat::new_object(velocity_size, CV_MAKETYPE(CV_32F, 1));
     vely = cCvMat::new_object(velocity_size, CV_MAKETYPE(CV_32F, 1));
-  } else {
+  }
+  else {
     if (rb_obj_is_kind_of(velx, cCvMat::rb_class()) && rb_obj_is_kind_of(vely, cCvMat::rb_class()))
       use_previous = 1;
     else

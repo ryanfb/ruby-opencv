@@ -1698,5 +1698,45 @@ class TestCvMat_imageprocessing < OpenCVTestCase
       curr.optical_flow_lk('foobar', CvSize.new(3, 3))
     }
   end
+
+  def test_optical_flow_bm
+    size = 128
+    prev = create_cvmat(size, size, :cv8u, 1) { |j, i|
+      if ((i - (size / 2)) ** 2 ) + ((j - (size / 2)) ** 2 ) < size
+        CvColor::Black
+      else
+        CvColor::White
+      end
+    }
+    curr = create_cvmat(size, size, :cv8u, 1) { |j, i|
+      if ((i - (size / 2) - 10) ** 2) + ((j - (size / 2) - 7) ** 2 ) < size
+        CvColor::Black
+      else
+        CvColor::White
+      end
+    }
+
+    [curr.optical_flow_bm(prev, nil, nil, :block_size => CvSize.new(4, 4),
+                          :shift_size => CvSize.new(1, 1), :max_range => CvSize.new(4, 4)),
+     curr.optical_flow_bm(prev)].each { |velx, vely|
+      assert_equal('08e73a6fa9af7684a5eddc4f30fd46e7', hash_img(velx))
+      assert_equal('aabaf1b7393b950c2297f567b6f57d5d', hash_img(vely))
+    }
+
+    velx, vely = curr.optical_flow_bm(prev, nil, nil, :block_size => CvSize.new(3, 3),
+                                      :shift_size => CvSize.new(2, 2), :max_range => CvSize.new(3, 3));
+    assert_equal('ec6441e73edf2b2933165034362fc129', hash_img(velx))
+    assert_equal('88b965b0003514f4239b9e97179f9c1e', hash_img(vely))
+
+    velx, vely = curr.optical_flow_bm(prev)
+    velx, vely = curr.optical_flow_bm(prev, velx, vely)
+    assert_equal('6ad6b7a5c935379c0df4b9ec5666f3de', hash_img(velx))
+    assert_equal('b317b0b9d4fdb0e5cd40beb0dd4143b4', hash_img(vely))
+
+    assert_raise(ArgumentError) {
+      curr.optical_flow_bm(prev, 'foo', 'bar')
+    }
+
+  end
 end
 

@@ -263,6 +263,7 @@ VALUE rb_find_fundamental_mat_7point(VALUE klass, VALUE points1, VALUE points2);
 VALUE rb_find_fundamental_mat_8point(VALUE klass, VALUE points1, VALUE points2);
 VALUE rb_find_fundamental_mat_ransac(int argc, VALUE *argv, VALUE klass);
 VALUE rb_find_fundamental_mat_lmeds(int argc, VALUE *argv, VALUE klass);
+VALUE rb_find_fundamental_mat(int argc, VALUE *argv, VALUE klass);
 VALUE rb_compute_correspond_epilines(VALUE klass, VALUE points, VALUE which_image, VALUE fundamental_matrix);
   
 // HighGUI function

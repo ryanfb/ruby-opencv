@@ -256,6 +256,12 @@ define_ruby_module()
   rb_define_const(rb_module, "CV_CONTOURS_MATCH_I1", INT2FIX(CV_CONTOURS_MATCH_I1));
   rb_define_const(rb_module, "CV_CONTOURS_MATCH_I2", INT2FIX(CV_CONTOURS_MATCH_I2));
   rb_define_const(rb_module, "CV_CONTOURS_MATCH_I3", INT2FIX(CV_CONTOURS_MATCH_I3));
+
+  /* Fundamental matrix computing methods */
+  rb_define_const(rb_module, "CV_FM_7POINT", INT2FIX(CV_FM_7POINT));
+  rb_define_const(rb_module, "CV_FM_8POINT", INT2FIX(CV_FM_8POINT));
+  rb_define_const(rb_module, "CV_FM_RANSAC", INT2FIX(CV_FM_RANSAC));
+  rb_define_const(rb_module, "CV_FM_LMEDS", INT2FIX(CV_FM_LMEDS));
   
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */

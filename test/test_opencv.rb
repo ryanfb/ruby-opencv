@@ -93,6 +93,12 @@ class TestOpenCV < OpenCVTestCase
     assert_equal(1, CV_CONTOURS_MATCH_I1)
     assert_equal(2, CV_CONTOURS_MATCH_I2)
     assert_equal(3, CV_CONTOURS_MATCH_I3)
+
+    # Fundamental matrix computing methods
+    assert_equal(1, CV_FM_7POINT)
+    assert_equal(2, CV_FM_8POINT)
+    assert_equal(8, CV_FM_RANSAC)
+    assert_equal(4, CV_FM_LMEDS)
   end
 
   def test_symbols

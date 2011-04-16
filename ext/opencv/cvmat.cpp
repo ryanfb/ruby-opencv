@@ -402,6 +402,8 @@ void define_ruby_class()
 			     RUBY_METHOD_FUNC(rb_find_fundamental_mat_ransac), -1);
   rb_define_singleton_method(rb_klass, "find_fundamental_mat_lmeds",
 			     RUBY_METHOD_FUNC(rb_find_fundamental_mat_lmeds), -1);
+  rb_define_singleton_method(rb_klass, "find_fundamental_mat",
+			     RUBY_METHOD_FUNC(rb_find_fundamental_mat), -1);
   rb_define_singleton_method(rb_klass, "compute_correspond_epilines",
 			     RUBY_METHOD_FUNC(rb_compute_correspond_epilines), 3);
 
@@ -5110,6 +5112,58 @@ rb_find_fundamental_mat_lmeds(int argc, VALUE *argv, VALUE klass)
     return num == 0 ? Qnil : fundamental_matrix;
   }
 }
+
+/*
+ * call-seq:
+ *   CvMat.find_fundamental_mat(<i>points1, points2[,options = {}]</i>) -> fundamental_matrix(cvmat) or nil
+ *
+ * Calculates fundamental matrix from corresponding points.
+ * Size of the output fundamental matrix is 3x3 or 9x3 (7-point method may return up to 3 matrices)
+ *
+ * <i>points1</i> and <i>points2</i> should be 2xN, Nx2, 3xN or Nx3 1-channel, or 1xN or Nx1 multi-channel matrix.
+ * <i>method<i> is method for computing the fundamental matrix
+ *    - CV_FM_7POINT for a 7-point algorithm. (N = 7)
+ *    - CV_FM_8POINT for an 8-point algorithm. (N >= 8)
+ *    - CV_FM_RANSAC for the RANSAC algorithm. (N >= 8)
+ *    - CV_FM_LMEDS for the LMedS algorithm. (N >= 8)
+ * <i>option</i> should be Hash include these keys.
+ *   :with_status (true or false)
+ *      If set true, return fundamental_matrix and status. [fundamental_matrix, status]
+ *      Otherwise return fundamental matrix only(default).
+ *   :maximum_distance
+ *      The parameter is used for RANSAC.  It is the maximum distance from point to epipolar line in pixels, beyond which the point is considered an outlier and is not used for computing the final fundamental matrix. It can be set to something like 1-3, depending on the accuracy of the point localization, image resolution and the image noise.
+ *   :desirable_level
+ *      The optional output array of N elements, every element of which is set to 0 for outliers and to 1 for the other points. The array is computed only in RANSAC and LMedS methods. For other methods it is set to all 1's.
+ *
+ * note: <i>option</i>'s default value is CvMat::FIND_FUNDAMENTAL_MAT_OPTION.
+ */
+VALUE
+rb_find_fundamental_mat(int argc, VALUE *argv, VALUE klass)
+{
+  VALUE points1, points2, method, option, fundamental_matrix, status;
+  int num = 0;
+  rb_scan_args(argc, argv, "31", &points1, &points2, &method, &option);
+  option = FIND_FUNDAMENTAL_MAT_OPTION(option);
+  int fm_method = FIX2INT(method);
+  if (fm_method == CV_FM_7POINT)
+    fundamental_matrix = cCvMat::new_object(9, 3, CVMAT(points1)->type);
+  else
+    fundamental_matrix = cCvMat::new_object(3, 3, CVMAT(points1)->type);
+  if (FFM_WITH_STATUS(option)) {
+    CvMat *points1_ptr = CVMAT(points1);
+    int status_len = (points1_ptr->rows > points1_ptr->cols) ? points1_ptr->rows : points1_ptr->cols;
+    status = cCvMat::new_object(1, status_len, CV_8UC1);
+    num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix), fm_method,
+			       FFM_MAXIMUM_DISTANCE(option), FFM_DESIRABLE_LEVEL(option), CVMAT(status));
+    return num == 0 ? Qnil : rb_ary_new3(2, fundamental_matrix, status);
+  }
+  else {
+    num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix), fm_method,
+			       FFM_MAXIMUM_DISTANCE(option), FFM_DESIRABLE_LEVEL(option), NULL);
+    return num == 0 ? Qnil : fundamental_matrix;
+  }
+}
+
 
 /*
  * call-seq:

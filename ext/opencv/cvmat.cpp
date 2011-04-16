@@ -5079,14 +5079,11 @@ rb_find_fundamental_mat_ransac(int argc, VALUE *argv, VALUE klass)
  *   CvMat.find_fundamental_mat_lmeds(<i>points1, points2[,options = {}]</i>) -> fundamental_matrix(cvmat) or nil
  *
  * Calculates fundamental matrix from corresponding points, use for LMedS algorism.
- * <i>points1</i> and <i>points2</i> should be 2x7 or 3x7 single-channel, or 1x7 multi-channel matrix.
+ * <i>points1</i> and <i>points2</i> should be 2xN, Nx2, 3xN or Nx3 1-channel, or 1xN or Nx1 multi-channel matrix (N >= 8).
  * <i>option</i> should be Hash include these keys.
  *   :with_status (true or false)
  *      If set true, return fundamental_matrix and status. [fundamental_matrix, status]
  *      Otherwise return fundamental matrix only(default).
- *   :maximum_distance
- *      The maximum distance from point to epipolar line in pixels, beyond which the point is considered an outlier
- *      and is not used for computing the final fundamental matrix. Usually it is set to 0.5 or 1.0.
  *   :desirable_level
  *      It denotes the desirable level of confidence that the matrix is correct.
  *
@@ -5099,13 +5096,17 @@ rb_find_fundamental_mat_lmeds(int argc, VALUE *argv, VALUE klass)
   int num = 0;
   rb_scan_args(argc, argv, "21", &points1, &points2, &option);
   option = FIND_FUNDAMENTAL_MAT_OPTION(option);
-  fundamental_matrix = cCvMat::new_object(3, 3, CV_32FC1);
+  fundamental_matrix = cCvMat::new_object(3, 3, CVMAT(points1)->type);
   if(FFM_WITH_STATUS(option)){
-    status = cCvMat::new_object(cvGetSize(CVARR(points1)), CV_8UC1);
-    num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix), CV_FM_LMEDS, FFM_MAXIMUM_DISTANCE(option), FFM_DESIRABLE_LEVEL(option), CVMAT(status));
+    CvMat *points1_ptr = CVMAT(points1);
+    int status_len = (points1_ptr->rows > points1_ptr->cols) ? points1_ptr->rows : points1_ptr->cols;
+    status = cCvMat::new_object(1, status_len, CV_8UC1);
+    num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix), CV_FM_LMEDS,
+			       0, FFM_DESIRABLE_LEVEL(option), CVMAT(status));
     return num == 0 ? Qnil : rb_ary_new3(2, fundamental_matrix, status);
   }else{
-    num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix), CV_FM_LMEDS, FFM_MAXIMUM_DISTANCE(option), FFM_DESIRABLE_LEVEL(option), NULL);
+    num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix), CV_FM_LMEDS,
+			       0, FFM_DESIRABLE_LEVEL(option), NULL);
     return num == 0 ? Qnil : fundamental_matrix;
   }
 }

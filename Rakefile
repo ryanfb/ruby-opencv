@@ -16,6 +16,7 @@ OpenCV wrapper for Ruby
 EOF
   p.rubyforge_name = 'opencv'
   p.developer('lsxi', 'masakazu.yonekura@gmail.com')
+  p.developer('ser1zw', '')
   p.developer('pcting', 'pcting@gmail.com')
 
   p.need_tar = false

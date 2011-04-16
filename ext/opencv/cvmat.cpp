@@ -394,11 +394,16 @@ void define_ruby_class()
   rb_define_method(rb_klass, "optical_flow_lk", RUBY_METHOD_FUNC(rb_optical_flow_lk), 2);
   rb_define_method(rb_klass, "optical_flow_bm", RUBY_METHOD_FUNC(rb_optical_flow_bm), -1);
 
-  rb_define_singleton_method(rb_klass, "find_fundamental_mat_7point", RUBY_METHOD_FUNC(rb_find_fundamental_mat_7point), -1);
-  rb_define_singleton_method(rb_klass, "find_fundamental_mat_8point", RUBY_METHOD_FUNC(rb_find_fundamental_mat_8point), -1);
-  rb_define_singleton_method(rb_klass, "find_fundamental_mat_ransac", RUBY_METHOD_FUNC(rb_find_fundamental_mat_ransac), -1);
-  rb_define_singleton_method(rb_klass, "find_fundamental_mat_lmeds", RUBY_METHOD_FUNC(rb_find_fundamental_mat_lmeds), -1);
-  rb_define_singleton_method(rb_klass, "compute_correspond_epilines", RUBY_METHOD_FUNC(rb_compute_correspond_epilines), 3);
+  rb_define_singleton_method(rb_klass, "find_fundamental_mat_7point",
+			     RUBY_METHOD_FUNC(rb_find_fundamental_mat_7point), 2);
+  rb_define_singleton_method(rb_klass, "find_fundamental_mat_8point",
+			     RUBY_METHOD_FUNC(rb_find_fundamental_mat_8point), 2);
+  rb_define_singleton_method(rb_klass, "find_fundamental_mat_ransac",
+			     RUBY_METHOD_FUNC(rb_find_fundamental_mat_ransac), -1);
+  rb_define_singleton_method(rb_klass, "find_fundamental_mat_lmeds",
+			     RUBY_METHOD_FUNC(rb_find_fundamental_mat_lmeds), -1);
+  rb_define_singleton_method(rb_klass, "compute_correspond_epilines",
+			     RUBY_METHOD_FUNC(rb_compute_correspond_epilines), 3);
 
   rb_define_method(rb_klass, "save_image", RUBY_METHOD_FUNC(rb_save_image), 1);
 }
@@ -4995,66 +5000,38 @@ rb_optical_flow_bm(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
- *   CvMat.find_fundamental_mat_7point(<i>points1, points2[,options = {}]</i>) -> fundamental_matrix(cvmat) or nil
+ *   CvMat.find_fundamental_mat_7point(<i>points1, points2</i>) -> fundamental_matrix(cvmat) or nil
  *
  * Calculates fundamental matrix from corresponding points, use for 7-point algorism. Return fundamental matrix(9x3).
  * <i>points1</i> and <i>points2</i> should be 2x7 or 3x7 single-channel, or 1x7 multi-channel matrix.
- * <i>option</i> should be Hash include these keys.
- *   :with_status (true or false)
- *      If set true, return fundamental_matrix and status. [fundamental_matrix, status]
- *      Otherwise return fundamental matrix only(default).
  *
- * note: <i>option</i>'s default value is CvMat::FIND_FUNDAMENTAL_MAT_OPTION.
  * note: 9x3 fundamental matrix means 3x3 three fundamental matrices.
  */
 VALUE
-rb_find_fundamental_mat_7point(int argc, VALUE *argv, VALUE klass)
+rb_find_fundamental_mat_7point(VALUE klass, VALUE points1, VALUE points2)
 {
-  VALUE points1, points2, option, fundamental_matrix, status;
-  int num = 0;
-  rb_scan_args(argc, argv, "21", &points1, &points2, &option);
-  option = FIND_FUNDAMENTAL_MAT_OPTION(option);
-  fundamental_matrix = cCvMat::new_object(9, 3, CV_32FC1);
-  if(FFM_WITH_STATUS(option)){
-    status = cCvMat::new_object(cvGetSize(CVARR(points1)), CV_8UC1);
-    num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix), CV_FM_7POINT, 0, 0, CVMAT(status));
-    return rb_ary_new3(2, fundamental_matrix, status);
-  }else{
-    num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix), CV_FM_7POINT, 0, 0, NULL);
-    return fundamental_matrix;
-  }
+  VALUE fundamental_matrix = cCvMat::new_object(9, 3, CVMAT(points1)->type);
+  int num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix),
+				 CV_FM_7POINT, 0, 0, NULL);
+  return (num == 0) ? Qnil : fundamental_matrix;
 }
 
 
 /*
  * call-seq:
- *   CvMat.find_fundamental_mat_8point(<i>points1, points2[,options = {}]</i>) -> fundamental_matrix(cvmat) or nil
+ *   CvMat.find_fundamental_mat_8point(<i>points1, points2</i>) -> fundamental_matrix(cvmat) or nil
  *
  * Calculates fundamental matrix from corresponding points, use for 8-point algorism.
- * <i>points1</i> and <i>points2</i> should be 2x7 or 3x7 single-channel, or 1x7 multi-channel matrix.
- * <i>option</i> should be Hash include these keys.
- *   :with_status (true or false)
- *      If set true, return fundamental_matrix and status. [fundamental_matrix, status]
- *      Otherwise return fundamental matrix only(default).
+ * <i>points1</i> and <i>points2</i> should be 2x8 or 3x8 single-channel, or 1x8 multi-channel matrix.
  *
- * note: <i>option</i>'s default value is CvMat::FIND_FUNDAMENTAL_MAT_OPTION.
  */
 VALUE
-rb_find_fundamental_mat_8point(int argc, VALUE *argv, VALUE klass)
+rb_find_fundamental_mat_8point(VALUE klass, VALUE points1, VALUE points2)
 {
-  VALUE points1, points2, option, fundamental_matrix, status;
-  int num = 0;
-  rb_scan_args(argc, argv, "21", &points1, &points2, &option);
-  option = FIND_FUNDAMENTAL_MAT_OPTION(option);
-  fundamental_matrix = cCvMat::new_object(3, 3, CV_32FC1);
-  if(FFM_WITH_STATUS(option)){
-    status = cCvMat::new_object(cvGetSize(CVARR(points1)), CV_8UC1);
-    num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix), CV_FM_8POINT, 0, 0, CVMAT(status));
-    return num == 0 ? Qnil : rb_ary_new3(2, fundamental_matrix, status);
-  }else{
-    num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix), CV_FM_8POINT, 0, 0, NULL);
-    return num == 0 ? Qnil : fundamental_matrix;
-  }
+  VALUE fundamental_matrix = cCvMat::new_object(3, 3, CVMAT(points1)->type);
+  int num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix),
+				 CV_FM_8POINT, 0, 0, NULL);
+  return (num == 0) ? Qnil : fundamental_matrix;
 }
 
 /*

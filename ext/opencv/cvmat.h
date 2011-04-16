@@ -259,8 +259,8 @@ VALUE rb_optical_flow_bm(int argc, VALUE *argv, VALUE self);
 VALUE rb_optical_flow_pyr_lk(int argc, VALUE *argv, VALUE self);
 
 /* Epipolar Geometory */
-VALUE rb_find_fundamental_mat_7point(int argc, VALUE *argv, VALUE klass);
-VALUE rb_find_fundamental_mat_8point(int argc, VALUE *argv, VALUE klass);
+VALUE rb_find_fundamental_mat_7point(VALUE klass, VALUE points1, VALUE points2);
+VALUE rb_find_fundamental_mat_8point(VALUE klass, VALUE points1, VALUE points2);
 VALUE rb_find_fundamental_mat_ransac(int argc, VALUE *argv, VALUE klass);
 VALUE rb_find_fundamental_mat_lmeds(int argc, VALUE *argv, VALUE klass);
 VALUE rb_compute_correspond_epilines(VALUE klass, VALUE points, VALUE which_image, VALUE fundamental_matrix);

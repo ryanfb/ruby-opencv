@@ -1846,6 +1846,96 @@ class TestCvMat < OpenCVTestCase
   def test_mahalonobis
     flunk('CvMat#mahalonobis is not implemented yet')
   end
+
+  def test_find_fundamental_mat_7point
+    points1 = [[488.362, 169.911],
+               [449.488, 174.44],
+               [408.565, 179.669],
+               [364.512, 184.56],
+               [491.483, 122.366],
+               [451.512, 126.56],
+               [409.502, 130.342]]
+    points2 =  [[526.605, 213.332],
+                [470.485, 207.632],
+                [417.5, 201.0],
+                [367.485, 195.632],
+                [530.673, 156.417],
+                [473.749, 151.39],
+                [419.503, 146.656]]
+
+    mat1 = CvMat.new(7, 2, :cv64f, 1)
+    mat2 = CvMat.new(7, 2, :cv64f, 1)
+
+    points1.each_with_index { |pt, i|
+      mat1[i, 0] = CvScalar.new(pt[0])
+      mat1[i, 1] = CvScalar.new(pt[1])
+    }
+    points2.each_with_index { |pt, i|
+      mat2[i, 0] = CvScalar.new(pt[0])
+      mat2[i, 1] = CvScalar.new(pt[1])
+    }
+
+    f_mat = CvMat.find_fundamental_mat_7point(mat1, mat2)
+
+    assert_equal(9, f_mat.rows)
+    assert_equal(3, f_mat.cols)
+
+    expected = [0.000009, 0.000029, -0.010343,
+                -0.000033, 0.000000, 0.014590,
+                0.004415, -0.013420, 1.000000,
+                0.000000, 0.000001, -0.000223,
+                -0.000001, 0.000036, -0.005309,
+                -0.000097, -0.006463, 1.000000,
+                0.000002, 0.000005, -0.001621,
+                -0.000005, 0.000031, -0.002559,
+                0.000527, -0.007424, 1.000000]
+    expected.each_with_index { |val, i|
+      assert_in_delta(val, f_mat[i][0], 1.0e-5)
+    }
+  end
+
+  def test_find_fundamental_mat_8point
+    points1 = [[488.362, 169.911],
+               [449.488, 174.44],
+               [408.565, 179.669],
+               [364.512, 184.56],
+               [491.483, 122.366],
+               [451.512, 126.56],
+               [409.502, 130.342],
+               [365.5, 134]]
+    points2 =  [[526.605, 213.332],
+                [470.485, 207.632],
+                [417.5, 201.0],
+                [367.485, 195.632],
+                [530.673, 156.417],
+                [473.749, 151.39],
+                [419.503, 146.656],
+                [368.669, 142.565]]
+
+    mat1 = CvMat.new(8, 2, :cv64f, 1)
+    mat2 = CvMat.new(8, 2, :cv64f, 1)
+
+    points1.each_with_index { |pt, i|
+      mat1[i, 0] = CvScalar.new(pt[0])
+      mat1[i, 1] = CvScalar.new(pt[1])
+    }
+    points2.each_with_index { |pt, i|
+      mat2[i, 0] = CvScalar.new(pt[0])
+      mat2[i, 1] = CvScalar.new(pt[1])
+    }
+
+    f_mat = CvMat.find_fundamental_mat_8point(mat1, mat2)
+
+    assert_equal(3, f_mat.rows)
+    assert_equal(3, f_mat.cols)
+
+    expected = [0.000001, 0.000004, -0.001127,
+                -0.000005, 0.000038, -0.003778,
+                0.000819, -0.008325, 1.000000]
+    expected.each_with_index { |val, i|
+      assert_in_delta(val, f_mat[i][0], 1.0e-5)
+    }
+  end
 end
 
 

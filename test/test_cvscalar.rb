@@ -67,9 +67,9 @@ class TestCvScalar < OpenCVTestCase
     }
     mat = CvScalar.new(0.1).sub(mat, mask)
 
-    [CvMat.new(5, 5, :cv16u, 1), CvMat.new(5, 5, :cv8u, 3)].each { |mask|
+    [CvMat.new(5, 5, :cv16u, 1), CvMat.new(5, 5, :cv8u, 3)].each { |msk|
       assert_raise(TypeError) {
-        CvScalar.new.sub(mat, mask)
+        CvScalar.new.sub(mat, msk)
       }
     }
   end

@@ -104,8 +104,8 @@ class TestPreliminary < OpenCVTestCase
       }
     }
 
-    mat = create_cvmat(2, 3, :cv16u, 3) { |j, i, c|
-      n = j + i + c
+    mat = create_cvmat(2, 3, :cv16u, 3) { |j, i, cnt|
+      n = j + i + cnt
       CvScalar.new(n, n, n, 0)
     }
     assert_equal(2, mat.height)

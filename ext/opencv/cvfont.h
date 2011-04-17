@@ -24,7 +24,7 @@ __NAMESPACE_BEGIN_CVFONT
 #define FO_VSCALE(op) NUM2DBL(rb_hash_aref(op, ID2SYM(rb_intern("vscale"))))
 #define FO_SHEAR(op) NUM2DBL(rb_hash_aref(op, ID2SYM(rb_intern("shear"))))
 #define FO_THICKNESS(op) FIX2INT(rb_hash_aref(op, ID2SYM(rb_intern("thickness"))))
-#define FO_LINE_TYPE(op) FIX2INT(rb_hash_aref(op, ID2SYM(rb_intern("line_type"))) == ID2SYM("aa") ? INT2FIX(CV_AA) : rb_hash_aref(op, ID2SYM(rb_intern("line_type"))))
+#define FO_LINE_TYPE(op) FIX2INT(rb_hash_aref(op, ID2SYM(rb_intern("line_type"))))
 
 
 VALUE rb_class();

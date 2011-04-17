@@ -89,7 +89,7 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
   int _cols = NUM2INT(cols);
   int _rows = NUM2INT(rows);
   int num_values;
-  int *_values;
+  int *_values = NULL;
   const int INVALID_SHAPE = -1;
   
   shape_type = CVMETHOD("STRUCTURING_ELEMENT_SHAPE", shape, INVALID_SHAPE);

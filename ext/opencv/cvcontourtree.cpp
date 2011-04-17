@@ -78,7 +78,9 @@ rb_contour(int argc, VALUE *argv, VALUE self)
 {
   VALUE criteria, storage;
   rb_scan_args(argc, argv, "01", &criteria);
-  CvSeq *contour = cvContourFromContourTree(CVCONTOURTREE(self), CVMEMSTORAGE(storage), VALUE_TO_CVTERMCRITERIA(criteria));
+  storage = cCvMemStorage::new_object();
+  CvSeq *contour = cvContourFromContourTree(CVCONTOURTREE(self), CVMEMSTORAGE(storage),
+					    VALUE_TO_CVTERMCRITERIA(criteria));
   return cCvSeq::new_sequence(cCvContour::rb_class(), contour, cCvPoint::rb_class(), storage);
 }
 

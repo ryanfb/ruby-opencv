@@ -5012,7 +5012,7 @@ rb_optical_flow_bm(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_find_fundamental_mat_7point(VALUE klass, VALUE points1, VALUE points2)
 {
-  VALUE fundamental_matrix = cCvMat::new_object(9, 3, CVMAT(points1)->type);
+  VALUE fundamental_matrix = cCvMat::new_object(9, 3, CV_MAT_DEPTH(CVMAT(points1)->type));
   int num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix),
 				 CV_FM_7POINT, 0, 0, NULL);
   return (num == 0) ? Qnil : fundamental_matrix;
@@ -5030,7 +5030,7 @@ rb_find_fundamental_mat_7point(VALUE klass, VALUE points1, VALUE points2)
 VALUE
 rb_find_fundamental_mat_8point(VALUE klass, VALUE points1, VALUE points2)
 {
-  VALUE fundamental_matrix = cCvMat::new_object(3, 3, CVMAT(points1)->type);
+  VALUE fundamental_matrix = cCvMat::new_object(3, 3, CV_MAT_DEPTH(CVMAT(points1)->type));
   int num = cvFindFundamentalMat(CVMAT(points1), CVMAT(points2), CVMAT(fundamental_matrix),
 				 CV_FM_8POINT, 0, 0, NULL);
   return (num == 0) ? Qnil : fundamental_matrix;
@@ -5061,7 +5061,7 @@ rb_find_fundamental_mat_ransac(int argc, VALUE *argv, VALUE klass)
   int num = 0;
   rb_scan_args(argc, argv, "21", &points1, &points2, &option);
   option = FIND_FUNDAMENTAL_MAT_OPTION(option);
-  fundamental_matrix = cCvMat::new_object(3, 3, CVMAT(points1)->type);
+  fundamental_matrix = cCvMat::new_object(3, 3, CV_MAT_DEPTH(CVMAT(points1)->type));
   if(FFM_WITH_STATUS(option)){
     CvMat *points1_ptr = CVMAT(points1);
     int status_len = (points1_ptr->rows > points1_ptr->cols) ? points1_ptr->rows : points1_ptr->cols;
@@ -5098,7 +5098,7 @@ rb_find_fundamental_mat_lmeds(int argc, VALUE *argv, VALUE klass)
   int num = 0;
   rb_scan_args(argc, argv, "21", &points1, &points2, &option);
   option = FIND_FUNDAMENTAL_MAT_OPTION(option);
-  fundamental_matrix = cCvMat::new_object(3, 3, CVMAT(points1)->type);
+  fundamental_matrix = cCvMat::new_object(3, 3, CV_MAT_DEPTH(CVMAT(points1)->type));
   if(FFM_WITH_STATUS(option)){
     CvMat *points1_ptr = CVMAT(points1);
     int status_len = (points1_ptr->rows > points1_ptr->cols) ? points1_ptr->rows : points1_ptr->cols;
@@ -5146,9 +5146,9 @@ rb_find_fundamental_mat(int argc, VALUE *argv, VALUE klass)
   option = FIND_FUNDAMENTAL_MAT_OPTION(option);
   int fm_method = FIX2INT(method);
   if (fm_method == CV_FM_7POINT)
-    fundamental_matrix = cCvMat::new_object(9, 3, CVMAT(points1)->type);
+    fundamental_matrix = cCvMat::new_object(9, 3, CV_MAT_DEPTH(CVMAT(points1)->type));
   else
-    fundamental_matrix = cCvMat::new_object(3, 3, CVMAT(points1)->type);
+    fundamental_matrix = cCvMat::new_object(3, 3, CV_MAT_DEPTH(CVMAT(points1)->type));
   if (FFM_WITH_STATUS(option)) {
     CvMat *points1_ptr = CVMAT(points1);
     int status_len = (points1_ptr->rows > points1_ptr->cols) ? points1_ptr->rows : points1_ptr->cols;

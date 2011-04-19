@@ -5185,16 +5185,18 @@ VALUE
 rb_compute_correspond_epilines(VALUE klass, VALUE points, VALUE which_image, VALUE fundamental_matrix)
 {
   VALUE correspondent_lines;
-  CvSize size = cvGetSize(CVARR(points));
+  CvMat* points_ptr = CVMAT(points);
   int n;
-  if(size.width <= 3 && size.height >= 7)
-    n = size.height;
-  else if(size.height <= 3 && size.width >= 7)
-    n = size.width;
+  if(points_ptr->cols <= 3 && points_ptr->rows >= 7)
+    n = points_ptr->rows;
+  else if(points_ptr->rows <= 3 && points_ptr->cols >= 7)
+    n = points_ptr->cols;
   else
-    rb_raise(rb_eTypeError, "input points should 2xN, Nx2 or 3xN, Nx3 matrix(N >= 7).");
-  correspondent_lines = cCvMat::new_object(n, 3, CV_32F);
-  cvComputeCorrespondEpilines(CVMAT(points), FIX2INT(which_image), CVMAT(fundamental_matrix), CVMAT(correspondent_lines));
+    rb_raise(rb_eArgError, "input points should 2xN, Nx2 or 3xN, Nx3 matrix(N >= 7).");
+  
+  correspondent_lines = cCvMat::new_object(n, 3, CV_MAT_DEPTH(points_ptr->type));
+  cvComputeCorrespondEpilines(points_ptr, FIX2INT(which_image), CVMAT(fundamental_matrix),
+			      CVMAT(correspondent_lines));
   return correspondent_lines;
 }
 

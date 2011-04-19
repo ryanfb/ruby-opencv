@@ -2121,7 +2121,7 @@ class TestCvMat < OpenCVTestCase
 
     # default
     [CvMat.find_fundamental_mat_lmeds(mat1, mat2, :with_status => false,
-                                       :maximum_distance => 1.0, :desirable_level => 0.99),
+                                      :maximum_distance => 1.0, :desirable_level => 0.99),
      CvMat.find_fundamental_mat_lmeds(mat1, mat2)].each { |f_mat|
       assert_equal(3, f_mat.rows)
       assert_equal(3, f_mat.cols)
@@ -2271,7 +2271,7 @@ class TestCvMat < OpenCVTestCase
     }
 
     [CvMat.find_fundamental_mat(mat1, mat2, CV_FM_RANSAC, :with_status => false,
-                                       :maximum_distance => 1.0, :desirable_level => 0.99),
+                                :maximum_distance => 1.0, :desirable_level => 0.99),
      CvMat.find_fundamental_mat(mat1, mat2, CV_FM_RANSAC)].each { |f_mat|
       assert_equal(3, f_mat.rows)
       assert_equal(3, f_mat.cols)
@@ -2317,7 +2317,7 @@ class TestCvMat < OpenCVTestCase
     }
 
     [CvMat.find_fundamental_mat(mat1, mat2, CV_FM_LMEDS, :with_status => false,
-                                       :maximum_distance => 1.0, :desirable_level => 0.99),
+                                :maximum_distance => 1.0, :desirable_level => 0.99),
      CvMat.find_fundamental_mat(mat1, mat2, CV_FM_LMEDS)].each { |f_mat|
       assert_equal(3, f_mat.rows)
       assert_equal(3, f_mat.cols)
@@ -2347,6 +2347,98 @@ class TestCvMat < OpenCVTestCase
     expected_status.each_with_index { |val, i|
       assert_in_delta(val, status[i][0], 1.0e-5)
     }
+  end
+
+  def test_compute_correspond_epilines
+    test_func = lambda { |mat1, mat2, f_mat_arr, num_points|
+      f_mat = CvMat.new(3, 3, CV_64F, 1)
+      f_mat_arr.each_with_index { |a, i|
+        f_mat[i] = CvScalar.new(a)
+      }
+      
+      line = CvMat.compute_correspond_epilines(mat1, 1, f_mat)
+      assert_equal(num_points, line.rows)
+      assert_equal(3, line.cols)
+      
+      expected = [[-0.221257, -0.975215, 6.03758],
+                  [0.359337, -0.933208, -3.61419],
+                  [0.958304, -0.28575, -15.0573],
+                  [0.73415, -0.678987, -10.4037],
+                  [0.0208539, -0.999783, 2.11625],
+                  [0.284451, -0.958691, -2.31993],
+                  [0.624647, -0.780907, -8.35208],
+                  [0.618494, -0.785789, -8.23888],
+                  [0.766694, -0.642012, -11.0298],
+                  [0.700293, -0.713855, -9.76109]]
+      
+      expected.size.times { |i|
+        assert_in_delta(expected[i][0], line[i, 0][0], 1.0e-3)
+        assert_in_delta(expected[i][1], line[i, 1][0], 1.0e-3)
+        assert_in_delta(expected[i][2], line[i, 2][0], 1.0e-3)
+      }
+
+      assert_raise(ArgumentError) {
+        m = CvMat.new(10, 10, CV_32F, 1)
+        CvMat.compute_correspond_epilines(m, 1, f_mat)
+      }
+    }
+
+    num_points = 10
+    # input points are Nx2 matrix
+    points1 =[[17, 175],
+              [370, 24],
+              [192, 456],
+              [614, 202],
+              [116, 111],
+              [305, 32],
+              [249, 268],
+              [464, 157],
+              [259, 333],
+              [460, 224]]
+
+    points2 = [[295, 28],
+               [584, 221],
+               [67, 172],
+               [400, 443],
+               [330, 9],
+               [480, 140],
+               [181, 140],
+               [350, 265],
+               [176, 193],
+               [333, 313]]
+
+    mat1 = CvMat.new(num_points, 2, CV_64F, 1)
+    mat2 = CvMat.new(num_points, 2, CV_64F, 1)
+    points1.flatten.each_with_index { |pt, i|
+      mat1[i] = CvScalar.new(pt)
+    }
+    points2.flatten.each_with_index { |pt, i|
+      mat2[i] = CvScalar.new(pt)
+    }
+
+    # pre computed f matrix from points1, points2
+    # f_mat = CvMat.find_fundamental_mat(mat1, mat2, CV_FM_LMEDS)
+    f_mat_arr = [0.000266883, 0.000140277, -0.0445223,
+                 -0.00012592, 0.000245543, -0.108868,
+                 -0.00407942, -0.00291097, 1]
+    test_func.call(mat1, mat2, f_mat_arr, num_points)
+
+    # input points are 2xN matrix
+    points1 = [[17, 370, 192, 614, 116, 305, 249, 464, 259, 460],
+               [175, 24, 456, 202, 111, 32, 268, 157, 333, 224]]
+
+    points2 = [[295, 584, 67, 400, 330, 480, 181, 350, 176, 333],
+               [28, 221, 172, 443, 9, 140, 140, 265, 193, 313]]
+
+    mat1 = CvMat.new(2, num_points, CV_64F, 1)
+    mat2 = CvMat.new(2, num_points, CV_64F, 1)
+    points1.flatten.each_with_index { |pt, i|
+      mat1[i] = CvScalar.new(pt)
+    }
+    points2.flatten.each_with_index { |pt, i|
+      mat2[i] = CvScalar.new(pt)
+    }
+    test_func.call(mat1, mat2, f_mat_arr, num_points)
   end
 end
 

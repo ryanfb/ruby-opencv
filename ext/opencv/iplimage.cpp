@@ -223,6 +223,8 @@ rb_reset_coi(VALUE self)
  *   IplImage.smoothness(<i>lowFreqRatio, blankDensity, messyDensity, highFreqRatio</i>) -> [ symbol, float, float ]
  *
  * Determines if the image's smoothness is either, :smooth, :messy, or :blank.
+ *
+ * Original Author: yuhanz@gmail.com
  */
 VALUE
 rb_smoothness(int argc, VALUE *argv, VALUE self)

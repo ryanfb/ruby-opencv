@@ -1,3 +1,9 @@
+= ** THIS GEM/REPO IS NO LONGER MAINTAINED **
+
+The last release of the `opencv` gem was on July 25th, 2009: https://rubygems.org/gems/opencv/versions/0.0.7
+
+Please use an alternative OpenCV wrapper.
+
 = OpenCV
 
 The initial Open Computer Vision library was originally developed by Intel 

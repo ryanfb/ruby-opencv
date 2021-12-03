@@ -2,7 +2,7 @@
 
 The last release of the `opencv` gem was on July 25th, 2009: https://rubygems.org/gems/opencv/versions/0.0.7
 
-Please use an alternative OpenCV wrapper.
+Please use an alternative OpenCV wrapper, such as `ruby-opencv`: https://github.com/ruby-opencv/ruby-opencv/
 
 = OpenCV
 

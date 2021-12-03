@@ -176,9 +176,9 @@ __NAMESPACE_END_POINT_SET
 int
 CVPOINTS_FROM_POINT_SET(VALUE object, CvPoint **pointset)
 {
-  VALUE storage;
-  CvSeq *seq = 0;
-  CvPoint2D32f p32;
+  //VALUE storage;
+  //CvSeq *seq = 0;
+  //CvPoint2D32f p32;
   if(rb_obj_is_kind_of(object, cCvSeq::rb_class())){
     if(CV_IS_SEQ_POINT_SET(CVSEQ(object))){ 
       *pointset = (CvPoint*)cvCvtSeqToArray(CVSEQ(object), cvAlloc(CVSEQ(object)->total * CVSEQ(object)->elem_size));

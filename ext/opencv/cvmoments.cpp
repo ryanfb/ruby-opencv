@@ -16,12 +16,6 @@
 __NAMESPACE_BEGIN_OPENCV
 __NAMESPACE_BEGIN_CVMOMENTS
 
-#define DEFINE_CVMOMENTS_ACCESSOR(elem) \
-  rb_define_method(rb_klass, #elem, RUBY_METHOD_FUNC(rb_##elem), 0)
-
-#define CVMOMENTS_ACCESSOR(elem) \
-  VALUE rb_##elem(VALUE self) { return DBL2NUM(CVMOMENTS(self)->elem); }
-
 VALUE rb_klass;
 
 VALUE
@@ -50,28 +44,8 @@ define_ruby_class()
   rb_define_method(rb_klass, "normalized_central", RUBY_METHOD_FUNC(rb_normalized_central), 2);
   rb_define_method(rb_klass, "hu", RUBY_METHOD_FUNC(rb_hu), 0);     
   rb_define_method(rb_klass, "gravity_center", RUBY_METHOD_FUNC(rb_gravity_center), 0);
+  rb_define_alias(rb_klass, "center", "gravity_center");
   rb_define_method(rb_klass, "angle", RUBY_METHOD_FUNC(rb_angle), 0);
-
-  DEFINE_CVMOMENTS_ACCESSOR(m00);
-  DEFINE_CVMOMENTS_ACCESSOR(m10);
-  DEFINE_CVMOMENTS_ACCESSOR(m01);
-  DEFINE_CVMOMENTS_ACCESSOR(m20);
-  DEFINE_CVMOMENTS_ACCESSOR(m11);
-  DEFINE_CVMOMENTS_ACCESSOR(m02);
-  DEFINE_CVMOMENTS_ACCESSOR(m30);
-  DEFINE_CVMOMENTS_ACCESSOR(m21);
-  DEFINE_CVMOMENTS_ACCESSOR(m12);
-  DEFINE_CVMOMENTS_ACCESSOR(m03);
-
-  DEFINE_CVMOMENTS_ACCESSOR(mu20);
-  DEFINE_CVMOMENTS_ACCESSOR(mu11);
-  DEFINE_CVMOMENTS_ACCESSOR(mu02);
-  DEFINE_CVMOMENTS_ACCESSOR(mu30);
-  DEFINE_CVMOMENTS_ACCESSOR(mu21);
-  DEFINE_CVMOMENTS_ACCESSOR(mu12);
-  DEFINE_CVMOMENTS_ACCESSOR(mu03);
-
-  DEFINE_CVMOMENTS_ACCESSOR(inv_sqrt_m00);
 }
 
 VALUE
@@ -94,36 +68,14 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
 {
   VALUE src, is_binary;
   rb_scan_args(argc, argv, "02", &src, &is_binary);
-  if (!NIL_P(src)) {
-    if (rb_obj_is_kind_of(src, cCvMat::rb_class()) || rb_obj_is_kind_of(src, cCvSeq::rb_class()))
-      cvMoments(CVARR(src), CVMOMENTS(self), TRUE_OR_FALSE(is_binary, 0));
-    else
-      rb_raise(rb_eTypeError, "argument 1 (src) should be %s or %s.",
-	       rb_class2name(cCvMat::rb_class()), rb_class2name(cCvSeq::rb_class()));
-  }
+  if (NIL_P(src))
+    ;
+  else if (rb_obj_is_kind_of(src, cCvMat::rb_class()) || rb_obj_is_kind_of(src, cCvSeq::rb_class()))
+    cvMoments(CVARR(src), CVMOMENTS(self), TRUE_OR_FALSE(is_binary, 0));
+  else
+    rb_raise(rb_eTypeError, "argument 1 (src) should be %s or %s.", rb_class2name(cCvMat::rb_class()), rb_class2name(cCvSeq::rb_class()));
   return self;      
 }
-
-CVMOMENTS_ACCESSOR(m00);
-CVMOMENTS_ACCESSOR(m10);
-CVMOMENTS_ACCESSOR(m01);
-CVMOMENTS_ACCESSOR(m20);
-CVMOMENTS_ACCESSOR(m11);
-CVMOMENTS_ACCESSOR(m02);
-CVMOMENTS_ACCESSOR(m30);
-CVMOMENTS_ACCESSOR(m21);
-CVMOMENTS_ACCESSOR(m12);
-CVMOMENTS_ACCESSOR(m03);
-
-CVMOMENTS_ACCESSOR(mu20);
-CVMOMENTS_ACCESSOR(mu11);
-CVMOMENTS_ACCESSOR(mu02);
-CVMOMENTS_ACCESSOR(mu30);
-CVMOMENTS_ACCESSOR(mu21);
-CVMOMENTS_ACCESSOR(mu12);
-CVMOMENTS_ACCESSOR(mu03);
-
-CVMOMENTS_ACCESSOR(inv_sqrt_m00);
 
 /*
  * call-seq:
@@ -173,7 +125,7 @@ rb_normalized_central(VALUE self, VALUE x_order, VALUE y_order)
 
 /*
  * call-seq:
- *   hu -> cvhumoments
+ *   hu -> [hu1, hu2, ... ,hu7]
  *
  * Calculates seven Hu invariants.
  *
@@ -190,7 +142,16 @@ rb_normalized_central(VALUE self, VALUE x_order, VALUE y_order)
 VALUE
 rb_hu(VALUE self)
 {
-  return cCvHuMoments::new_object(CVMOMENTS(self));
+  CvHuMoments hu_moments;
+  cvGetHuMoments(CVMOMENTS(self), &hu_moments);
+  return rb_ary_new3(7,
+		     rb_float_new(hu_moments.hu1),
+		     rb_float_new(hu_moments.hu2),
+		     rb_float_new(hu_moments.hu3),
+		     rb_float_new(hu_moments.hu4),
+		     rb_float_new(hu_moments.hu5),
+		     rb_float_new(hu_moments.hu6),
+		     rb_float_new(hu_moments.hu7));
 }
 
 /*
@@ -225,17 +186,17 @@ rb_angle(VALUE self)
     m20 = cvGetCentralMoment(moments, 2, 0),
     m02 = cvGetCentralMoment(moments, 0, 2),
     mangle = 0.5 * atan(2 * m11 / (m20 - m02));
-  if(cvIsNaN(mangle) || cvIsInf(mangle))
-    return Qnil;
-  else
+  if(!cvIsNaN(mangle) && !cvIsInf(mangle))
     return rb_float_new(mangle);
+  else
+    return Qnil;
 }
 
 VALUE
 new_object(CvArr *arr, int is_binary = 0)
 {
   VALUE object = rb_allocate(rb_class());
-  cvMoments(arr, CVMOMENTS(object), is_binary);
+  cvMoments(arr, CVMOMENTS(object), TRUE_OR_FALSE(is_binary, 0));
   return object;
 }
 

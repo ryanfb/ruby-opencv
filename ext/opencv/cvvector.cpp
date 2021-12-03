@@ -1,27 +1,20 @@
 /************************************************************
 
-   cvpoint2d32f.cpp -
+   cvvector.cpp -
 
    $Author: lsxi $
 
-   Copyright (C) 2005 Masakazu Yonekura
+   Copyright (C) 2005-2006 Masakazu Yonekura
 
 ************************************************************/
-#include"cvpoint2d32f.h"
+#include "cvvector.h"
 /*
- * Document-class: OpenCV::CvPoint2D32f
+ * Document-class: OpenCV::CvVector
  *
- * This class means one point on X axis Y axis. 
- * X and Y takes the value of the Float. see also CvPoint
- * 
- * C structure is here, very simple.
- *   typdef struct CvPoint2D32f{
- *     float x;
- *     float y;
- *   }
+ * 2D vector (X axis and Y axis) 
  */
 __NAMESPACE_BEGIN_OPENCV
-__NAMESPACE_BEGIN_CVPOINT2D32F
+__NAMESPACE_BEGIN_CVVECTOR
 
 VALUE rb_klass;
 
@@ -34,7 +27,7 @@ rb_class()
 void
 define_ruby_class()
 {
-  if(rb_klass)
+  if (rb_klass)
     return;
   /* 
    * opencv = rb_define_module("OpenCV");
@@ -43,7 +36,7 @@ define_ruby_class()
    */
   VALUE opencv = rb_module_opencv();
   
-  rb_klass = rb_define_class_under(opencv, "CvPoint2D32f", rb_cObject);
+  rb_klass = rb_define_class_under(opencv, "CvVector", rb_cObject);
   rb_define_alloc_func(rb_klass, rb_allocate);
   rb_define_singleton_method(rb_klass, "compatible?", RUBY_METHOD_FUNC(rb_compatible_q), 1);
   rb_define_private_method(rb_klass, "initialize", RUBY_METHOD_FUNC(rb_initialize), -1);
@@ -60,20 +53,20 @@ define_ruby_class()
  * call-seq:
  *   combatible?(obj)
  *
- * Return compatibility to CvPoint2D32f. Return true if object have method #x and #y.
+ * Return compatibility to CvVector. Return true if object have method #x and #y.
  *
  * For example.
- *   class MyPoint2D32f
+ *   class MyVector
  *     def x
- *       95.7
+ *       1.0
  *     end
  *     def y
- *       70.2
+ *       2.0
  *     end
  *   end
- *   mp = MyPoint2D32f.new
- *   CvPoint2D32f.compatible?(mp)  #=> true
- *   CvPoint2D32f.new(mp)          #=> same as CvPoint2D32f(95.7, 70.2)
+ *   mv = MyVector.new
+ *   CvVector.compatible?(mv)  #=> true
+ *   CvVector.new(mv)          #=> same as CvVector(1.0, 2.0)
  */
 VALUE
 rb_compatible_q(VALUE klass, VALUE object)
@@ -84,19 +77,19 @@ rb_compatible_q(VALUE klass, VALUE object)
 VALUE
 rb_allocate(VALUE klass)
 {
-  CvPoint2D32f *ptr;
-  return Data_Make_Struct(klass, CvPoint2D32f, 0, -1, ptr);
+  CvVector *ptr;
+  return Data_Make_Struct(klass, CvVector, 0, -1, ptr);
 }
 
 /*
  * call-seq:
- *   new
- *   new(obj)
+ *   new -> CvVector.new(0.0, 0.0)
+ *   new(obj) -> CvVector.new(obj.x.to_f, obj.y.to_f)
  *   new(x, y)
  *
- * Create new 2D-coordinate, (x, y).
+ * Create new 2D-vector, (x, y).
  *
- * new() is same as new(0.0, 0.0)
+ * new() is same as new(0, 0)
  *
  * new(obj) is same as new(obj.x.to_f, obj.y.to_f)
  */
@@ -109,71 +102,71 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
     break;
   case 1:
     obj = argv[0];
-    if(rb_compatible_q(rb_klass, obj)) {
-      CVPOINT2D32F(self)->x = NUM2DBL(rb_funcall(rb_funcall(obj, rb_intern("x"), 0), rb_intern("to_f"), 0));
-      CVPOINT2D32F(self)->y = NUM2DBL(rb_funcall(rb_funcall(obj, rb_intern("y"), 0), rb_intern("to_f"), 0));
+    if (rb_compatible_q(rb_klass, obj)) {
+      CVVECTOR(self)->x = NUM2INT(rb_funcall(rb_funcall(obj, rb_intern("x"), 0), rb_intern("to_i"), 0));
+      CVVECTOR(self)->y = NUM2INT(rb_funcall(rb_funcall(obj, rb_intern("y"), 0), rb_intern("to_i"), 0));
     }else{
       rb_raise(rb_eArgError, "object is not compatible %s.", rb_class2name(rb_klass));
     }
     break;
   case 2:
     x = argv[0], y = argv[1];
-    CVPOINT2D32F(self)->x = NUM2DBL(x);
-    CVPOINT2D32F(self)->y = NUM2DBL(y);
+    CVVECTOR(self)->x = NUM2INT(x);
+    CVVECTOR(self)->y = NUM2INT(y);
     break;
   default:
     rb_raise(rb_eArgError, "wrong number of arguments (%d for 0..2)", argc);
   }
-  return Qnil;
+  return Qnil;    
 }
 
 /*
- * Return parameter on x-axis.
+ * Return parameter on vector of x-axis.
  */
 VALUE
 rb_x(VALUE self)
 {
-  return rb_float_new(CVPOINT2D32F(self)->x);
+  return INT2FIX(CVVECTOR(self)->x);
 }
 
 /*
  * call-seq:
  *   x = val
  *
- * Set x-axis parameter, return self.
+ * Set vector of x-axis, return self.
  */
 VALUE
 rb_set_x(VALUE self, VALUE x)
 {
-  CVPOINT2D32F(self)->x = NUM2DBL(x);
+  CVVECTOR(self)->x = NUM2INT(x);
   return self;
 }
 
 /*
- * Return parameter on y-axis.
+ * Return parameter on vector of y-axis.
  */
 VALUE
 rb_y(VALUE self)
 {
-  return rb_float_new(CVPOINT2D32F(self)->y);
+  return INT2FIX(CVVECTOR(self)->y);
 }
 
 /*
  * call-seq:
  *   y = val
  *
- * Set y-axis parameter, return self.
+ * Set vector of y-axis, return self.
  */
 VALUE
 rb_set_y(VALUE self, VALUE y)
 {
-  CVPOINT2D32F(self)->y = NUM2DBL(y);
+  CVVECTOR(self)->y = NUM2INT(y);
   return self;
 }
 
 /*
  * call-seq:
- *   to_s -> "<OpenCV::CvSize2D32f:(self.x,self.y)>"
+ *   to_s -> "<OpenCV::CvVector:(self.x,self.y)>"
  *
  * Return x and y by String.
  */
@@ -182,7 +175,7 @@ rb_to_s(VALUE self)
 {
   const int i = 4;
   VALUE str[i];
-  str[0] = rb_str_new2("<%s:(%f,%f)>");
+  str[0] = rb_str_new2("<%s:(%d,%d)>");
   str[1] = rb_str_new2(rb_class2name(CLASS_OF(self)));
   str[2] = rb_x(self);
   str[3] = rb_y(self);
@@ -202,12 +195,12 @@ rb_to_ary(VALUE self)
 }
 
 VALUE
-new_object(CvPoint2D32f point)
+new_object(CvVector point)
 {
   VALUE object = rb_allocate(rb_klass);
-  *CVPOINT2D32F(object) = point;
+  *CVVECTOR(object) = point;
   return object;
 }
 
-__NAMESPACE_END_CVPOINT2D32F
+__NAMESPACE_END_CVVECTOR
 __NAMESPACE_END_OPENCV

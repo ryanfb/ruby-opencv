@@ -166,7 +166,7 @@ rb_alt_key_q(VALUE self)
 }
 
 VALUE
-new_object(int flag, int y, int x, int event)
+new_object(int event, int x, int y, int flag)
 {
   VALUE object = rb_allocate(rb_class());
   MouseEvent *mouseevent = MOUSEEVENT(object);

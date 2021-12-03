@@ -2,50 +2,33 @@
 
 require 'rubygems'
 require 'hoe'
-
-require 'rake/extensiontask'
 require './lib/version'
 
-Hoe.plugin :gemspec
-
-hoespec = Hoe.spec 'opencv'  do |p|
-  p.version = OpenCV::VERSION
+Hoe.new('opencv', OpenCV::VERSION) do |p|
+  p.author = ['Masakazu Yonekura']
   p.changes = p.paragraphs_of('History.txt', 0..1).join("\n\n")
   p.description = <<EOF
 OpenCV wrapper for Ruby
 EOF
   p.rubyforge_name = 'opencv'
   p.developer('lsxi', 'masakazu.yonekura@gmail.com')
-  p.developer('ser1zw', '')
-  p.developer('pcting', 'pcting@gmail.com')
-
+  p.email = ['masakazu.yonekura@gmail.com']
+  
   p.need_tar = false
   p.need_zip = false
-  p.readme_file  = 'README.rdoc'
-  p.history_file = 'History.txt'
+  # p.rdoc_pattern = 
+  # p.remote_rdoc_dir =
+  # p.rsync =
   p.spec_extras = {
-    :extensions => %w{ext/opencv/extconf.rb}
+    :extensions => %w{ext/extconf.rb}
   }
   p.summary = 'OpenCV wrapper for Ruby.'
-  p.test_globs = ['test/test_*.rb']
-  p.clean_globs << 'lib/*.so' << 'tmp'
-
+  # p.test_globs = 'spec/**/*_spec.rb'
+  p.clean_globs |= ['*.o']
+  
   p.url = 'http://blueruby.mydns.jp/opencv'
-
-  p.extra_dev_deps << ['rake-compiler', '>= 0'] << ['hoe-gemspec'] << ['rspec']
-
-  Rake::ExtensionTask.new('opencv', spec) do |ext|
-    ext.lib_dir = File.join('lib', 'opencv')
-  end
-
+  
+  # p.extra_deps << 
 end
-
-hoespec.spec.files.delete('.gemtest')
-hoespec.spec.files.delete('ruby-opencv.gemspec')
-hoespec.spec.files.delete('opencv.gemspec')
-hoespec.spec.cert_chain = []
-hoespec.spec.signing_key = nil
-
-Rake::Task[:test].prerequisites << :compile
 
 # vim: syntax=Ruby

@@ -48,7 +48,6 @@ define_ruby_class()
   rb_klass = rb_define_class_under(opencv, "CvRect", rb_cObject);            
   rb_define_alloc_func(rb_klass, rb_allocate);
   rb_define_singleton_method(rb_klass, "compatible?", RUBY_METHOD_FUNC(rb_compatible_q), 1);
-  rb_define_singleton_method(rb_klass, "max_rect", RUBY_METHOD_FUNC(rb_max_rect), 2);
   rb_define_private_method(rb_klass, "initialize", RUBY_METHOD_FUNC(rb_initialize), -1);
 
   rb_define_method(rb_klass, "x", RUBY_METHOD_FUNC(rb_x), 0);
@@ -65,8 +64,8 @@ define_ruby_class()
   rb_define_method(rb_klass, "top_right", RUBY_METHOD_FUNC(rb_top_right), 0);
   rb_define_method(rb_klass, "bottom_left", RUBY_METHOD_FUNC(rb_bottom_left), 0);
   rb_define_method(rb_klass, "bottom_right", RUBY_METHOD_FUNC(rb_bottom_right), 0);
-  // rb_define_method(rb_klass, "or", RUBY_METHOD_FUNC(rb_or), 1);
-  // rb_define_alias(rb_klass, "|", "or");
+  rb_define_method(rb_klass, "or", RUBY_METHOD_FUNC(rb_or), 1);
+  rb_define_alias(rb_klass, "|", "or");
 }
 
 /*
@@ -98,18 +97,6 @@ VALUE
 rb_compatible_q(VALUE klass, VALUE object)
 {
   return (rb_respond_to(object, rb_intern("x")) && rb_respond_to(object, rb_intern("y")) && rb_respond_to(object, rb_intern("width")) && rb_respond_to(object, rb_intern("height"))) ? Qtrue : Qfalse;
-}
-
-/*
- * call-seq:
- *   max_rect(rect1, rect2) -> cvrect
- *
- * Finds bounding rectangle for given rectangles.
- */
-VALUE
-rb_max_rect(VALUE klass, VALUE rect1, VALUE rect2)
-{
-  return cCvRect::new_object(cvMaxRect(CVRECT(rect1), CVRECT(rect2)));
 }
 
 /*
@@ -327,6 +314,18 @@ VALUE
 rb_bottom_right(VALUE self)
 {
   return cCvPoint::new_object(cvPoint(CVRECT(self)->x + CVRECT(self)->width, CVRECT(self)->y + CVRECT(self)->height));
+}
+
+/*
+ * call-seq:
+ *   or(rect) -> cvrect
+ *
+ * Finds bounding rectangle for self and given rectangles.
+ */
+VALUE
+rb_or(VALUE self, VALUE rect)
+{
+  return cCvRect::new_object(cvMaxRect(CVRECT(self), CVRECT(rect)));
 }
 
 VALUE

@@ -58,14 +58,7 @@ define_ruby_class()
   rb_hash_aset(default_option, ID2SYM(rb_intern("thickness")), INT2FIX(1));
   rb_hash_aset(default_option, ID2SYM(rb_intern("line_type")), INT2FIX(8));
   
-  rb_define_method(rb_klass, "initialize", RUBY_METHOD_FUNC(rb_initialize), -1);
-  rb_define_method(rb_klass, "face", RUBY_METHOD_FUNC(rb_face), 0);
-  rb_define_method(rb_klass, "hscale", RUBY_METHOD_FUNC(rb_hscale), 0);
-  rb_define_method(rb_klass, "vscale", RUBY_METHOD_FUNC(rb_vscale), 0);
-  rb_define_method(rb_klass, "shear", RUBY_METHOD_FUNC(rb_shear), 0);
-  rb_define_method(rb_klass, "thickness", RUBY_METHOD_FUNC(rb_thickness), 0);
-  rb_define_method(rb_klass, "line_type", RUBY_METHOD_FUNC(rb_line_type), 0);
-  rb_define_method(rb_klass, "italic", RUBY_METHOD_FUNC(rb_italic), 0);
+  rb_define_private_method(rb_klass, "initialize", RUBY_METHOD_FUNC(rb_initialize), -1);
 }
 
 VALUE
@@ -127,7 +120,7 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
     rb_raise(rb_eArgError, "undefined face.");
   }
   font_option = FONT_OPTION(font_option);
-
+  /*
   cvInitFont(CVFONT(self),
 	     (FIX2INT(face) | FO_ITALIC(font_option)),
 	     FO_HSCALE(font_option),
@@ -135,7 +128,7 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
 	     FO_SHEAR(font_option),
 	     FO_THICKNESS(font_option),
 	     FO_LINE_TYPE(font_option));
-
+  */
   return self;
 }
 
@@ -143,7 +136,7 @@ rb_initialize(int argc, VALUE *argv, VALUE self)
 VALUE
 rb_face(VALUE self)
 {
-  return INT2FIX(CVFONT(self)->font_face);
+  return FIX2INT(CVFONT(self)->font_face);
 }
 
 VALUE
@@ -167,19 +160,13 @@ rb_shear(VALUE self)
 VALUE
 rb_thickness(VALUE self)
 {
-  return INT2FIX(CVFONT(self)->thickness);
+  return FIX2INT(CVFONT(self)->thickness);
 }
 
 VALUE
 rb_line_type(VALUE self)
 {
-  return INT2FIX(CVFONT(self)->line_type);
-}
-
-VALUE
-rb_italic(VALUE self)
-{
-  return ((CVFONT(self)->font_face & CV_FONT_ITALIC) > 0) ? Qtrue : Qfalse;
+  return FIX2INT(CVFONT(self)->line_type);
 }
 
 __NAMESPACE_END_CVFONT

@@ -25,6 +25,10 @@
  * When storing object(named "obj") of class B to the sequence.
  *   Try automatically : A.from_B(obj) => object of class A.
  *
+ * CvSeq has the circulation structure internally.
+ * That is, when the sequence has three values ("a","b","c"),
+ * seq[0] and seq[3] are same "a", and seq[-1] and seq[2] are same "c".
+ *
  * The sequence might have another sequence outside. see below. 
  * Each sequece has h_prev, h_next, v_prev, v_next method.
  * If the adjoining sequence exists, each method return the adjoining sequence.
@@ -34,34 +38,26 @@
  */
 __NAMESPACE_BEGIN_OPENCV
 __NAMESPACE_BEGIN_CVSEQ
-
-VALUE rb_allocate(VALUE klass);
-void cvseq_free(void *ptr);
-
-VALUE rb_klass;
+    
 // contain sequence-block class
-st_table *seqblock_klass_table = st_init_numtable();
-
-VALUE
-rb_class()
-{
-  return rb_klass;
-}
-
+st_table *seqblock_klass = st_init_numtable();
+    
 VALUE
 seqblock_class(void *ptr)
 {
   VALUE klass;
-  if (!st_lookup(seqblock_klass_table, (st_data_t)ptr, (st_data_t*)&klass)) {
+  if(!st_lookup(seqblock_klass, (st_data_t)ptr, (st_data_t*)&klass)){
     rb_raise(rb_eTypeError, "Invalid sequence error.");
   }
   return klass;
 }
 
-void
-resist_class_information_of_sequence(CvSeq *seq, VALUE klass)
+VALUE rb_klass;
+
+VALUE
+rb_class()
 {
-  st_insert(seqblock_klass_table, (st_data_t)seq, (st_data_t)klass);
+  return rb_klass;
 }
 
 void
@@ -76,7 +72,6 @@ define_ruby_class()
    */
   VALUE opencv = rb_module_opencv();
   rb_klass = rb_define_class_under(opencv, "CvSeq", rb_cObject);
-  rb_include_module(rb_klass, rb_mEnumerable);
   rb_define_alloc_func(rb_klass, rb_allocate);
   rb_define_private_method(rb_klass, "initialize", RUBY_METHOD_FUNC(rb_initialize), -1);
   rb_define_method(rb_klass, "total", RUBY_METHOD_FUNC(rb_total), 0);
@@ -86,6 +81,7 @@ define_ruby_class()
   rb_define_method(rb_klass, "[]", RUBY_METHOD_FUNC(rb_aref), 1);
   rb_define_method(rb_klass, "first", RUBY_METHOD_FUNC(rb_first), 0);
   rb_define_method(rb_klass, "last", RUBY_METHOD_FUNC(rb_last), 0);
+  rb_define_method(rb_klass, "index", RUBY_METHOD_FUNC(rb_index), 1);
   
   rb_define_method(rb_klass, "h_prev", RUBY_METHOD_FUNC(rb_h_prev), 0);
   rb_define_method(rb_klass, "h_next", RUBY_METHOD_FUNC(rb_h_next), 0);
@@ -101,28 +97,33 @@ define_ruby_class()
   rb_define_alias(rb_klass, "pop_front", "shift");
   rb_define_method(rb_klass, "each", RUBY_METHOD_FUNC(rb_each), 0);
   rb_define_method(rb_klass, "each_index", RUBY_METHOD_FUNC(rb_each_index), 0);
+  rb_define_method(rb_klass, "each_with_index", RUBY_METHOD_FUNC(rb_each_with_index), 0);
   rb_define_method(rb_klass, "insert", RUBY_METHOD_FUNC(rb_insert), 2);
   rb_define_method(rb_klass, "remove", RUBY_METHOD_FUNC(rb_remove), 1);
-  rb_define_alias(rb_klass, "delete_at", "remove");
   rb_define_method(rb_klass, "clear", RUBY_METHOD_FUNC(rb_clear), 0);
+
+  rb_define_alias(rb_klass, "delete_at", "remove");
 }
 
 VALUE
 rb_allocate(VALUE klass)
 {
-  CvSeq *ptr = ALLOC(CvSeq);
-  return Data_Wrap_Struct(klass, 0, cvseq_free, ptr);
+  return Data_Wrap_Struct(klass, mark_root_object, free, 0);
+}
+    
+void
+free(void *ptr)
+{
+  if(ptr){
+    unresist_object(ptr);
+    st_delete(seqblock_klass, (st_data_t*)&ptr, 0);
+  }
 }
 
 void
-cvseq_free(void *ptr)
+resist_class_information_of_sequence(CvSeq *seq, VALUE klass)
 {
-  if (ptr) {
-    CvSeq *seq = (CvSeq*)ptr;
-    st_delete(seqblock_klass_table, (st_data_t*)&ptr, NULL);
-    if (seq->storage)
-      cvReleaseMemStorage(&(seq->storage));
-  }
+  st_insert(seqblock_klass, (st_data_t)seq, (st_data_t)klass);
 }
 
 /*
@@ -137,44 +138,35 @@ cvseq_free(void *ptr)
 VALUE
 rb_initialize(int argc, VALUE *argv, VALUE self)
 {
-  VALUE klass, storage_value;
-  CvMemStorage *storage;
-
-  if (rb_scan_args(argc, argv, "11", &klass, &storage_value) > 1) {
-    storage_value = CHECK_CVMEMSTORAGE(storage_value);
-    storage = CVMEMSTORAGE(storage_value);
-  }
-  else
-    storage = cvCreateMemStorage(0);
-  
+  VALUE klass, storage;
+  rb_scan_args(argc, argv, "11", &klass, &storage);
   if(!rb_obj_is_kind_of(klass, rb_cClass))
     rb_raise(rb_eTypeError, "argument 1 (sequence-block class) should be %s.", rb_class2name(rb_cClass));
-
+  CvSeq *seq = 0;
+  storage = CHECK_CVMEMSTORAGE(storage);
   int type = 0, size = 0;
-  if (klass == cCvIndex::rb_class()) {
+  if(klass == cCvIndex::rb_class()){
     type = CV_SEQ_ELTYPE_INDEX;
     size = sizeof(CvIndex);
-  }
-  else if (klass == cCvPoint::rb_class()) {
+  }else if(klass == cCvPoint::rb_class()){
     type = CV_SEQ_ELTYPE_POINT;
     size = sizeof(CvPoint);
-  }
-  else if (klass == cCvPoint2D32f::rb_class()) {
+  }else if(klass == cCvPoint2D32f::rb_class()){
     type = CV_SEQ_ELTYPE_POINT;
     size = sizeof(CvPoint2D32f);
-  }
-  else if (klass == cCvPoint3D32f::rb_class()) {
+  }else if(klass == cCvPoint3D32f::rb_class()){
     type = CV_SEQ_ELTYPE_POINT3D;
     size = sizeof(CvPoint3D32f);
   }
+  auto_extend(self);
   // todo: more various class will be support.
-  if (!size)
+  if(!size)
     rb_raise(rb_eTypeError, "unsupport %s class for sequence-block.", rb_class2name(klass));
-  
-  CvSeq* seq = cvCreateSeq(type, sizeof(CvSeq), size, storage);
+  seq = cvCreateSeq(type, sizeof(CvSeq), size, CVMEMSTORAGE(storage));
   DATA_PTR(self) = seq;
-  resist_class_information_of_sequence(seq, klass);
-  
+  resist_root_object(seq, storage);
+  // resist class information of this sequence.
+  st_insert(seqblock_klass, (st_data_t)seq, (st_data_t)klass);
   return self;
 }
     
@@ -212,12 +204,9 @@ VALUE
 rb_aref(VALUE self, VALUE index)
 {
   CvSeq *seq = CVSEQ(self);
-  int idx = NUM2INT(index);
   if(!(seq->total > 0))
     return Qnil;
-  if (idx >= seq->total)
-    rb_raise(rb_eIndexError, "index %d out of sequence", idx);
-  return REFER_OBJECT(seqblock_class(seq), cvGetSeqElem(seq, idx), self);
+  return REFER_OBJECT(seqblock_class(seq), cvGetSeqElem(seq, NUM2INT(index) % seq->total), self);
 }
 
 /*
@@ -250,6 +239,27 @@ rb_last(VALUE self)
   return REFER_OBJECT(seqblock_class(seq), cvGetSeqElem(seq, -1), self);
 }
     
+/*when storing it in CvSeq. 
+ * call-seq:
+ *   index(<i>obj</i>) -> int or nil
+ *
+ * Return the index of the first object in <i>self</i>. Return <tt>nil</tt> if no match is found.
+ */
+VALUE
+rb_index(VALUE self, VALUE object)
+{
+  CvSeq *seq = CVSEQ(self);
+  int index;
+  if(CLASS_OF(object) == seqblock_class(seq)){
+    index = cvSeqElemIdx(seq, DATA_PTR(object));
+    if(!(index < 0))
+      return INT2FIX(index);
+  }else{
+    rb_warn("sequence-block class unmatch.");
+  }
+  return Qnil;
+}
+
 /*
  * call-seq:
  *   h_prev -> seq or nil
@@ -261,9 +271,10 @@ VALUE
 rb_h_prev(VALUE self)
 {
   CvSeq *seq = CVSEQ(self);
-  if (seq->h_prev)
+  if (seq->h_prev) {
     return new_sequence(CLASS_OF(self), seq->h_prev, seqblock_class(seq), lookup_root_object(seq));
-  else
+      //new_sequence(seq->h_prev, CLASS_OF(self), seqblock_class(seq), lookup_root_object(seq));
+  } else
     return Qnil;
 }
 
@@ -278,9 +289,10 @@ VALUE
 rb_h_next(VALUE self)
 {
   CvSeq *seq = CVSEQ(self);
-  if (seq->h_next)
+  if (seq->h_next) {
     return new_sequence(CLASS_OF(self), seq->h_next, seqblock_class(seq), lookup_root_object(seq));
-  else
+      //new_sequence(seq->h_next, CLASS_OF(self), seqblock_class(seq), lookup_root_object(seq));
+  } else
     return Qnil;
 }
 
@@ -295,15 +307,15 @@ VALUE
 rb_v_prev(VALUE self)
 {
   CvSeq *seq = CVSEQ(self);
-  if (seq->v_prev)
+  if (seq->v_prev) {
     return new_sequence(CLASS_OF(self), seq->v_prev, seqblock_class(seq), lookup_root_object(seq));
-  else
+  } else
     return Qnil;
 }
 
 /*
  * call-seq:
- *   v_next -> seq or nil
+ *   v_prev -> seq or nil
  *
  * Return the sequence vertically located in next.
  * Return <tt>nil</tt> if not existing.
@@ -312,37 +324,10 @@ VALUE
 rb_v_next(VALUE self)
 {
   CvSeq *seq = CVSEQ(self);
-  if (seq->v_next)
+  if (seq->v_next) {    
     return new_sequence(CLASS_OF(self), seq->v_next, seqblock_class(seq), lookup_root_object(seq));
-  else
+  } else
     return Qnil;
-}
-
-VALUE
-rb_seq_push(VALUE self, VALUE args, int flag)
-{
-  CvSeq *seq = CVSEQ(self);
-  VALUE klass = seqblock_class(seq), object;
-  void *buffer = NULL;
-  for (int i = 0; i < RARRAY_LEN(args); i++) {
-    object = RARRAY_PTR(args)[i];
-    if (CLASS_OF(object) == klass) {
-      if (flag == CV_FRONT)
-	cvSeqPushFront(seq, DATA_PTR(object));
-      else
-	cvSeqPush(seq, DATA_PTR(object));
-    }
-    else if (rb_obj_is_kind_of(object, rb_klass) && CLASS_OF(rb_first(object)) == klass) { // object is CvSeq
-      buffer = cvCvtSeqToArray(CVSEQ(object), cvAlloc(CVSEQ(object)->total * CVSEQ(object)->elem_size));
-      cvSeqPushMulti(seq, buffer, CVSEQ(object)->total, flag);
-      cvFree(&buffer);
-    }
-    else {
-      rb_raise(rb_eTypeError, "arguments should be %s or %s which includes %s.",
-	       rb_class2name(klass), rb_class2name(rb_klass), rb_class2name(klass));
-    }
-  }
-  return self;
 }
 
 /*
@@ -350,12 +335,28 @@ rb_seq_push(VALUE self, VALUE args, int flag)
  *   push(<i>obj, ...</i>) -> self
  *     
  * Append - Pushes the given object(s) on the end of this sequence. This expression return the sequence itself,
- * so several append may be chained together.
+ * so several append may be chainded together.
  */
 VALUE
 rb_push(VALUE self, VALUE args)
 {
-  return rb_seq_push(self, args, CV_BACK);
+  CvSeq *seq = CVSEQ(self);
+  VALUE klass = seqblock_class(seq), object;
+  void *buffer = 0;      
+  for(int i = 0; i < RARRAY_LEN(args); i++){
+    object = RARRAY_PTR(args)[i];
+    if(CLASS_OF(object) == klass){
+      cvSeqPush(seq, DATA_PTR(object));          
+    }else if(rb_obj_is_kind_of(object, rb_klass) && CLASS_OF(object) == klass){ // object is CvSeq
+      buffer = cvCvtSeqToArray(CVSEQ(object), cvAlloc(CVSEQ(object)->total * CVSEQ(object)->elem_size));
+      cvSeqPushMulti(seq, buffer, CVSEQ(object)->total);
+      cvFree((void**)&buffer);
+    }else{
+      object = CONVERT(object, klass);
+      cvSeqPush(seq, DATA_PTR(object));
+    }
+  }
+  return self;
 }
     
 /*
@@ -399,7 +400,23 @@ rb_clear(VALUE self)
 VALUE
 rb_unshift(VALUE self, VALUE args)
 {
-  return rb_seq_push(self, args, CV_FRONT);
+  CvSeq *seq = CVSEQ(self);
+  VALUE klass = seqblock_class(seq), object;
+  void *buffer = 0;      
+  for(int i = 0; i < RARRAY_LEN(args); i++){
+    object = RARRAY_PTR(args)[i];
+    if(CLASS_OF(object) == klass){
+      cvSeqPushFront(seq, DATA_PTR(object));
+    }else if(rb_obj_is_kind_of(object, rb_klass) && CLASS_OF(object) == klass){
+      buffer = cvCvtSeqToArray(CVSEQ(object), cvAlloc(CVSEQ(object)->total * CVSEQ(object)->elem_size));
+      cvSeqPushMulti(seq, buffer, CVSEQ(object)->total, 1);
+      cvFree((void**)&buffer);
+    }else{
+      object = CONVERT(object, klass);
+      cvSeqPushFront(seq, DATA_PTR(object));
+    }
+  }
+  return self;
 }
 
 /*
@@ -428,7 +445,7 @@ rb_shift(VALUE self)
  * passing that sequence-block as a parameter.
  *   seq = CvSeq.new(CvIndex)
  *   seq.push(5, 6, 7)
- *   seq.each{|x| print x, " -- " }
+ *   seq.each{|x| print x, " -- "
  * produces:
  *   5 -- 6 -- 7 --
  */
@@ -460,6 +477,21 @@ rb_each_index(VALUE self)
   return self;
 }
 
+/*
+ * call-seq:
+ *   each_with_index{|obj, i| ... } -> self
+ *
+ * Calls block with two arguments, the sequence-block and its index, for each sequence-block in sequence.
+ */
+VALUE
+rb_each_with_index(VALUE self)
+{
+  CvSeq *seq = CVSEQ(self);
+  VALUE klass = seqblock_class(seq);
+  for(int i = 0; i < seq->total; i++)
+    rb_yield_values(2, REFER_OBJECT(klass, cvGetSeqElem(seq, i), self), INT2FIX(i));
+  return self;
+}
 
 /*
  * call-seq:
@@ -474,7 +506,7 @@ rb_insert(VALUE self, VALUE index, VALUE object)
   CvSeq *seq = CVSEQ(self);
   VALUE klass = seqblock_class(seq);
   if(CLASS_OF(object) != klass)
-    rb_raise(rb_eTypeError, "arguments should be %s.", rb_class2name(klass));
+    object = CONVERT(object, klass);
   cvSeqInsert(seq, FIX2INT(index), DATA_PTR(object));
   return self;
 }
@@ -490,6 +522,20 @@ rb_remove(VALUE self, VALUE index)
 {
   cvSeqRemove(CVSEQ(self), FIX2INT(index));
   return self;
+}
+
+/*
+ * call-seq:
+ *   clone
+ *
+ * Return copy of sequence.
+ */
+VALUE
+rb_clone(VALUE self)
+{
+  CvSeq *seq = CVSEQ(self);
+  VALUE storage = cCvMemStorage::new_object();
+  return new_sequence(CLASS_OF(self), cvCloneSeq(seq), seqblock_class(seq), storage);
 }
 
 /*
@@ -511,20 +557,16 @@ new_object(CvSeq *seq, VALUE klass, VALUE storage)
 }
 */
 
-void
-unresist_cvseq(void *ptr)
-{
-  if (ptr)
-    st_delete(seqblock_klass_table, (st_data_t*)&ptr, NULL);
-}
 
 VALUE
 new_sequence(VALUE klass, CvSeq *seq, VALUE element_klass, VALUE storage)
 {
   resist_root_object(seq, storage);
   if (!NIL_P(element_klass))
-    resist_class_information_of_sequence(seq, element_klass);
-  return Data_Wrap_Struct(klass, mark_root_object, unresist_cvseq, seq);
+    st_insert(seqblock_klass, (st_data_t)seq, (st_data_t)element_klass);  
+  VALUE object = Data_Wrap_Struct(klass, mark_root_object, free, seq);
+  auto_extend(object);
+  return object;
 }
 
 VALUE

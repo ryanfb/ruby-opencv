@@ -58,7 +58,6 @@ define_ruby_class()
 
   rb_define_method(rb_klass, "to_s", RUBY_METHOD_FUNC(rb_to_s), 0);
   rb_define_method(rb_klass, "to_ary", RUBY_METHOD_FUNC(rb_to_ary), 0);
-  rb_define_alias(rb_klass, "to_a", "to_ary");
 }
 
 /*
@@ -86,9 +85,7 @@ define_ruby_class()
 VALUE
 rb_compatible_q(VALUE klass, VALUE object)
 {
-  return (rb_respond_to(object, rb_intern("x")) &&
-	  rb_respond_to(object, rb_intern("y")) &&
-	  rb_respond_to(object, rb_intern("z"))) ? Qtrue : Qfalse;
+  return (rb_respond_to(object, rb_intern("x")) && rb_respond_to(object, rb_intern("y"))) ? Qtrue : Qfalse;
 }
 
 VALUE
@@ -216,7 +213,7 @@ rb_to_s(VALUE self)
 {
   const int i = 5;
   VALUE str[i];
-  str[0] = rb_str_new2("<%s:(%g,%g,%g)>");
+  str[0] = rb_str_new2("<%s:(%f,%f,%f)>");
   str[1] = rb_str_new2(rb_class2name(CLASS_OF(self)));
   str[2] = rb_x(self);
   str[3] = rb_y(self);

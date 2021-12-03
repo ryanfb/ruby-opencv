@@ -29,7 +29,7 @@ GET_WINDOW_NAME(VALUE object)
 {
   void *handle = DATA_PTR(object);
   if (!handle)
-    rb_raise(rb_eStandardError, "window handle error"); 
+    rb_raise(rb_eStandardError, "window handle error");
   const char *window_name = cvGetWindowName(handle);
   return window_name;
 }
@@ -49,9 +49,9 @@ define_ruby_class()
 {
   if (rb_klass)
     return;
-  /* 
+  /*
    * opencv = rb_define_module("OpenCV");
-   * GUI = rb_define_module_under(opencv, "GUI");         
+   * GUI = rb_define_module_under(opencv, "GUI");
    *
    * note: this comment is used by rdoc.
    */
@@ -96,6 +96,8 @@ each_protect(VALUE key, VALUE value)
 void
 free(void *ptr)
 {
+  st_table *holder;
+  if (st_delete(windows, (st_data_t*)ptr, (st_data_t*)&holder)) { st_free_table(holder); }
   cvFree(&ptr);
 }
 
@@ -112,7 +114,7 @@ rb_aref(VALUE klass, VALUE name)
   Check_Type(name, T_STRING);
   void *handle = cvGetWindowHandle(StringValueCStr(name));
   st_table *holder;
-  if (st_lookup(windows, (st_data_t)handle, (st_data_t*)&holder) && 
+  if (st_lookup(windows, (st_data_t)handle, (st_data_t*)&holder) &&
       st_lookup(holder, 0, (st_data_t*)&window)) {
     return window;
   }
@@ -217,7 +219,7 @@ rb_resize(int argc, VALUE *argv, VALUE self)
     size = cvSize(FIX2INT(argv[0]), FIX2INT(argv[1]));
     break;
   default:
-    rb_raise(rb_eArgError, "wrong number of arguments (1 or 2)");          
+    rb_raise(rb_eArgError, "wrong number of arguments (1 or 2)");
   }
   cvResizeWindow(GET_WINDOW_NAME(self), size.width, size.height);
   return self;
@@ -242,12 +244,12 @@ rb_move(int argc, VALUE *argv, VALUE self)
     point = cvPoint(FIX2INT(argv[0]), FIX2INT(argv[1]));
     break;
   default:
-    rb_raise(rb_eArgError, "wrong number of arguments (1 or 2)");          
+    rb_raise(rb_eArgError, "wrong number of arguments (1 or 2)");
   }
   cvMoveWindow(GET_WINDOW_NAME(self), point.x, point.y);
   return self;
 }
-      
+
 /*
  * call-seq:
  *   show_image(<i>image</i>)
@@ -313,7 +315,7 @@ rb_set_trackbar(int argc, VALUE *argv, VALUE self)
  *   window = OpenCV::GUI::Window.new "sample window"
  *   image = OpenCV::IplImage::load "sample.png"
  *   window.show(image)
- *   window.set_mouse_callback{|mouse|  
+ *   window.set_mouse_callback{|mouse|
  *     e = "#{mouse.x}, #{mouse.y} : #{mouse.event} : "
  *     e << "<L>" if mouse.left_button?
  *     e << "<R>" if mouse.right_button?
@@ -325,18 +327,32 @@ rb_set_trackbar(int argc, VALUE *argv, VALUE self)
  *   }
  *   OpenCV::GUI::wait_key
  */
+/*
 VALUE
 rb_set_mouse_callback(VALUE self)
-{  
+{
   VALUE block = rb_block_given_p() ? rb_block_proc() : 0;
   if (!block) {rb_raise(rb_eArgError, "block not given.");}
-  void *callback = (void *)alloc_callback(&mouse_callback, block);  
-  cvSetMouseCallback(GET_WINDOW_NAME(self), (CvMouseCallback)callback);
+  void *callback = (void *)alloc_callback(&mouse_callback, block);
+  cvSetMouseCallback(GET_WINDOW_NAME(self), (CvMouseCallback)callback, 0);
   st_table *holder;
   if (st_lookup(windows, (st_data_t)DATA_PTR(self), (st_data_t*)&holder)) {
     st_insert(holder, rb_cProc, block);
   }else{
-    rb_raise(rb_eStandardError, "window is destroied.");
+    rb_raise(rb_eStandardError, "window is destroyed.");
+  }
+  return block;
+}
+*/
+VALUE
+rb_set_mouse_callback(VALUE self)
+{
+  VALUE block = rb_block_given_p() ? rb_block_proc() : 0;
+  if (!block) {rb_raise(rb_eArgError, "block not given.");}
+  cvSetMouseCallback(GET_WINDOW_NAME(self), on_mouse, (void*)block);
+  st_table *holder;
+  if (st_lookup(windows, (st_data_t)DATA_PTR(self), (st_data_t*)&holder)){
+	  st_insert(holder, self, block);
   }
   return block;
 }
@@ -349,20 +365,23 @@ trackbar_callback(VALUE block, va_alist ap)
   va_return_void(ap);
 }
 
+/*
 void
 mouse_callback(VALUE block, va_alist ap)
 {
   va_start_void(ap);
-  //VALUE ary = rb_ary_new2(4);
-  //for (int i = 0; i < 4; i++)
-  //  rb_ary_store(ary, i, INT2FIX(va_arg_int(ap)));
-  //rb_apply(block, rb_intern("call"), ary);
   rb_funcall(block, rb_intern("call"), 1, cMouseEvent::new_object(va_arg_int(ap),va_arg_int(ap),va_arg_int(ap),va_arg_int(ap)));
   va_return_void(ap);
+}
+*/
+
+void on_mouse( int event, int x, int y, int flags, void* param ) {
+  rb_funcall((VALUE)param, rb_intern("call"), 1, cMouseEvent::new_object(event, x, y, flags));
 }
 
 __NAMESPACE_END_WINDOW
 __NAMESPACE_END_GUI
 __NAMESPACE_END_OPENCV
+
 
 #endif // HAVE_CALLBACK_H

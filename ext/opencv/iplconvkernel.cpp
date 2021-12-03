@@ -56,14 +56,19 @@ define_ruby_class()
 VALUE
 rb_allocate(VALUE klass)
 {
-  return IPLCONVKERNEL_OBJECT(klass, 0);
+  return OPENCV_OBJECT(klass, 0);
 }
 
 /*
  * call-seq:
- *   IplConvKernel.new(cols, rows, anchor_x, anchor_y, shape [,values = nil])
+ *   IplConvKernel.new(shape, rows, cols, anchor_x, anchor_y)
  *
  * Creates structuring element.
+ *  shape
+ *    Shape of the structuring element; may have the following values:
+ *     :rect
+ *     :cross
+ *     :ellipse
  *  cols
  *    Number of columns in the structuring element. 
  *  rows
@@ -72,39 +77,25 @@ rb_allocate(VALUE klass)
  *    Relative horizontal offset of the anchor point. 
  *  anchor_y
  *    Relative vertical offset of the anchor point.
- *  shape
- *    Shape of the structuring element; may have the following values:
- *     :rect
- *     :cross
- *     :ellipse
- *     :custom
  *
  */
 VALUE
 rb_initialize(int argc, VALUE *argv, VALUE self)
 {
-  VALUE shape, rows, cols, anchor_x, anchor_y, values;
-  rb_scan_args(argc, argv, "51", &cols, &rows, &anchor_x, &anchor_y, &shape, &values);
-  int shape_type;
-  int _cols = NUM2INT(cols);
-  int _rows = NUM2INT(rows);
-  int num_values;
-  int *_values = NULL;
-  const int INVALID_SHAPE = -1;
-  
-  shape_type = CVMETHOD("STRUCTURING_ELEMENT_SHAPE", shape, INVALID_SHAPE);
-  if (shape_type == INVALID_SHAPE)
-    rb_raise(rb_eTypeError, "argument 1 (shape) should be :rect or :cross or :ellipse or :custom.");
-  if (shape_type == CV_SHAPE_CUSTOM) {
-    if (NIL_P(values))
-      rb_raise(rb_eArgError, "argument 6 (values) should not be nil when the shape is :custom.");
-    num_values = RARRAY_LEN(values);
-    _values = ALLOCA_N(int, num_values);
-    VALUE *values_ptr = RARRAY_PTR(values);
-    for (int i = 0; i < num_values; i++)
-      _values[i] = NUM2INT(values_ptr[i]);
-  }
-  DATA_PTR(self) = cvCreateStructuringElementEx(_cols, _rows, NUM2INT(anchor_x), NUM2INT(anchor_y),shape_type, _values);
+  VALUE shape, rows, cols, anchor_x, anchor_y;
+  rb_scan_args(argc, argv, "50", &shape, &rows, &cols, &anchor_x, &anchor_y);
+  Check_Type(shape, T_SYMBOL);
+  const char *shape_name = rb_id2name(SYM2ID(shape));
+  int shape_type = 0;
+  if (!strcmp(shape_name, "rect"))
+    shape_type = CV_SHAPE_RECT;
+  else if (!strcmp(shape_name, "corss"))
+    shape_type = CV_SHAPE_CROSS;
+  else if (!strcmp(shape_name, "ellipse"))
+    shape_type = CV_SHAPE_ELLIPSE;
+  else
+    rb_raise(rb_eTypeError, "argument 1 (shape) should be :rect or :cross or :ellipse.");
+  DATA_PTR(self) = cvCreateStructuringElementEx(NUM2INT(cols), NUM2INT(rows), NUM2INT(anchor_x), NUM2INT(anchor_y), shape_type);
   return self;
 }
 

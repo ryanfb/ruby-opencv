@@ -38,10 +38,16 @@ define_ruby_class()
   
   rb_klass = rb_define_class_under(opencv, "CvHistogram", rb_cObject);
   
+  //rb_define_private_method(rb_klass, "initialize", RUBY_METHOD_FUNC(rb_initialize), -1);
+
   rb_define_method(rb_klass, "is_uniform?", RUBY_METHOD_FUNC(rb_is_uniform), 0);
   rb_define_method(rb_klass, "is_sparse?", RUBY_METHOD_FUNC(rb_is_sparse), 0);
   rb_define_method(rb_klass, "has_range?", RUBY_METHOD_FUNC(rb_has_range), 0);
   rb_define_method(rb_klass, "dims", RUBY_METHOD_FUNC(rb_dims), 0);
+  
+  rb_define_method(rb_klass, "copy", RUBY_METHOD_FUNC(rb_copy), 0);
+  rb_define_method(rb_klass, "clear", RUBY_METHOD_FUNC(rb_clear), 0);
+  rb_define_method(rb_klass, "clear!", RUBY_METHOD_FUNC(rb_clear_bang), 0);
 
   rb_define_method(rb_klass, "normalize", RUBY_METHOD_FUNC(rb_normalize), 1);
   rb_define_method(rb_klass, "normalize!", RUBY_METHOD_FUNC(rb_normalize_bang), 1);
@@ -54,9 +60,15 @@ define_ruby_class()
 VALUE
 rb_allocate(VALUE klass)
 {
-  // not yet
-  return Qnil;
+  //return OPENCV_OBJECT(klass, 0);
 }
+
+/*
+VALUE
+rb_initialize(int argc, VALUE argv, VALUE self)
+{
+}
+*/
 
 /*
  * call-seq:
@@ -130,6 +142,19 @@ rb_copy(VALUE self)
   CvHistogram *hist = CVHISTOGRAM(dest);
   cvCopyHist(CVHISTOGRAM(self), &hist);
   return dest;
+}
+
+/*
+ * call-seq:
+ *   clear
+ *
+ * Return histogram that sets all histogram bins to 0 in case of dense histogram and removes all histogram bins in case of sparse array.
+ */
+VALUE
+rb_clear(VALUE self)
+{
+  cvClearHist(CVHISTOGRAM(rb_copy(self)));
+  return self;
 }
 
 /*

@@ -1,6 +1,6 @@
-#!/usr/bin/env ruby
+#!/bin/env ruby
 # convexhull.rb
-require "rubygems"
+gem "opencv"
 require "opencv"
 require "pp"
 include OpenCV

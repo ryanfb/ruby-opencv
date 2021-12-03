@@ -33,6 +33,7 @@ VALUE rb_empty_q(VALUE self);
 VALUE rb_aref(VALUE self, VALUE index);
 VALUE rb_first(VALUE self);
 VALUE rb_last(VALUE self);
+VALUE rb_index(VALUE self, VALUE object);
 VALUE rb_h_prev(VALUE self);
 VALUE rb_h_next(VALUE self);
 VALUE rb_v_prev(VALUE self);
@@ -43,12 +44,15 @@ VALUE rb_unshift(VALUE self, VALUE args);
 VALUE rb_shift(VALUE self);
 VALUE rb_each(VALUE self);
 VALUE rb_each_index(VALUE self);
+VALUE rb_each_with_index(VALUE self);
 VALUE rb_insert(VALUE self, VALUE index, VALUE object);
 VALUE rb_remove(VALUE self, VALUE index);
 VALUE rb_clear(VALUE self);
+VALUE rb_clone(VALUE self);
 
 VALUE new_object(CvSeq *seq, VALUE klass);
 VALUE new_object(CvSeq *seq, VALUE klass, VALUE storage);
+//VALUE new_object(CvSeq *seq, VALUE storage, VALUE klass);
 VALUE new_sequence(VALUE klass, CvSeq *seq, VALUE element_klass, VALUE storage);
 VALUE auto_extend(VALUE object);
 

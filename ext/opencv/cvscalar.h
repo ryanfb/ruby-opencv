@@ -52,10 +52,10 @@ VALUE_TO_CVSCALAR(VALUE object)
 {
   if(FIXNUM_P(object))
     return cvScalarAll(FIX2INT(object));
-  return cvScalar(NUM2DBL(rb_funcall(object, rb_intern("[]"), 1, INT2FIX(0))),
-                  NUM2DBL(rb_funcall(object, rb_intern("[]"), 1, INT2FIX(1))),
-                  NUM2DBL(rb_funcall(object, rb_intern("[]"), 1, INT2FIX(2))),
-                  NUM2DBL(rb_funcall(object, rb_intern("[]"), 1, INT2FIX(3))));
+  return cvScalar(NUM2INT(rb_funcall(object, rb_intern("[]"), 1, INT2FIX(0))),
+                  NUM2INT(rb_funcall(object, rb_intern("[]"), 1, INT2FIX(1))),
+                  NUM2INT(rb_funcall(object, rb_intern("[]"), 1, INT2FIX(2))),
+                  NUM2INT(rb_funcall(object, rb_intern("[]"), 1, INT2FIX(3))));
 }
 
 __NAMESPACE_END_OPENCV

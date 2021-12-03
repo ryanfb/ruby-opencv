@@ -42,9 +42,9 @@ define_ruby_class()
   rb_define_alloc_func(rb_klass, rb_allocate);
   rb_define_method(rb_klass, "center", RUBY_METHOD_FUNC(rb_center), 0);
   rb_define_method(rb_klass, "radius", RUBY_METHOD_FUNC(rb_radius), 0);
-  rb_define_method(rb_klass, "[]", RUBY_METHOD_FUNC(rb_aref), 1);
+
+  //rb_define_method(rb_klass, "to_s", RUBY_METHOD_FUNC(rb_to_s), 0);
   rb_define_method(rb_klass, "to_ary", RUBY_METHOD_FUNC(rb_to_ary), 0);
-  rb_define_alias(rb_klass, "to_a", "to_ary");
 }
 
 VALUE
@@ -70,32 +70,6 @@ VALUE
 rb_radius(VALUE self)
 {
   return rb_float_new(CVCIRCLE32F(self)->radius);
-}
-
-/*
- * call-seq:
- *   [<i>index</i>]
- *
- * Return value of <i>index</i> dimension.
- */
-VALUE
-rb_aref(VALUE self, VALUE index)
-{
-  switch (NUM2INT(index)) {
-  case 0:
-    return DBL2NUM(CVCIRCLE32F(self)->center.x);
-    break;
-  case 1:
-    return DBL2NUM(CVCIRCLE32F(self)->center.y);
-    break;
-  case 2:
-    return DBL2NUM(CVCIRCLE32F(self)->radius);
-    break;
-  default:
-    rb_raise(rb_eIndexError, "index should be 0...3");
-    break;
-  }
-  return Qnil;
 }
 
 VALUE

@@ -24,13 +24,9 @@ void define_ruby_class();
 
 VALUE rb_allocate(VALUE klass);
 
-VALUE rb_initialize(int argc, VALUE *argv, VALUE self);
 VALUE rb_center(VALUE self);
-VALUE rb_set_center(VALUE self, VALUE value);
 VALUE rb_size(VALUE self);
-VALUE rb_set_size(VALUE self, VALUE value);
 VALUE rb_angle(VALUE self);
-VALUE rb_set_angle(VALUE self, VALUE value);
 VALUE rb_points(VALUE self);
 
 VALUE new_object();

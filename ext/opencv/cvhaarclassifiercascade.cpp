@@ -78,7 +78,7 @@ rb_load(VALUE klass, VALUE path)
 VALUE
 rb_save(VALUE self, VALUE path)
 {
-  rb_raise(rb_eNotImpError, "");
+  rb_raise(rb_eNotImpError, "not yet.");
 }
 
 /*

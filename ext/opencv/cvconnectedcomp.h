@@ -35,9 +35,7 @@ VALUE new_object(CvConnectedComp comp);
 
 __NAMESPACE_END_CVCONNECTEDCOMP
 
-inline CvConnectedComp*
-CVCONNECTEDCOMP(VALUE object)
-{
+inline CvConnectedComp *CVCONNECTEDCOMP(VALUE object){
   CvConnectedComp *ptr;
   Data_Get_Struct(object, CvConnectedComp, ptr);
   return ptr;

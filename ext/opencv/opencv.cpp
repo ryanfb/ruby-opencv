@@ -58,7 +58,7 @@ void
 mark_root_object(void *ptr)
 {
   VALUE value;
-  if (ptr && st_lookup(root_table, (st_data_t)ptr, (st_data_t*)&value)) {
+  if(ptr && st_lookup(root_table, (st_data_t)ptr, (st_data_t*)&value)){      
     rb_gc_mark(value);
   }
 }
@@ -70,7 +70,7 @@ VALUE
 lookup_root_object(void *ptr)
 {
   VALUE value = 0;
-  if (ptr)
+  if(ptr)
     st_lookup(root_table, (st_data_t)ptr, (st_data_t*)&value);
   return value;
 }
@@ -99,7 +99,7 @@ unresist_object(void *ptr)
 void
 free_object(void *ptr)
 {
-  if (ptr) {
+  if(ptr){      
     unresist_object(ptr);
     cvFree(&ptr);
   }
@@ -111,21 +111,9 @@ free_object(void *ptr)
 void
 release_object(void *ptr)
 {
-  if (ptr) {
+  if(ptr){
     unresist_object(ptr);
     cvRelease(&ptr);
-  }
-}
-
-/*
- * Release IplConvKernel object from memory and delete from hashtable.
- */
-void
-release_iplconvkernel_object(void *ptr)
-{
-  if (ptr) {
-    unresist_object(ptr);
-    cvReleaseStructuringElement((IplConvKernel**)(&ptr));
   }
 }
 
@@ -150,7 +138,7 @@ error_callback(int status,
                void *user_data)
 {
   int error_code = (CvStatus)cvGetErrStatus();
-  if (error_code) {
+  if(error_code){
     OPENCV_RSTERR(); // = CV_StsOk
     rb_warn("OpenCV error code (%d) : %s (%d in %s)", error_code, function_name, line, file_name);
     rb_raise(mCvError::by_code(error_code), "%s", error_message);
@@ -161,7 +149,7 @@ error_callback(int status,
 void
 define_ruby_module()
 {
-  if (rb_module)
+  if(rb_module)
     return;
   rb_module = rb_define_module("OpenCV");
   
@@ -180,88 +168,6 @@ define_ruby_module()
   /* 6: 64bit floating-point */
   rb_define_const(rb_module, "CV_64F", INT2FIX(CV_64F));
   
-  /* Color types of loaded images */
-  rb_define_const(rb_module, "CV_LOAD_IMAGE_UNCHANGED", INT2FIX(CV_LOAD_IMAGE_UNCHANGED));
-  rb_define_const(rb_module, "CV_LOAD_IMAGE_GRAYSCALE", INT2FIX(CV_LOAD_IMAGE_GRAYSCALE));
-  rb_define_const(rb_module, "CV_LOAD_IMAGE_COLOR", INT2FIX(CV_LOAD_IMAGE_COLOR));
-  rb_define_const(rb_module, "CV_LOAD_IMAGE_ANYDEPTH", INT2FIX(CV_LOAD_IMAGE_ANYDEPTH));
-  rb_define_const(rb_module, "CV_LOAD_IMAGE_ANYCOLOR", INT2FIX(CV_LOAD_IMAGE_ANYCOLOR));
-
-  /* Types of morphological operations */
-  rb_define_const(rb_module, "CV_MOP_OPEN", INT2FIX(CV_MOP_OPEN));
-  rb_define_const(rb_module, "CV_MOP_CLOSE", INT2FIX(CV_MOP_CLOSE));
-  rb_define_const(rb_module, "CV_MOP_GRADIENT", INT2FIX(CV_MOP_GRADIENT));
-  rb_define_const(rb_module, "CV_MOP_TOPHAT", INT2FIX(CV_MOP_TOPHAT));
-  rb_define_const(rb_module, "CV_MOP_BLACKHAT", INT2FIX(CV_MOP_BLACKHAT));
-
-  /* Shape of the structuring elements */
-  rb_define_const(rb_module, "CV_SHAPE_RECT", INT2FIX(CV_SHAPE_RECT));
-  rb_define_const(rb_module, "CV_SHAPE_CROSS", INT2FIX(CV_SHAPE_CROSS));
-  rb_define_const(rb_module, "CV_SHAPE_ELLIPSE", INT2FIX(CV_SHAPE_ELLIPSE));
-  rb_define_const(rb_module, "CV_SHAPE_CUSTOM", INT2FIX(CV_SHAPE_CUSTOM));
-
-  /* Types of the smoothing */
-  rb_define_const(rb_module, "CV_BLUR_NO_SCALE", INT2FIX(CV_BLUR_NO_SCALE));
-  rb_define_const(rb_module, "CV_BLUR", INT2FIX(CV_BLUR));
-  rb_define_const(rb_module, "CV_GAUSSIAN", INT2FIX(CV_GAUSSIAN));
-  rb_define_const(rb_module, "CV_MEDIAN", INT2FIX(CV_MEDIAN));
-  rb_define_const(rb_module, "CV_BILATERAL", INT2FIX(CV_BILATERAL));
-
-  /* Thresholding types */
-  rb_define_const(rb_module, "CV_THRESH_BINARY", INT2FIX(CV_THRESH_BINARY));
-  rb_define_const(rb_module, "CV_THRESH_BINARY_INV", INT2FIX(CV_THRESH_BINARY_INV));
-  rb_define_const(rb_module, "CV_THRESH_TRUNC", INT2FIX(CV_THRESH_TRUNC));
-  rb_define_const(rb_module, "CV_THRESH_TOZERO", INT2FIX(CV_THRESH_TOZERO));
-  rb_define_const(rb_module, "CV_THRESH_TOZERO_INV", INT2FIX(CV_THRESH_TOZERO_INV));
-  rb_define_const(rb_module, "CV_THRESH_OTSU", INT2FIX(CV_THRESH_OTSU));
-
-  /* Retrieval mode */
-  rb_define_const(rb_module, "CV_RETR_EXTERNAL", INT2FIX(CV_RETR_EXTERNAL));
-  rb_define_const(rb_module, "CV_RETR_LIST", INT2FIX(CV_RETR_LIST));
-  rb_define_const(rb_module, "CV_RETR_CCOMP", INT2FIX(CV_RETR_CCOMP));
-  rb_define_const(rb_module, "CV_RETR_TREE", INT2FIX(CV_RETR_TREE));
-  
-  /* Approximation method */
-  rb_define_const(rb_module, "CV_CHAIN_CODE", INT2FIX(CV_CHAIN_CODE));
-  rb_define_const(rb_module, "CV_CHAIN_APPROX_NONE", INT2FIX(CV_CHAIN_APPROX_NONE));
-  rb_define_const(rb_module, "CV_CHAIN_APPROX_SIMPLE", INT2FIX(CV_CHAIN_APPROX_SIMPLE));
-  rb_define_const(rb_module, "CV_CHAIN_APPROX_TC89_L1", INT2FIX(CV_CHAIN_APPROX_TC89_L1));
-  rb_define_const(rb_module, "CV_CHAIN_APPROX_TC89_KCOS", INT2FIX(CV_CHAIN_APPROX_TC89_KCOS));
-  rb_define_const(rb_module, "CV_LINK_RUNS", INT2FIX(CV_LINK_RUNS));
-
-  /* Termination criteria for iterative algorithms */
-  rb_define_const(rb_module, "CV_TERMCRIT_ITER", INT2FIX(CV_TERMCRIT_ITER));
-  rb_define_const(rb_module, "CV_TERMCRIT_NUMBER", INT2FIX(CV_TERMCRIT_NUMBER));
-  rb_define_const(rb_module, "CV_TERMCRIT_EPS", INT2FIX(CV_TERMCRIT_EPS));
-
-  /* Hough transform method */
-  rb_define_const(rb_module, "CV_HOUGH_STANDARD", INT2FIX(CV_HOUGH_STANDARD));
-  rb_define_const(rb_module, "CV_HOUGH_PROBABILISTIC", INT2FIX(CV_HOUGH_PROBABILISTIC));
-  rb_define_const(rb_module, "CV_HOUGH_MULTI_SCALE", INT2FIX(CV_HOUGH_MULTI_SCALE));
-  rb_define_const(rb_module, "CV_HOUGH_GRADIENT", INT2FIX(CV_HOUGH_GRADIENT));
-
-  /* Inpaint method */
-  rb_define_const(rb_module, "CV_INPAINT_NS", INT2FIX(CV_INPAINT_NS));
-  rb_define_const(rb_module, "CV_INPAINT_TELEA", INT2FIX(CV_INPAINT_TELEA));
-
-  /* Match template method */
-  rb_define_const(rb_module, "CV_TM_SQDIFF", INT2FIX(CV_TM_SQDIFF));
-  rb_define_const(rb_module, "CV_TM_SQDIFF_NORMED", INT2FIX(CV_TM_SQDIFF_NORMED));
-  rb_define_const(rb_module, "CV_TM_CCORR", INT2FIX(CV_TM_CCORR));
-  rb_define_const(rb_module, "CV_TM_CCORR_NORMED", INT2FIX(CV_TM_CCORR_NORMED));
-  rb_define_const(rb_module, "CV_TM_CCOEFF", INT2FIX(CV_TM_CCOEFF));
-  rb_define_const(rb_module, "CV_TM_CCOEFF_NORMED", INT2FIX(CV_TM_CCOEFF_NORMED));
-
-  /* Comparison method */
-  rb_define_const(rb_module, "CV_CONTOURS_MATCH_I1", INT2FIX(CV_CONTOURS_MATCH_I1));
-  rb_define_const(rb_module, "CV_CONTOURS_MATCH_I2", INT2FIX(CV_CONTOURS_MATCH_I2));
-  rb_define_const(rb_module, "CV_CONTOURS_MATCH_I3", INT2FIX(CV_CONTOURS_MATCH_I3));
-
-  /* Fundamental matrix computing methods */
-  rb_define_const(rb_module, "CV_FM_7POINT", INT2FIX(CV_FM_7POINT));
-  rb_define_const(rb_module, "CV_FM_8POINT", INT2FIX(CV_FM_8POINT));
-  rb_define_const(rb_module, "CV_FM_RANSAC", INT2FIX(CV_FM_RANSAC));
-  rb_define_const(rb_module, "CV_FM_LMEDS", INT2FIX(CV_FM_LMEDS));
   
   VALUE inversion_method = rb_hash_new();
   /* {:lu, :svd, :svd_sym(:svd_symmetric)}: Inversion method */
@@ -291,15 +197,8 @@ define_ruby_module()
   /* {:fill_outliers, :inverse_map}: Warp affine optional flags */
   rb_define_const(rb_module, "WARP_FLAG", warp_flag);
   RESIST_CVMETHOD(warp_flag, "fill_outliers", CV_WARP_FILL_OUTLIERS);
-  RESIST_CVMETHOD(warp_flag, "inverse_map", CV_WARP_INVERSE_MAP);
-
-  VALUE homography_calc_method = rb_hash_new();
-  /* {:all, :ransac, :lmeds}: Methods used to computed homography matrix */
-  rb_define_const(rb_module, "HOMOGRAPHY_CALC_METHOD", homography_calc_method);
-  RESIST_CVMETHOD(homography_calc_method, "all", 0);
-  RESIST_CVMETHOD(homography_calc_method, "ransac", CV_RANSAC);
-  RESIST_CVMETHOD(homography_calc_method, "lmeds", CV_LMEDS);
-
+  RESIST_CVMETHOD(warp_flag, "inverse_map", CV_WARP_INVERSE_MAP);    
+  
   VALUE depth = rb_hash_new();
   /* {:cv8u, :cv8s, :cv16u, :cv16s, :cv32s, :cv32f, :cv64f}: Depth of each pixel. */
   rb_define_const(rb_module, "DEPTH", depth);
@@ -314,16 +213,8 @@ define_ruby_module()
   VALUE connectivity = rb_hash_new();
   /* {:aa(:anti_alias)}: Determined by the closeness of pixel values */
   rb_define_const(rb_module, "CONNECTIVITY", connectivity);
-  RESIST_CVMETHOD(connectivity, "aa", CV_AA);
-  RESIST_CVMETHOD(connectivity, "anti_alias", CV_AA);
-
-  VALUE structuring_element_shape = rb_hash_new();
-  /* {:rect, :cross, :ellipse, :custom}: Shape of the structuring elements */
-  rb_define_const(rb_module, "STRUCTURING_ELEMENT_SHAPE", structuring_element_shape);
-  RESIST_CVMETHOD(structuring_element_shape, "rect", CV_SHAPE_RECT);
-  RESIST_CVMETHOD(structuring_element_shape, "cross", CV_SHAPE_CROSS);
-  RESIST_CVMETHOD(structuring_element_shape, "ellipse", CV_SHAPE_ELLIPSE);
-  RESIST_CVMETHOD(structuring_element_shape, "custom", CV_SHAPE_CUSTOM);
+  RESIST_CVMETHOD(depth, "aa", CV_AA);
+  RESIST_CVMETHOD(depth, "anti_alias", CV_AA);
 
   VALUE retrieval_mode = rb_hash_new();
   /* {:external, :list, :ccomp, :tree}: Retrieval mode */
@@ -357,54 +248,8 @@ define_ruby_module()
   RESIST_CVMETHOD(match_template_method, "ccoeff", CV_TM_CCOEFF);
   RESIST_CVMETHOD(match_template_method, "ccoeff_normed", CV_TM_CCOEFF_NORMED);
 
-  VALUE morphological_operation = rb_hash_new();
-  /* {:open, :close, :gradient, :tophat, :blackhat}: Types of morphological operations */
-  rb_define_const(rb_module, "MORPHOLOGICAL_OPERATION", morphological_operation);
-  RESIST_CVMETHOD(morphological_operation, "open", CV_MOP_OPEN);
-  RESIST_CVMETHOD(morphological_operation, "close", CV_MOP_CLOSE);
-  RESIST_CVMETHOD(morphological_operation, "gradient", CV_MOP_GRADIENT);
-  RESIST_CVMETHOD(morphological_operation, "tophat", CV_MOP_TOPHAT);
-  RESIST_CVMETHOD(morphological_operation, "blackhat", CV_MOP_BLACKHAT);
-
-  VALUE smoothing_type = rb_hash_new();
-  /* {:blur_no_scale, :blur, :gaussian, :median, :bilateral}: Types of smoothing */
-  rb_define_const(rb_module, "SMOOTHING_TYPE", smoothing_type);
-  RESIST_CVMETHOD(smoothing_type, "blur_no_scale", CV_BLUR_NO_SCALE);
-  RESIST_CVMETHOD(smoothing_type, "blur", CV_BLUR);
-  RESIST_CVMETHOD(smoothing_type, "gaussian", CV_GAUSSIAN);
-  RESIST_CVMETHOD(smoothing_type, "median", CV_MEDIAN);
-  RESIST_CVMETHOD(smoothing_type, "bilateral", CV_BILATERAL);
-
-  VALUE threshold_type = rb_hash_new();
-  /* {:binary, :binary_inv, :trunc, :tozero, :tozero_inv, :otsu} : Thresholding types */
-  rb_define_const(rb_module, "THRESHOLD_TYPE", threshold_type);
-  RESIST_CVMETHOD(threshold_type, "binary", CV_THRESH_BINARY);
-  RESIST_CVMETHOD(threshold_type, "binary_inv", CV_THRESH_BINARY_INV);
-  RESIST_CVMETHOD(threshold_type, "trunc", CV_THRESH_TRUNC);
-  RESIST_CVMETHOD(threshold_type, "tozero", CV_THRESH_TOZERO);
-  RESIST_CVMETHOD(threshold_type, "tozero_inv", CV_THRESH_TOZERO_INV);
-  RESIST_CVMETHOD(threshold_type, "otsu", CV_THRESH_OTSU);
-
-  VALUE hough_transform_method = rb_hash_new();
-  /* {:standard, :probabilistic, :multi_scale} : Hough transform method */
-  rb_define_const(rb_module, "HOUGH_TRANSFORM_METHOD", hough_transform_method);
-  RESIST_CVMETHOD(hough_transform_method, "standard", CV_HOUGH_STANDARD);
-  RESIST_CVMETHOD(hough_transform_method, "probabilistic", CV_HOUGH_PROBABILISTIC);
-  RESIST_CVMETHOD(hough_transform_method, "multi_scale", CV_HOUGH_MULTI_SCALE);
-  RESIST_CVMETHOD(hough_transform_method, "gradient", CV_HOUGH_GRADIENT);
-
-  VALUE inpaint_method = rb_hash_new();
-  /* {:ns, :telea} : Inpaint method */
-  rb_define_const(rb_module, "INPAINT_METHOD", inpaint_method);
-  RESIST_CVMETHOD(inpaint_method, "ns", CV_INPAINT_NS);
-  RESIST_CVMETHOD(inpaint_method, "telea", CV_INPAINT_TELEA);
-
-  VALUE comparison_method = rb_hash_new();
-  /* Comparison method */
-  rb_define_const(rb_module, "COMPARISON_METHOD", comparison_method);
-  RESIST_CVMETHOD(comparison_method, "i1", CV_CONTOURS_MATCH_I1);
-  RESIST_CVMETHOD(comparison_method, "i2", CV_CONTOURS_MATCH_I2);
-  RESIST_CVMETHOD(comparison_method, "i3", CV_CONTOURS_MATCH_I3);
+  VALUE log_polar_method = rb_funcall(interpolation_method, rb_intern("merge"), 1, warp_flag);
+  rb_define_const(rb_module, "LOG_POLAR_METHOD", log_polar_method);
 
   /* color convert methods */
   rb_define_module_function(rb_module, "BGR2BGRA", RUBY_METHOD_FUNC(rb_BGR2BGRA), 1);
@@ -592,7 +437,6 @@ extern "C"{
     mOpenCV::cCvFont::define_ruby_class();
     mOpenCV::cIplConvKernel::define_ruby_class();
     mOpenCV::cCvMoments::define_ruby_class();
-    mOpenCV::cCvHuMoments::define_ruby_class();
     mOpenCV::cCvConvexityDefect::define_ruby_class();
 
     mOpenCV::cCvMemStorage::define_ruby_class();
@@ -633,7 +477,7 @@ extern "C"{
 
 #ifdef HAVE_ML_H
     /* feature support.
-       mOpenCV::mMachineLearning::define_ruby_module();
+      mOpenCV::mMachineLearning::define_ruby_module();
     */
 #endif
   }

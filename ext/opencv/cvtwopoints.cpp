@@ -47,9 +47,7 @@ define_ruby_class()
   rb_define_alloc_func(rb_klass, rb_allocate);
   rb_define_method(rb_klass, "point1", RUBY_METHOD_FUNC(rb_point1), 0);
   rb_define_method(rb_klass, "point2", RUBY_METHOD_FUNC(rb_point2), 0);
-  rb_define_method(rb_klass, "[]", RUBY_METHOD_FUNC(rb_aref), 1);
   rb_define_method(rb_klass, "to_ary", RUBY_METHOD_FUNC(rb_to_ary), 0);
-  rb_define_alias(rb_klass, "to_a", "to_ary");
 }
 
 VALUE
@@ -82,29 +80,6 @@ VALUE
 rb_point2(VALUE self)
 {
   return cCvPoint::new_object(CVTWOPOINTS(self)->p2);
-}
-
-/*
- * call-seq:
- *   [<i>index</i>]
- *
- * Return value of <i>index</i> dimension.
- */
-VALUE
-rb_aref(VALUE self, VALUE index)
-{
-  switch (NUM2INT(index)) {
-  case 0:
-    return cCvPoint::new_object(CVTWOPOINTS(self)->p1);
-    break;
-  case 1:
-    return cCvPoint::new_object(CVTWOPOINTS(self)->p2);
-    break;
-  default:
-    rb_raise(rb_eIndexError, "index should be 0...2");
-    break;
-  }
-  return Qnil;
 }
 
 /*

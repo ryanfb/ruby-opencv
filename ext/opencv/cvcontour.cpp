@@ -22,9 +22,6 @@ __NAMESPACE_BEGIN_CVCONTOUR
 #define APPROX_POLY_ACCURACY(op) NUM2DBL(rb_hash_aref(op, ID2SYM(rb_intern("accuracy"))))
 #define APPROX_POLY_RECURSIVE(op) ({VALUE _recursive = rb_hash_aref(op, ID2SYM(rb_intern("recursive"))); NIL_P(_recursive) ? 0 : _recursive == Qfalse ? 0 : 1;})
 
-VALUE rb_allocate(VALUE klass);
-void cvcontour_free(void *ptr);
-
 VALUE rb_klass;
 
 VALUE
@@ -54,9 +51,7 @@ define_ruby_class()
   rb_klass = rb_define_class_under(opencv, "CvContour", cvseq);
   rb_include_module(rb_klass, curve);
   rb_include_module(rb_klass, pointset);
-
-  rb_define_alloc_func(rb_klass, rb_allocate);
-
+  
   VALUE approx_option = rb_hash_new();
   rb_define_const(rb_klass, "APPROX_OPTION", approx_option);
   rb_hash_aset(approx_option, ID2SYM(rb_intern("method")), INT2FIX(CV_POLY_APPROX_DP));
@@ -74,40 +69,22 @@ define_ruby_class()
   rb_define_method(rb_klass, "create_tree", RUBY_METHOD_FUNC(rb_create_tree), -1);
   rb_define_method(rb_klass, "in?", RUBY_METHOD_FUNC(rb_in_q), 1);
   rb_define_method(rb_klass, "measure_distance", RUBY_METHOD_FUNC(rb_measure_distance), 1);
-  rb_define_method(rb_klass, "point_polygon_test", RUBY_METHOD_FUNC(rb_point_polygon_test), 2);
-}
-
-VALUE
-rb_allocate(VALUE klass)
-{
-  CvContour *ptr = ALLOC(CvContour);
-  return Data_Wrap_Struct(klass, 0, cvcontour_free, ptr);
-}
-
-void
-cvcontour_free(void *ptr)
-{
-  if (ptr) {
-    CvContour *contour = (CvContour*)ptr;
-    if (contour->storage)
-      cvReleaseMemStorage(&(contour->storage));
-  }
 }
 
 VALUE
 rb_initialize(int argc, VALUE *argv, VALUE self)
 {
-  CvMemStorage *storage;
-  VALUE storage_value;
-  if (rb_scan_args(argc, argv, "01", &storage_value) > 0) {
-    storage_value = CHECK_CVMEMSTORAGE(storage_value);
-    storage = CVMEMSTORAGE(storage_value);
-  }
-  else
-    storage = cvCreateMemStorage(0);
+  /*
+  VALUE storage;
+  CvSeq *seq = 0;
+  rb_scan_args(argc, argv, "01", &storage);
   
-  DATA_PTR(self) = (CvContour*)cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvContour),
-					   sizeof(CvPoint), storage);
+  storage = CHECK_CVMEMSTORAGE(storage);
+  seq = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint), CVMEMSTORAGE(storage));
+  DATA_PTR(self) = seq;
+  resist_root_object(seq, storage);
+  st_insert(cCvSeq::seqblock_klass, (st_data_t)seq, (st_data_t)klass);
+  */
   return self;
 }
 
@@ -207,7 +184,7 @@ rb_create_tree(int argc, VALUE *argv, VALUE self)
  * call-seq:
  *    in?(<i>point</i>) -> true or nil or false
  *
- * Determines whether the <i>point</i> is inside contour(true), outside(false) or lies on an edge(nil).
+ * Determines whether the <i>point</i> is inside contour(true), outside(false), or lies on an edge(nil).
  */
 VALUE
 rb_in_q(VALUE self, VALUE point)
@@ -228,39 +205,12 @@ rb_measure_distance(VALUE self, VALUE point)
   return rb_float_new(cvPointPolygonTest(CVARR(self), VALUE_TO_CVPOINT2D32F(point), 1));
 }
 
-/*
- * call-seq:
- *    point_polygon_test(<i>point, measure_dist</i>) -> float
- *
- * Determines whether the point is inside a contour, outside, or lies on an edge (or coinsides with a vertex).
- * It returns positive, negative or zero value, correspondingly. When measure_dist = false or 0, the return value is +1, -1 and 0, respectively. When measure_dist = true or 1, it is a signed distance between the point and the nearest contour edge.
- */
-VALUE
-rb_point_polygon_test(VALUE self, VALUE point, VALUE measure_dist)
-{
-  int measure_dist_flag;
-  double dist;
-  
-  if (measure_dist == Qtrue)
-    measure_dist_flag = 1;
-  else if (measure_dist == Qfalse)
-    measure_dist_flag = 0;
-  else
-    measure_dist_flag = NUM2INT(measure_dist);
-
-  dist = cvPointPolygonTest(CVARR(self), VALUE_TO_CVPOINT2D32F(point), measure_dist_flag);
-
-  /* cvPointPolygonTest returns 100, -100 or 0 when measure_dist = 0 */
-  if ((!measure_dist_flag) && ((int)dist) != 0)
-    dist = (dist > 0) ? 1 : -1;
-
-  return rb_float_new(dist);
-}
 
 VALUE new_object()
 {  
-  VALUE object = rb_allocate(rb_klass);
-  rb_initialize(0, NULL, object);
+  VALUE storage = cCvMemStorage::new_object();
+  CvSeq *seq = cvCreateSeq(CV_SEQ_CONTOUR, sizeof(CvContour), sizeof(CvPoint), CVMEMSTORAGE(storage));
+  VALUE object = cCvSeq::new_sequence(cCvContour::rb_class(), seq, cCvPoint::rb_class(), storage);
   return object;
 }
 

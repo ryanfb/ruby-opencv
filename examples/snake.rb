@@ -1,6 +1,7 @@
-#!/usr/bin/env ruby
+#!/bin/env ruby
 # snake.rb
 require "rubygems"
+gem "opencv"
 require "opencv"
 include OpenCV
 

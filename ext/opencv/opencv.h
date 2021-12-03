@@ -6,7 +6,7 @@
 
     Copyright (C) 2005-2007 Masakazu Yonekura
 
-************************************************************/
+ ************************************************************/
 #ifndef RUBY_OPENCV_H
 #define RUBY_OPENCV_H
 
@@ -15,16 +15,12 @@
 
 /* include headers */
 #include <ruby.h>
-#ifdef HAVE_RUBY_VERSION_H
-#include <ruby/version.h>
-#else
-#include <version.h>
-#endif
 
 #ifdef RUBY_WIN32_H
 #ifdef write
 #undef write
 #endif // write
+#pragma warning(disable : 4819)
 #endif // RUBY_WIN32_H
 
 #ifndef ANYARGS
@@ -33,9 +29,9 @@
 
 extern "C"{
 #ifdef HAVE_RUBY_ST_H
-#include <ruby/st.h>
+# include "ruby/st.h"
 #else
-#include <st.h>
+# include "st.h"
 #endif
 
 #ifdef HAVE_CALLBACK_H
@@ -58,26 +54,12 @@ extern "C"{
 #include <assert.h>
 
 // OpenCV headers
-#include "opencv2/core/core_c.h"
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc/imgproc_c.h"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/video/tracking.hpp"
-#include "opencv2/video/background_segm.hpp"
-#include "opencv2/features2d/features2d.hpp"
-#include "opencv2/flann/flann.hpp"
-#include "opencv2/calib3d/calib3d.hpp"
-#include "opencv2/objdetect/objdetect.hpp"
-#include "opencv2/legacy/compat.hpp"
-#include "opencv2/legacy/legacy.hpp"
-#include "opencv2/legacy/blobtrack.hpp"
-#include "opencv2/contrib/contrib.hpp"
-#include "opencv2/highgui/highgui_c.h"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/core/internal.hpp"
-
+#include <cxcore.h>
+#include <cv.h>
+#include <highgui.h>
+#include <cxmisc.h>
 #ifdef HAVE_ML_H
-#include "opencv2/ml/ml.hpp"
+#include <ml.h>
 #endif
 
 // Ruby/OpenCV headers
@@ -94,7 +76,6 @@ extern "C"{
 #include "cvfont.h"
 #include "iplconvkernel.h"
 #include "cvmoments.h"
-#include "cvhumoments.h"
 #include "cvconvexitydefect.h"
 #include "cvpoint3d32f.h"
 
@@ -149,28 +130,6 @@ extern "C"{
 
 #define maxint(a,b) ({int _a = (a), _b = (b); _a > _b ? _a : _b; })
 
-// wrapper for <= 1.8
-#ifndef RARRAY_LEN
-#define RARRAY_LEN(arg) (RARRAY(arg)->len)
-#endif
-
-#ifndef RARRAY_PTR
-#define RARRAY_PTR(arg) (RARRAY(arg)->ptr)
-#endif
-
-#ifndef RSTRING_LEN
-#define RSTRING_LEN(arg) (RSTRING(arg)->len)
-#endif
-
-#ifndef RSTRING_PTR
-#define RSTRING_PTR(arg) (RSTRING(arg)->ptr)
-#endif
-
-#ifndef DBL2NUM
-#define DBL2NUM(dbl) (rb_float_new(dbl))
-#endif
-
-
 // OpenCV module
 __NAMESPACE_BEGIN_OPENCV
 
@@ -180,7 +139,6 @@ void resist_root_object(void *ptr, VALUE root);
 void unresist_object(void *ptr);
 void free_object(void *ptr);
 void release_object(void *ptr);
-void release_iplconvkernel_object(void *ptr);
 
 VALUE rb_module_opencv();
 void define_ruby_module();
@@ -201,15 +159,9 @@ OPENCV_OBJECT(VALUE klass, void *ptr)
 }
 
 inline VALUE
-IPLCONVKERNEL_OBJECT(VALUE klass, void *ptr)
-{
-  return Data_Wrap_Struct(klass, 0, release_iplconvkernel_object, ptr);
-}
-
-inline VALUE
 GENERIC_OBJECT(VALUE klass, void *ptr)
 {
-  return Data_Wrap_Struct(klass, 0, -1, ptr);
+  return Data_Wrap_Struct(klass, 0, 0, ptr);
 }
 
 inline VALUE
@@ -245,20 +197,20 @@ CVMETHOD(const char *name, VALUE method, int ifnone = 0)
     return ifnone;
   case T_FIXNUM:
     return FIX2INT(method);
-  case T_STRING:
-    method = rb_str_intern(method);
-  case T_SYMBOL:
-    value = rb_hash_aref(rb_const_get(rb_module_opencv(), rb_intern(name)), method);
-    if(NIL_P(value)){
-      rb_warn("invalid opencv method type (see OpenCV::%s)", name);
-      return ifnone;
-    }else{
-      return FIX2INT(value);
-    }
+    case T_STRING:
+      method = rb_str_intern(method);
+    case T_SYMBOL:
+      value = rb_hash_aref(rb_const_get(rb_module_opencv(), rb_intern(name)), method);
+      if(NIL_P(value)){
+        rb_warn("invalid opencv method type (see OpenCV::%s)", name);
+        return ifnone;
+      }else{
+        return FIX2INT(value);
+      }if (rb_obj_is_kind_of(value, rb_cNumeric))
   default:
-    rb_raise(rb_eTypeError, "");
+    rb_raise(rb_eTypeError, "undefined method.");
   }
-  return ifnone;
+  return 0;
 }
 
 inline int
@@ -358,52 +310,52 @@ __NAMESPACE_END_OPENCV
 inline VALUE
 extract_options_from_args_bang(VALUE ary)
 {
-  return (RARRAY_LEN(ary) > 0 && rb_obj_is_kind_of(RARRAY_PTR(ary)[RARRAY_LEN(ary) -1], rb_cHash)) ? rb_ary_pop(ary) : rb_hash_new();
+  return (RARRAY_LEN(ary) > 0 && rb_obj_is_kind_of(RARRAY_PTR(ary)[RARRAY_LEN(ary) - 1], rb_cHash)) ? rb_ary_pop(ary) : rb_hash_new();
 }
 
 /*
-  inline VALUE
-  assert_valid_keys(VALUE keys, VALUE valid_keys)
-  {
+inline VALUE
+assert_valid_keys(VALUE keys, VALUE valid_keys)
+{
   VALUE unknown_keys = rb_funcall(keys, rb_intern("-"), 1, rb_funcall(valid_keys, rb_intern("flatten"), 0));
   if (NUM2INT(rb_funcall(unknown_keys, rb_intern("empty?"), 0)) != 0){
-  rb_raise(rb_eArgError, "Unknown key(s): %s",
-  RSTRING_PTR(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", "))));
+    rb_raise(rb_eArgError, "Unknown key(s): %s",
+             RSTRING(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", ")))->ptr);
   }
   return Qnil;  
-  }
+}
 */
-/*
-  inline void
-  assert_valid_keys(VALUE options, int n, ...){
+ /*
+inline void
+assert_valid_keys(VALUE options, int n, ...){
   va_list valid_keys;  
   if (!(n > 0)) {return;}
   VALUE unknown_keys = rb_funcall(options, rb_intern("keys"), 0);
   va_start(valid_keys, n);
   for (int i = 0; i < n; i++)
-  rb_ary_delete(unknown_keys, ID2SYM(rb_intern(va_arg(valid_keys, char*))));
-  if (RARRAY_LEN(unknown_keys) > 0)
-  rb_raise(rb_eArgError, "Unknown key(s): %s",
-  RSTRING_PTR(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", "))));
+    rb_ary_delete(unknown_keys, ID2SYM(rb_intern(va_arg(valid_keys, char*))));
+  if (RARRAY(unknown_keys)->len > 0)
+    rb_raise(rb_eArgError, "Unknown key(s): %s",
+             RSTRING(rb_funcall(unknown_keys, rb_intern("join"), 1, rb_str_new2(", ")))->ptr);
   va_end(valid_keys);
-  }
+}
 
-  inline VALUE
-  validate_option(VALUE options, const *char key, char *ifnone, int n, ...){
+inline VALUE
+validate_option(VALUE options, const *char key, char *ifnone, int n, ...){
   va_list valid_values;
   VALUE value = rb_hash_aref(options, ID2SYM(rb_intern(key)));
   if (!value || !(n > 0)) {return ifnone;}
   va_start(valid_values, n); 
   for (int i = 0; i < n; i++){    
-  if (!strcmp(StringValueCStr(value), va_arg(valid_values, char*))){
-  rb_warn("Option :%s value :%s does not defined. Default value :%s is used.", StringValueCStr(value), );
-  return ifnone;
-  }
+    if (!strcmp(StringValueCStr(value), va_arg(valid_values, char*))){
+      rb_warn("Option :%s value :%s does not defined. Default value :%s is used.", StringValueCStr(value), );
+      return ifnone;
+    }
   }
   va_end(valid_values);
   return value;
-  }
+}
 
-  #define OPTIONS(value, hash, key, default) value = ((value = rb_hash_aref(hash, ID2SYM(rb_intern(key)))) ? value : default)
-*/
+#define OPTIONS(value, hash, key, default) value = ((value = rb_hash_aref(hash, ID2SYM(rb_intern(key)))) ? value : default)
+ */
 #endif // RUBY_OPENCV_H

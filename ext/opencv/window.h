@@ -45,7 +45,8 @@ VALUE rb_set_trackbar(int argc, VALUE *argv, VALUE self);
 VALUE rb_set_mouse_callback(VALUE self);
 
 void trackbar_callback(VALUE block, va_alist ap);
-void mouse_callback(VALUE block, va_alist ap);
+//void mouse_callback(VALUE block, va_alist ap);
+void on_mouse( int event, int x, int y, int flags, void* param );
 
 __NAMESPACE_END_WINDOW
 __NAMESPACE_END_GUI

@@ -23,7 +23,6 @@ VALUE rb_class();
 void define_ruby_class();
 
 VALUE rb_compatible_q(VALUE klass, VALUE object);
-VALUE rb_max_rect(VALUE klass, VALUE rect1, VALUE rect2);
 VALUE rb_bounding(VALUE klass, VALUE points);
 
 VALUE rb_allocate(VALUE klass);
@@ -47,6 +46,8 @@ VALUE rb_bottom_left(VALUE self);
 VALUE rb_set_bottom_left(VALUE self, VALUE point);
 VALUE rb_bottom_right(VALUE self);
 VALUE rb_set_bottom_right(VALUE self, VALUE point);
+
+VALUE rb_or(VALUE self, VALUE rect);
 
 VALUE new_object(CvRect rect);
 

@@ -22,12 +22,15 @@ VALUE rb_class();
 
 void define_ruby_class();
 
+VALUE rb_initialize(int argc, VALUE *argv, VALUE self);
+
 VALUE rb_is_uniform(VALUE self);
 VALUE rb_is_sparse(VALUE self);
 VALUE rb_has_range(VALUE self);
 VALUE rb_dims(VALUE self);
 VALUE rb_bins(VALUE self);
 
+VALUE rb_copy(VALUE self);
 VALUE rb_clear(VALUE self);
 VALUE rb_clear_bang(VALUE self);
 

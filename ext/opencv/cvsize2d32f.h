@@ -31,9 +31,6 @@ VALUE rb_set_width(VALUE self, VALUE width);
 VALUE rb_height(VALUE self);
 VALUE rb_set_height(VALUE self, VALUE height);
 
-VALUE rb_to_s(VALUE self);
-VALUE rb_to_ary(VALUE self);
-
 VALUE new_object(CvSize2D32f size);
 
 __NAMESPACE_END_CVSIZE2D32F

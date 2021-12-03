@@ -66,7 +66,6 @@ define_ruby_class()
   
   rb_define_method(rb_klass, "to_s", RUBY_METHOD_FUNC(rb_to_s), 0);
   rb_define_method(rb_klass, "to_ary", RUBY_METHOD_FUNC(rb_to_ary), 0);
-  rb_define_alias(rb_klass, "to_a", "to_ary");
 
   rb_define_const(rb_klass, "Black", cCvScalar::new_object(cvScalar(0x0,0x0,0x0)));
   rb_define_const(rb_klass, "Silver", cCvScalar::new_object(cvScalar(0x0c,0x0c,0x0c)));
@@ -182,7 +181,7 @@ rb_to_s(VALUE self)
 {
   const int i = 6;
   VALUE str[i];
-  str[0] = rb_str_new2("<%s:%g,%g,%g,%g>");
+  str[0] = rb_str_new2("<%s:%d,%d,%d,%d>");
   str[1] = rb_str_new2(rb_class2name(CLASS_OF(self)));
   str[2] = rb_aref(self, INT2FIX(0));
   str[3] = rb_aref(self, INT2FIX(1));
